@@ -1,0 +1,14 @@
+# Конфиденциальные данные
+.env
+
+# Бинарные файлы
+main
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Зависимости
+vendor/
+node_modules/

@@ -2,29 +2,30 @@ package handler
 
 import (
 	"encoding/json"
-	"luxetravel/internal/model"
-	"luxetravel/internal/repository"
 	"net/http"
 	"time"
+
+	"luxetravel/internal/model"
+	"luxetravel/internal/repository"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
-var jwtSecret = []byte("super_secret_key_12345")
-
 type AuthHandler struct {
 	Repo repository.UserRepository
+	JWTSecret string
 }
 
-func NewAuthHandler(repo repository.UserRepository) *AuthHandler {
+func NewAuthHandler(repo repository.UserRepository, secret string) *AuthHandler {
 	return &AuthHandler{
 		Repo: repo,
+		JWTSecret: secret,
 	}
 }
 
-func generateToken(userID uuid.UUID, role string) (string, error) {
+func (h *AuthHandler) generateToken(userID uuid.UUID, role string) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id": userID.String(),
 		"role":    role,
@@ -33,7 +34,7 @@ func generateToken(userID uuid.UUID, role string) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	return token.SignedString(jwtSecret)
+	return token.SignedString([]byte(h.JWTSecret))
 }
 
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
@@ -96,15 +97,15 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := generateToken(user.ID, user.Role)
-    if err != nil {
-        http.Error(w, "Ошибка генерации токена", http.StatusInternalServerError)
-        return
-    }
+	token, err := h.generateToken(user.ID, user.Role)
+	if err != nil {
+		http.Error(w, "Ошибка генерации токена", http.StatusInternalServerError)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
-    json.NewEncoder(w).Encode(map[string]string{
-        "token":   token,
-        "message": "Welcome!",
-    })
+	json.NewEncoder(w).Encode(map[string]string{
+		"token":   token,
+		"message": "Welcome!",
+	})
 }

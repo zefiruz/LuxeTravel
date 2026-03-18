@@ -7,53 +7,56 @@ import (
 )
 
 type User struct {
-	ID           uuid.UUID `json:"id"`
-	Login        string    `json:"login"`
-	PasswordHash string    `json:"-"`
-	Role         string    `json:"role"`
+	ID           uuid.UUID `gorm:"type:uuid;primaryKey"`
+	Login        string    `gorm:"uniqueIndex;not null"`
+	PasswordHash string    `gorm:"not null"`
+	Role         string    `gorm:"default:client"`
 }
 
 type UserInfo struct {
-	ID         uuid.UUID `json:"id"`
-	UserId     uuid.UUID `json:"user_id"`
-	FirstName  string    `json:"first_name"`
-	Email      string    `json:"email"`
-	Phone      string    `json:"phone"`
-	LastName   string    `json:"last_name"`
-	MiddleName string    `json:"middle_name"`
+	ID         uuid.UUID `gorm:"type:uuid;primaryKey"`
+	UserId     uuid.UUID `gorm:"type:uuid;not null"`
+	FirstName  string    `gorm:"size:100"`
+	LastName   string    `gorm:"size:100"`
+	MiddleName string    `gorm:"size:100"`
+	Email      string    `gorm:"uniqueIndex;size:255"`
+	Phone      string    `gorm:"size:20"`
 }
 
-type Cities struct {
-	ID    uuid.UUID `json:"id"`
-	Title string    `json:"title"`
+type City struct {
+	ID     uuid.UUID `gorm:"type:uuid;primaryKey"`
+	Title  string    `gorm:"uniqueIndex;not null"`
+	Hotels []Hotel   `gorm:"foreignKey:CityId"`
 }
 
-type Hotels struct {
-	ID          uuid.UUID `json:"id"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	CityId      uuid.UUID `json:"city_id"`
-	Email       string    `json:"email"`
-	Address     string    `json:"address"`
+type Hotel struct {
+	ID          uuid.UUID `gorm:"type:uuid;primaryKey"`
+	Title       string    `gorm:"not null"`
+	Description string    `gorm:"type:text"`
+	CityId      uuid.UUID `gorm:"type:uuid;not null"`
+	Email       string
+	Address     string
+	Rooms       []Room `gorm:"foreignKey:HotelId"`
 }
 
-type Rooms struct {
-	ID        uuid.UUID `json:"id"`
-	HotelId   uuid.UUID `json:"hotel_id"`
-	MaxGuests int       `json:"max_guests"`
+type Room struct {
+	ID        uuid.UUID `gorm:"type:uuid;primaryKey"`
+	HotelId   uuid.UUID `gorm:"type:uuid;not null"`
+	MaxGuests int       `gorm:"not null"`
 }
 
-type Bookings struct {
-	ID        uuid.UUID `json:"id"`
-	RoomId    uuid.UUID `json:"room_id"`
-	RouteId   uuid.UUID `json:"route_id"`
-	StartDate time.Time `json:"start_date"`
-	EndDate   time.Time `json:"end_date"`
+type Route struct {
+	ID          uuid.UUID `gorm:"type:uuid;primaryKey"`
+	UserId      uuid.UUID `gorm:"type:uuid;not null"`
+	Status      string    `gorm:"default:pending"`
+	GuestsCount int
+	Bookings    []Booking `gorm:"foreignKey:RouteId"`
 }
 
-type Routes struct {
-	ID          uuid.UUID `json:"id"`
-	UserId      uuid.UUID `json:"user_id"`
-	Status      string    `json:"status"`
-	GuestsCount int       `json:"guests_count"`
+type Booking struct {
+	ID        uuid.UUID `gorm:"type:uuid;primaryKey"`
+	RoomId    uuid.UUID `gorm:"type:uuid;not null"`
+	RouteId   uuid.UUID `gorm:"type:uuid;not null"`
+	StartDate time.Time `gorm:"not null"`
+	EndDate   time.Time `gorm:"not null"`
 }
