@@ -1,0 +1,86 @@
+.admin-routes-page {
+  min-height: 100vh;
+  background-color: #1e1e1e;
+  color: #efe8e2;
+}
+
+.admin-routes-page__content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 14px 24px 40px;
+}
+
+.admin-routes-page__title-block {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 42px;
+  margin: 0 0 18px;
+}
+
+.admin-routes-page__title-line {
+  width: 64px;
+  height: 1px;
+  background-color: #efe8e2;
+  opacity: 0.9;
+}
+
+.admin-routes-page__title {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 400;
+  line-height: 1.1;
+  color: #efe8e2;
+}
+
+.admin-routes-table {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  background-color: #efe8e2;
+  border: 2px solid #72393f;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.admin-routes-table__head,
+.admin-routes-table__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.05fr 1.05fr 1.05fr 1fr;
+}
+
+.admin-routes-table__head > span,
+.admin-routes-table__row > span,
+.admin-routes-table__row > button {
+  min-height: 52px;
+  border-right: 1px solid #72393f;
+  border-bottom: 1px solid #72393f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 8px 10px;
+  font-size: 14px;
+  line-height: 1.2;
+  color: #72393f;
+}
+
+.admin-routes-table__head > span:last-child,
+.admin-routes-table__row > span:last-child,
+.admin-routes-table__row > button:last-child {
+  border-right: none;
+}
+
+.admin-routes-table__body .admin-routes-table__row:last-child > span,
+.admin-routes-table__body .admin-routes-table__row:last-child > button {
+  border-bottom: none;
+}
+
+.admin-routes-table__details-btn {
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+}

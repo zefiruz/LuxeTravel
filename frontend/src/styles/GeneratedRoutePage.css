@@ -1,0 +1,268 @@
+:root {
+  --bg-color: #1e1e1e;
+  --detail-color: #efe8e2;
+  --accent-color: #72393f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-color);
+  font-family: "Inter", Arial, sans-serif;
+  color: var(--detail-color);
+}
+
+button {
+  font: inherit;
+}
+
+.route-page {
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  color: var(--detail-color);
+}
+
+.route-page__content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 24px 32px;
+}
+
+.route-title-block {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 56px;
+}
+
+.route-title {
+  margin: 0;
+  font-size: 38px;
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--detail-color);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.route-title__icon {
+  width: 34px;
+  height: 34px;
+  color: #72393f;
+  stroke-width: 1.5;
+  flex-shrink: 0;
+  transform: translateY(1px);
+}
+
+.route-scheme {
+  display: flex;
+  flex-direction: column;
+  gap: 80px;
+  margin-bottom: 64px;
+}
+
+.route-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateX(-5px);
+}
+
+.route-row--bottom {
+  justify-content: flex-start;
+  transform: translateX(35px);
+}
+
+.route-row__item {
+  display: flex;
+  align-items: center;
+}
+
+.route-row__item--single-addon {
+  display: flex;
+  align-items: center;
+}
+
+.route-row__item--transition {
+  display: flex;
+  align-items: center;
+}
+
+.route-card-wrapper {
+  width: 240px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.route-card {
+  position: relative;
+  width: 240px;
+  height: 138px;
+  border-radius: 18px;
+  background-color: #ddd7d2;
+}
+
+.route-card--clickable {
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.route-card__delete-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.route-card__delete-icon {
+  width: 22px;
+  height: 22px;
+  color: #000000;
+  stroke-width: 3;
+}
+
+.city-label {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.city-label__line {
+  width: 38px;
+  height: 1px;
+  background-color: var(--detail-color);
+  opacity: 0.9;
+}
+
+.city-label__text {
+  font-size: 20px;
+  line-height: 1.1;
+  color: var(--detail-color);
+}
+
+.route-connector-block {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 30px;
+}
+
+.route-connector-block--edge {
+  align-items: flex-start;
+  margin-right: 20px;
+}
+
+.route-connector {
+  width: 72px;
+  height: 1px;
+  background-color: var(--detail-color);
+  opacity: 0.75;
+}
+
+.route-connector--accent {
+  background-color: var(--accent-color);
+  opacity: 1;
+}
+
+.route-connector--left-edge {
+  width: 72px;
+  background-color: var(--detail-color);
+  opacity: 0.75;
+}
+
+.route-connector--single {
+  width: 72px;
+  background-color: var(--detail-color);
+  opacity: 0.75;
+}
+
+.route-connector--transition {
+  width: 72px;
+  background-color: var(--detail-color);
+  opacity: 0.75;
+}
+
+.add-point-btn {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: none;
+  border-radius: 10px;
+  background-color: #efefef;
+  color: #3b3b3b;
+  font-size: 13px;
+  line-height: 1;
+  padding: 8px 12px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.route-row--bottom > .route-connector-block {
+  margin-left: 0;
+  margin-right: 30px;
+}
+
+.route-connector-block--edge .add-point-btn {
+  left: -38px;
+  transform: translateX(0);
+}
+
+.route-bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.route-bottom__actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  transform: translateX(-20px);
+}
+
+.route-price {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.2;
+  color: var(--detail-color);
+}
+
+.edit-route-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 22px;
+  background-color: #efefef;
+  color: #3b3b3b;
+  font-size: 16px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.book-route-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 22px;
+  background-color: #efefef;
+  color: #3b3b3b;
+  font-size: 16px;
+  cursor: pointer;
+  line-height: 1;
+}

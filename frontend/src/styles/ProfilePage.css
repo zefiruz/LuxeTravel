@@ -1,0 +1,140 @@
+.profile-page {
+  min-height: 100vh;
+  background-color: #1e1e1e;
+  color: #efe8e2;
+}
+
+.profile-page__content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 24px 40px;
+}
+
+.profile-card {
+  width: 100%;
+  max-width: 930px;
+  margin: 0 auto;
+  background-color: #d9d9d9;
+  border-radius: 34px;
+  padding: 18px 52px 46px;
+}
+
+.profile-card__title {
+  margin: 0 0 28px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: #4a403c;
+}
+
+.profile-card__body {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  align-items: start;
+  column-gap: 58px;
+}
+
+.profile-card__avatar {
+  width: 134px;
+  height: 134px;
+  border-radius: 50%;
+  background-color: #cfc7bd;
+  margin-top: 10px;
+}
+
+.profile-info-card {
+  position: relative;
+  min-height: 180px;
+  background-color: #efe8e2;
+  border-radius: 18px;
+  padding: 22px 26px 18px;
+}
+
+.profile-info-card__edit-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.profile-info-card__edit-icon {
+  width: 24px;
+  height: 24px;
+  color: #4a403c;
+  stroke-width: 2;
+}
+
+.profile-info-card__grid {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  row-gap: 6px;
+  column-gap: 18px;
+  max-width: 460px;
+}
+
+.profile-info-card__label {
+  font-size: 14px;
+  line-height: 1.3;
+  color: #4a403c;
+}
+
+.profile-info-card__value {
+  font-size: 14px;
+  line-height: 1.3;
+  color: #4a403c;
+}
+
+.profile-info-card__input {
+  width: 100%;
+  min-height: 24px;
+  border: none;
+  outline: none;
+  background-color: transparent;
+  font-size: 14px;
+  line-height: 1.3;
+  color: #4a403c;
+  padding: 0;
+  border-bottom: 1px solid rgba(74, 64, 60, 0.3);
+}
+
+.profile-info-card__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.profile-info-card__action-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.profile-info-card__action-icon {
+  width: 24px;
+  height: 24px;
+  stroke-width: 2.2;
+}
+
+.profile-info-card__action-icon--save {
+  color: #1e1e1e;
+}
+
+.profile-info-card__action-icon--cancel {
+  color: #72393f;
+}
