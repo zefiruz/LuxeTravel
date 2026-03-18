@@ -1,0 +1,91 @@
+.route-details-page {
+  min-height: 100vh;
+  background-color: #1e1e1e;
+  color: #efe8e2;
+}
+
+.route-details-page__content {
+  position: relative;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 24px 40px;
+}
+
+.route-details-page__close-btn {
+  position: absolute;
+  top: 8px;
+  right: 24px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.route-details-page__close-icon {
+  width: 24px;
+  height: 24px;
+  color: #efe8e2;
+  stroke-width: 2.5;
+}
+
+.route-details-card {
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+  background-color: #efe8e2;
+  border-radius: 34px;
+  padding: 18px 46px 22px;
+}
+
+.route-details-card__title {
+  margin: 0 0 10px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: #3d3633;
+}
+
+.route-details-card__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.route-details-stop {
+  display: grid;
+  grid-template-columns: 128px 1fr;
+  align-items: center;
+  column-gap: 26px;
+}
+
+.route-details-stop__image {
+  width: 128px;
+  height: 86px;
+  border-radius: 16px;
+  background-color: #cfc7bd;
+}
+
+.route-details-stop__info {
+  min-height: 64px;
+  background-color: #f3ede7;
+  border-radius: 14px;
+  padding: 10px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.route-details-stop__city,
+.route-details-stop__dates,
+.route-details-stop__hotel {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.35;
+  color: #4b433f;
+}
