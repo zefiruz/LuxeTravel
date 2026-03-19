@@ -1,5 +1,5 @@
 package main
-//
+
 import (
 	"fmt"
 	"log"
@@ -9,11 +9,13 @@ import (
 	"luxetravel/internal/model"
 	"luxetravel/internal/repository"
 	"luxetravel/internal/configs"
+	appMiddleware "luxetravel/internal/middleware"
 
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"github.com/go-chi/cors"
 )
 
 func main() {
@@ -43,16 +45,35 @@ func main() {
 
 	r := chi.NewRouter()
 
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:5173"}, 
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300,
+	}))
+
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
 	r.Route("/api/v1", func(r chi.Router) {
+		// ОТКРЫТЫЕ РУЧКИ
 		r.Post("/auth/register", authHandler.Register)
 		r.Post("/auth/login", authHandler.Login)
-	})
 
-	r.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("pong"))
+		// ЗАКРЫТЫЕ РУЧКИ 
+		r.Group(func(r chi.Router) {
+			r.Use(appMiddleware.AuthMiddleware(cfg.JWTSecret)) 
+			
+			r.Get("/protected/ping", func(w http.ResponseWriter, r *http.Request) {
+				userID := r.Context().Value(appMiddleware.UserIDKey)
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusOK)
+				fmt.Fprintf(w, `{"message": "pong", "user_id": %v, "status": "authorized"}`, userID)
+			})
+		})
 	})
 
 	fmt.Println("Работает...")
@@ -61,3 +82,12 @@ func main() {
 		log.Fatal(err)
 	}
 }
+
+
+
+// {
+//     "ID": "93de151c-6191-46a9-90fa-edc5774cbd72",
+//     "Login": "popa",
+//     "PasswordHash": "$2a$10$VeObdZJMIETfNS56JyYgoe3uKz6zrxTlrq/tG.U6vF0j6dgG5xt32",
+//     "Role": "client"
+// }

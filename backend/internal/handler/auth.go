@@ -40,12 +40,18 @@ func (h *AuthHandler) generateToken(userID uuid.UUID, role string) (string, erro
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Login    string `json:"login"`
+		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
 
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
 		http.Error(w, "Некорректный JSON", http.StatusBadRequest)
+		return
+	}
+
+	if input.Login == "" || input.Password == "" {
+		http.Error(w, "Email и пароль обязательны", http.StatusBadRequest)
 		return
 	}
 
