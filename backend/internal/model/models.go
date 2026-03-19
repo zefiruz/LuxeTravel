@@ -46,11 +46,15 @@ type Room struct {
 }
 
 type Route struct {
-	ID          uuid.UUID `gorm:"type:uuid;primaryKey"`
-	UserId      uuid.UUID `gorm:"type:uuid;not null"`
-	Status      string    `gorm:"default:pending"`
-	GuestsCount int
-	Bookings    []Booking `gorm:"foreignKey:RouteId"`
+	ID             uuid.UUID `gorm:"type:uuid;primary_key;" json:"id"`
+	UserID         uuid.UUID `gorm:"type:uuid;not null" json:"user_id"`
+	StartDate      time.Time `json:"start_date"`
+	EndDate        time.Time `json:"end_date"`
+	TravelersCount int       `json:"travelers_count"`
+	Mode           string    `json:"mode"`
+	Cities         []string  `gorm:"serializer:json" json:"cities"` 
+	TripIdea       string    `json:"trip_idea"`
+	CreatedAt      time.Time `json:"created_at"`
 }
 
 type Booking struct {

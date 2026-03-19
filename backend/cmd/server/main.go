@@ -41,7 +41,10 @@ func main() {
 	}
 
 	userRepo := repository.NewPostgresUserRepository(db)
+	routeRepo := repository.NewPostgresRouteRepository(db)
+
 	authHandler := handler.NewAuthHandler(userRepo, cfg.JWTSecret)
+	routeHandler := handler.NewRouteHandler(routeRepo)
 
 	r := chi.NewRouter()
 
@@ -73,6 +76,8 @@ func main() {
 				w.WriteHeader(http.StatusOK)
 				fmt.Fprintf(w, `{"message": "pong", "user_id": %v, "status": "authorized"}`, userID)
 			})
+
+			r.Post("/routes", routeHandler.CreateRoute)
 		})
 	})
 
@@ -82,12 +87,3 @@ func main() {
 		log.Fatal(err)
 	}
 }
-
-
-
-// {
-//     "ID": "93de151c-6191-46a9-90fa-edc5774cbd72",
-//     "Login": "popa",
-//     "PasswordHash": "$2a$10$VeObdZJMIETfNS56JyYgoe3uKz6zrxTlrq/tG.U6vF0j6dgG5xt32",
-//     "Role": "client"
-// }
