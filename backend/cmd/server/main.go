@@ -74,10 +74,13 @@ func main() {
 
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(http.StatusOK)
-				fmt.Fprintf(w, `{"message": "pong", "user_id": %v, "status": "authorized"}`, userID)
+				fmt.Fprintf(w, `{"message": "pong", "user_id": "%v", "status": "authorized"}`, userID)
 			})
 
 			r.Post("/routes", routeHandler.CreateRoute)
+    		r.Get("/routes/{id}", routeHandler.GetRoute)    
+    		r.Put("/routes/{id}", routeHandler.UpdateRoute)
+    		r.Delete("/routes/{id}", routeHandler.DeleteRoute)
 		})
 	})
 

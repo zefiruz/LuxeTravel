@@ -3,11 +3,15 @@ package repository
 import (
 	"luxetravel/internal/model"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type RouteRepository interface {
 	Create(route *model.Route) error
+	GetById(id uuid.UUID) (*model.Route, error)
+	Update(route *model.Route) error
+	Delete(id uuid.UUID) error
 }
 
 type postgresRouteRepository struct {
@@ -20,4 +24,18 @@ func NewPostgresRouteRepository(db *gorm.DB) RouteRepository {
 
 func (r *postgresRouteRepository) Create(route *model.Route) error {
 	return r.db.Create(route).Error
+}
+
+func (r *postgresRouteRepository) GetById(id uuid.UUID) (*model.Route, error) {
+	var route model.Route
+	err := r.db.Preload("Bookings").First(&route, "id = ?", id).Error
+	return &route, err
+}
+
+func (r *postgresRouteRepository) Update(route *model.Route) error {
+	return r.db.Save(route).Error
+}
+
+func (r *postgresRouteRepository) Delete(id uuid.UUID) error {
+    return r.db.Delete(&model.Route{}, "id = ?", id).Error
 }
