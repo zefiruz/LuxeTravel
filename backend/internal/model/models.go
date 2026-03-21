@@ -24,9 +24,11 @@ type UserInfo struct {
 }
 
 type City struct {
-	ID     uuid.UUID `gorm:"type:uuid;primaryKey"`
-	Title  string    `gorm:"uniqueIndex;not null"`
-	Hotels []Hotel   `gorm:"foreignKey:CityId"`
+	ID          uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
+	Title       string    `gorm:"uniqueIndex;not null" json:"name"`
+	Description string    `gorm:"type:text" json:"description"`
+	ImageURL    string    `json:"image_url"`
+	Hotels      []Hotel   `gorm:"foreignKey:CityId" json:"hotels,omitempty"`
 }
 
 type Hotel struct {
@@ -52,9 +54,10 @@ type Route struct {
 	EndDate        time.Time `json:"end_date"`
 	TravelersCount int       `json:"travelers_count"`
 	Mode           string    `json:"mode"`
-	Cities         []string  `gorm:"serializer:json" json:"cities"` 
+	Cities         []string  `gorm:"serializer:json" json:"cities"`
 	TripIdea       string    `json:"trip_idea"`
 	CreatedAt      time.Time `json:"created_at"`
+	Bookings       []Booking `gorm:"foreignKey:RouteID" json:"bookings"`
 }
 
 type Booking struct {

@@ -50,7 +50,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if input.Login == "" || input.Password == "" {
+	if input.Login == "" || input.Password == "" || input.Email == "" {
 		http.Error(w, "Email и пароль обязательны", http.StatusBadRequest)
 		return
 	}

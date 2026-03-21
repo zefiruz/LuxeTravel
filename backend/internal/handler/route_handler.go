@@ -9,7 +9,7 @@ import (
 	"luxetravel/internal/model"
 	"luxetravel/internal/repository"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )
 
@@ -77,7 +77,17 @@ func (h *RouteHandler) CreateRoute(w http.ResponseWriter, r *http.Request) {
 
 func (h *RouteHandler) GetRoute(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
-	id, _ := uuid.Parse(idStr)
+
+	if idStr == "" {
+        http.Error(w, "ID маршрута не найден в URL", http.StatusBadRequest)
+        return
+    }
+
+    id, err := uuid.Parse(idStr)
+    if err != nil {
+        http.Error(w, "Некорректный формат UUID", http.StatusBadRequest)
+        return
+    }
 
 	route, err := h.Repo.GetById(id)
 	if err != nil {
@@ -99,12 +109,12 @@ func (h *RouteHandler) UpdateRoute(w http.ResponseWriter, r *http.Request) {
 	id, _ := uuid.Parse(idStr)
 
 	rawUserID := r.Context().Value(middleware.UserIDKey)
-    currentUserIDStr, ok := rawUserID.(string)
-    if !ok {
-        http.Error(w, "Ошибка авторизации", http.StatusUnauthorized)
-        return
-    }
-    currentUserID, _ := uuid.Parse(currentUserIDStr)
+	currentUserIDStr, ok := rawUserID.(string)
+	if !ok {
+		http.Error(w, "Ошибка авторизации", http.StatusUnauthorized)
+		return
+	}
+	currentUserID, _ := uuid.Parse(currentUserIDStr)
 
 	var input struct {
 		Cities []string `json:"cities"`
@@ -122,9 +132,9 @@ func (h *RouteHandler) UpdateRoute(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if route.UserID != currentUserID {
-        http.Error(w, "У вас нет прав на редактирование этого маршрута", http.StatusForbidden)
-        return
-    }
+		http.Error(w, "У вас нет прав на редактирование этого маршрута", http.StatusForbidden)
+		return
+	}
 
 	route.Cities = input.Cities
 
@@ -136,33 +146,33 @@ func (h *RouteHandler) UpdateRoute(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func (h *RouteHandler) DeleteRoute(w http.ResponseWriter, r *http.Request){
+func (h *RouteHandler) DeleteRoute(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
-    id, err := uuid.Parse(idStr)
-    if err != nil {
-        http.Error(w, "Неверный формат ID", http.StatusBadRequest)
-        return
-    }
+	id, err := uuid.Parse(idStr)
+	if err != nil {
+		http.Error(w, "Неверный формат ID", http.StatusBadRequest)
+		return
+	}
 
 	rawUserID := r.Context().Value(middleware.UserIDKey)
-    currentUserIDStr := rawUserID.(string)
-    currentUserID, _ := uuid.Parse(currentUserIDStr)
+	currentUserIDStr := rawUserID.(string)
+	currentUserID, _ := uuid.Parse(currentUserIDStr)
 
-    route, err := h.Repo.GetById(id)
-    if err != nil {
-        http.Error(w, "Маршрут не найден", http.StatusNotFound)
-        return
-    }
+	route, err := h.Repo.GetById(id)
+	if err != nil {
+		http.Error(w, "Маршрут не найден", http.StatusNotFound)
+		return
+	}
 
-    if route.UserID != currentUserID {
-        http.Error(w, "У вас нет прав на удаление этого маршрута", http.StatusForbidden)
-        return
-    }
+	if route.UserID != currentUserID {
+		http.Error(w, "У вас нет прав на удаление этого маршрута", http.StatusForbidden)
+		return
+	}
 
 	if err := h.Repo.Delete(id); err != nil {
-        http.Error(w, "Ошибка при удалении", http.StatusInternalServerError)
-        return
-    }
-	
-    w.WriteHeader(http.StatusNoContent)
+		http.Error(w, "Ошибка при удалении", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
