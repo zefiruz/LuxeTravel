@@ -6,33 +6,39 @@ import "../styles/AuthPages.css";
 
 function LoginPage() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, error, loading } = useAuth();
 
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
 
-  const [error, setError] = useState("");
+  const [localError, setLocalError] = useState("");
 
   const handleChange = (field, value) => {
     setForm((prev) => ({
       ...prev,
       [field]: value,
     }));
+    setLocalError("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLocalError("");
 
-    const success = login(form.email, form.password);
-
-    if (!success) {
-      setError("Неверный email или аккаунт еще не зарегистрирован");
+    if (!form.email || !form.password) {
+      setLocalError("Пожалуйста, заполните все поля");
       return;
     }
 
-    navigate("/profile");
+    const success = await login(form.email, form.password);
+
+    if (success) {
+      navigate("/profile");
+    } else {
+      setLocalError(error || "Неверный email или пароль");
+    }
   };
 
   return (
@@ -66,11 +72,17 @@ function LoginPage() {
               />
             </label>
 
-            {error && <p className="auth-form__error">{error}</p>}
+            {(localError || error) && (
+              <p className="auth-form__error">{localError || error}</p>
+            )}
 
             <div className="auth-card__actions">
-              <button type="submit" className="auth-btn">
-                Войти
+              <button
+                type="submit"
+                className="auth-btn"
+                disabled={loading}
+              >
+                {loading ? "Вход..." : "Войти"}
               </button>
 
               <button

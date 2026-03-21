@@ -6,7 +6,7 @@ import "../styles/AuthPages.css";
 
 function RegisterPage() {
   const navigate = useNavigate();
-  const { register } = useAuth();
+  const { register, error, loading } = useAuth();
 
   const [form, setForm] = useState({
     lastName: "",
@@ -17,18 +17,33 @@ function RegisterPage() {
     password: "",
   });
 
+  const [localError, setLocalError] = useState("");
+
   const handleChange = (field, value) => {
     setForm((prev) => ({
       ...prev,
       [field]: value,
     }));
+    setLocalError("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLocalError("");
 
-    register(form);
-    navigate("/profile");
+    // Валидация
+    if (!form.email || !form.password || !form.firstName || !form.lastName) {
+      setLocalError("Пожалуйста, заполните все обязательные поля");
+      return;
+    }
+
+    const success = await register(form);
+
+    if (success) {
+      navigate("/profile");
+    } else {
+      setLocalError(error || "Ошибка при регистрации");
+    }
   };
 
   return (
@@ -41,7 +56,7 @@ function RegisterPage() {
 
           <form className="auth-form" onSubmit={handleSubmit}>
             <label className="auth-form__field">
-              <span className="auth-form__label">Фамилия</span>
+              <span className="auth-form__label">Фамилия *</span>
               <input
                 className="auth-form__input"
                 type="text"
@@ -52,7 +67,7 @@ function RegisterPage() {
             </label>
 
             <label className="auth-form__field">
-              <span className="auth-form__label">Имя</span>
+              <span className="auth-form__label">Имя *</span>
               <input
                 className="auth-form__input"
                 type="text"
@@ -73,7 +88,7 @@ function RegisterPage() {
             </label>
 
             <label className="auth-form__field">
-              <span className="auth-form__label">Email</span>
+              <span className="auth-form__label">Email *</span>
               <input
                 className="auth-form__input"
                 type="email"
@@ -84,10 +99,10 @@ function RegisterPage() {
             </label>
 
             <label className="auth-form__field">
-              <span className="auth-form__label">Телефон</span>
+              <span className="auth-form__label">Телефон *</span>
               <input
                 className="auth-form__input"
-                type="text"
+                type="tel"
                 value={form.phone}
                 onChange={(e) => handleChange("phone", e.target.value)}
                 required
@@ -95,7 +110,7 @@ function RegisterPage() {
             </label>
 
             <label className="auth-form__field">
-              <span className="auth-form__label">Пароль</span>
+              <span className="auth-form__label">Пароль *</span>
               <input
                 className="auth-form__input"
                 type="password"
@@ -105,9 +120,17 @@ function RegisterPage() {
               />
             </label>
 
+            {(localError || error) && (
+              <p className="auth-form__error">{localError || error}</p>
+            )}
+
             <div className="auth-card__actions">
-              <button type="submit" className="auth-btn">
-                Зарегистрироваться
+              <button
+                type="submit"
+                className="auth-btn"
+                disabled={loading}
+              >
+                {loading ? "Регистрация..." : "Зарегистрироваться"}
               </button>
 
               <button
