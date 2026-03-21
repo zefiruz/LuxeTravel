@@ -176,3 +176,18 @@ func (h *RouteHandler) DeleteRoute(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusNoContent)
 }
+
+func (h *RouteHandler) ListUserRoutes(w http.ResponseWriter, r *http.Request) {
+    rawUserID := r.Context().Value(middleware.UserIDKey)
+    userIDStr := rawUserID.(string)
+    userID, _ := uuid.Parse(userIDStr)
+
+    routes, err := h.Repo.GetAllById(userID)
+    if err != nil {
+        http.Error(w, "Ошибка получения списка", http.StatusInternalServerError)
+        return
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(routes)
+}

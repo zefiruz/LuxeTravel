@@ -12,6 +12,7 @@ type RouteRepository interface {
 	GetById(id uuid.UUID) (*model.Route, error)
 	Update(route *model.Route) error
 	Delete(id uuid.UUID) error
+	GetAllById(userID uuid.UUID) ([]model.Route, error)
 }
 
 type postgresRouteRepository struct {
@@ -38,4 +39,11 @@ func (r *postgresRouteRepository) Update(route *model.Route) error {
 
 func (r *postgresRouteRepository) Delete(id uuid.UUID) error {
     return r.db.Delete(&model.Route{}, "id = ?", id).Error
+}
+
+func (r *postgresRouteRepository) GetAllById(userID uuid.UUID) ([]model.Route, error) {
+    var routes []model.Route
+    // Используем Preload, чтобы сразу видеть города в списке
+    err := r.db.Where("user_id = ?", userID).Find(&routes).Error
+    return routes, err
 }

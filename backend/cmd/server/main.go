@@ -82,6 +82,7 @@ func main() {
 			})
 
 			r.Post("/routes", routeHandler.CreateRoute)
+			r.Get("/routes", routeHandler.ListUserRoutes)
 			r.Get("/routes/{id}", routeHandler.GetRoute)
 			r.Put("/routes/{id}", routeHandler.UpdateRoute)
 			r.Delete("/routes/{id}", routeHandler.DeleteRoute)
