@@ -23,12 +23,13 @@ func NewRouteHandler(repo repository.RouteRepository) *RouteHandler {
 
 func (h *RouteHandler) CreateRoute(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-		StartDate      string   `json:"start_date"`
-		EndDate        string   `json:"end_date"`
-		TravelersCount int      `json:"travelers_count"`
-		Mode           string   `json:"mode"`
-		Cities         []string `json:"cities"`
-		TripIdea       string   `json:"trip_idea"`
+		StartDate      string      `json:"start_date"`
+		EndDate        string      `json:"end_date"`
+		TravelersCount int         `json:"travelers_count"`
+		Mode           string      `json:"mode"`
+		Cities         []string    `json:"cities"`
+		TripIdea       string      `json:"trip_idea"`
+		SelectedRooms  []uuid.UUID `json:"selected_rooms"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
@@ -50,20 +51,32 @@ func (h *RouteHandler) CreateRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	startDate, _ := time.Parse("2006-01-02", input.StartDate)
-	endDate, _ := time.Parse("2006-01-02", input.EndDate)
+	parsedStart, _ := time.Parse("2006-01-02", input.StartDate)
+	parsedEnd, _ := time.Parse("2006-01-02", input.EndDate)
 
 	newRoute := model.Route{
 		ID:             uuid.New(),
 		UserID:         userID,
-		StartDate:      startDate,
-		EndDate:        endDate,
+		StartDate:      parsedStart,
+		EndDate:        parsedEnd,
 		TravelersCount: input.TravelersCount,
 		Mode:           input.Mode,
 		Cities:         input.Cities,
 		TripIdea:       input.TripIdea,
 		CreatedAt:      time.Now(),
 	}
+
+	var bookings []model.Booking
+	for _, roomID := range input.SelectedRooms {
+		bookings = append(bookings, model.Booking{
+			ID:        uuid.New(),
+			RoomId:    roomID,
+			RouteId:   newRoute.ID,
+			StartDate: newRoute.StartDate,
+			EndDate:   newRoute.EndDate,
+		})
+	}
+	newRoute.Bookings = bookings
 
 	if err := h.Repo.Create(&newRoute); err != nil {
 		http.Error(w, "Ошибка сохранения маршрута: "+err.Error(), http.StatusInternalServerError)
@@ -79,15 +92,15 @@ func (h *RouteHandler) GetRoute(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 
 	if idStr == "" {
-        http.Error(w, "ID маршрута не найден в URL", http.StatusBadRequest)
-        return
-    }
+		http.Error(w, "ID маршрута не найден в URL", http.StatusBadRequest)
+		return
+	}
 
-    id, err := uuid.Parse(idStr)
-    if err != nil {
-        http.Error(w, "Некорректный формат UUID", http.StatusBadRequest)
-        return
-    }
+	id, err := uuid.Parse(idStr)
+	if err != nil {
+		http.Error(w, "Некорректный формат UUID", http.StatusBadRequest)
+		return
+	}
 
 	route, err := h.Repo.GetById(id)
 	if err != nil {
@@ -178,16 +191,16 @@ func (h *RouteHandler) DeleteRoute(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *RouteHandler) ListUserRoutes(w http.ResponseWriter, r *http.Request) {
-    rawUserID := r.Context().Value(middleware.UserIDKey)
-    userIDStr := rawUserID.(string)
-    userID, _ := uuid.Parse(userIDStr)
+	rawUserID := r.Context().Value(middleware.UserIDKey)
+	userIDStr := rawUserID.(string)
+	userID, _ := uuid.Parse(userIDStr)
 
-    routes, err := h.Repo.GetAllById(userID)
-    if err != nil {
-        http.Error(w, "Ошибка получения списка", http.StatusInternalServerError)
-        return
-    }
+	routes, err := h.Repo.GetAllById(userID)
+	if err != nil {
+		http.Error(w, "Ошибка получения списка", http.StatusInternalServerError)
+		return
+	}
 
-    w.Header().Set("Content-Type", "application/json")
-    json.NewEncoder(w).Encode(routes)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(routes)
 }
