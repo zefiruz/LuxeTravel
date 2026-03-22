@@ -39,6 +39,7 @@ type Hotel struct {
 	Email       string
 	Address     string
 	Rooms       []Room `gorm:"foreignKey:HotelId"`
+	ImageURL    string `json:"image_url"`
 }
 
 type Room struct {

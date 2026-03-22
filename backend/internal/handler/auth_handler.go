@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -14,13 +15,13 @@ import (
 )
 
 type AuthHandler struct {
-	Repo repository.UserRepository
+	Repo      repository.UserRepository
 	JWTSecret string
 }
 
 func NewAuthHandler(repo repository.UserRepository, secret string) *AuthHandler {
 	return &AuthHandler{
-		Repo: repo,
+		Repo:      repo,
 		JWTSecret: secret,
 	}
 }
@@ -39,19 +40,23 @@ func (h *AuthHandler) generateToken(userID uuid.UUID, role string) (string, erro
 
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-		Login    string `json:"login"`
-		Email    string `json:"email"`
-		Password string `json:"password"`
+		LastName   string `json:"lastName"`
+		FirstName  string `json:"firstName"`
+		MiddleName string `json:"middleName"`
+		Email      string `json:"email"`
+		Phone      string `json:"phone"`
+		Password   string `json:"password"`
 	}
 
-	err := json.NewDecoder(r.Body).Decode(&input)
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		http.Error(w, "Некорректный JSON", http.StatusBadRequest)
 		return
 	}
 
-	if input.Login == "" || input.Password == "" || input.Email == "" {
-		http.Error(w, "Email и пароль обязательны", http.StatusBadRequest)
+	fmt.Printf("Данные после Decode: %+v\n", input)
+
+	if input.Email == "" || input.Password == "" || input.FirstName == "" {
+		http.Error(w, "Заполните обязательные поля", http.StatusBadRequest)
 		return
 	}
 
@@ -61,45 +66,59 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userID := uuid.New()
+
 	newUser := model.User{
-		ID:           uuid.New(),
-		Login:        input.Login,
+		ID:           userID,
+		Login:        input.Email,
 		PasswordHash: string(hashedPassword),
 		Role:         "client",
 	}
 
-	err = h.Repo.Create(newUser)
+	newUserInfo := model.UserInfo{
+		ID:         uuid.New(),
+		UserId:     userID,
+		FirstName:  input.FirstName,
+		LastName:   input.LastName,
+		MiddleName: input.MiddleName,
+		Email:      input.Email,
+		Phone:      input.Phone,
+	}
+
+	err = h.Repo.CreateWithInfo(newUser, newUserInfo)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusConflict)
+		http.Error(w, "Ошибка регистрации: возможно, email уже занят", http.StatusConflict)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(newUser)
+	json.NewEncoder(w).Encode(map[string]string{
+		"status":  "success",
+		"message": "Пользователь успешно зарегистрирован",
+	})
 }
 
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-		Login    string `json:"login"`
+		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
 
-	err := json.NewDecoder(r.Body).Decode(&input)
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		http.Error(w, "Некорректный JSON", http.StatusBadRequest)
 		return
 	}
 
-	user, err := h.Repo.GetByLogin(input.Login)
+	user, err := h.Repo.GetByEmail(input.Email)
 	if err != nil {
-		http.Error(w, "Неверный логин или пароль", http.StatusUnauthorized)
+		http.Error(w, "Неверный email или пароль", http.StatusUnauthorized)
 		return
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(input.Password))
 	if err != nil {
-		http.Error(w, "Неверный логин или пароль", http.StatusUnauthorized)
+		http.Error(w, "Неверный email или пароль", http.StatusUnauthorized)
 		return
 	}
 

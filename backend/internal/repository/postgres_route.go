@@ -13,6 +13,7 @@ type RouteRepository interface {
 	Update(route *model.Route) error
 	Delete(id uuid.UUID) error
 	GetAllById(userID uuid.UUID) ([]model.Route, error)
+	//BookRoute(routeID uuid.UUID, bookings []model.Booking) error
 }
 
 type postgresRouteRepository struct {
@@ -47,3 +48,7 @@ func (r *postgresRouteRepository) GetAllById(userID uuid.UUID) ([]model.Route, e
     err := r.db.Where("user_id = ?", userID).Find(&routes).Error
     return routes, err
 }
+
+// func (r * postgresRouteRepository) BookRoute(routeID uuid.UUID, bookings []model.Booking) error{
+// 	return r.db.
+// }

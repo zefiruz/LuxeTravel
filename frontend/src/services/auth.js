@@ -3,24 +3,31 @@ import api from './api';
 class AuthService {
     async register(userData) {
         try {
-            // Преобразуем данные из формы в формат, ожидаемый бэкендом
+            // 1. Собираем все поля, которые ввел пользователь в форму
+            // Имена ключей должны В ТОЧНОСТИ совпадать с JSON-тегами в Go
             const requestData = {
-                login: userData.email, // Используем email как login
+                lastName: userData.lastName,
+                firstName: userData.firstName,
+                middleName: userData.middleName,
                 email: userData.email,
+                phone: userData.phone,
                 password: userData.password,
             };
 
+            // 2. Если в api.js baseURL НЕ включает /v1, добавь его здесь: '/v1/auth/register'
             const response = await api.post('/auth/register', requestData);
 
-            // Сохраняем данные пользователя в localStorage если нужно
+            // Сохраняем данные профиля (без пароля) для удобства
             localStorage.setItem('user', JSON.stringify(response));
 
             return { success: true, data: response };
         } catch (error) {
             console.error('Registration error:', error);
+            // Пытаемся вытащить сообщение об ошибке от бэкенда
+            const message = error.response?.data || error.message || 'Ошибка при регистрации';
             return {
                 success: false,
-                error: error.message || 'Ошибка при регистрации'
+                error: message
             };
         }
     }
@@ -28,7 +35,7 @@ class AuthService {
     async login(email, password) {
         try {
             const requestData = {
-                login: email,
+                email: email, // Бэкенд теперь ждет 'email', а не 'login'
                 password: password,
             };
 
@@ -43,13 +50,15 @@ class AuthService {
             return { success: true, data: response };
         } catch (error) {
             console.error('Login error:', error);
+            const message = error.response?.data || 'Неверный email или пароль';
             return {
                 success: false,
-                error: error.message || 'Неверный email или пароль'
+                error: message
             };
         }
     }
 
+    // Остальные методы (logout, getToken и т.д.) остаются без изменений
     logout() {
         localStorage.removeItem('auth_token');
         localStorage.removeItem('user');
@@ -62,18 +71,6 @@ class AuthService {
 
     isAuthenticated() {
         return !!this.getToken();
-    }
-
-    getUser() {
-        const userStr = localStorage.getItem('user');
-        if (userStr) {
-            try {
-                return JSON.parse(userStr);
-            } catch (e) {
-                return null;
-            }
-        }
-        return null;
     }
 }
 
