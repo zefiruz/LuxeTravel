@@ -43,10 +43,12 @@ func main() {
 	userRepo := repository.NewPostgresUserRepository(db)
 	routeRepo := repository.NewPostgresRouteRepository(db)
 	cityRepo := repository.NewPostgresCityRepository(db)
+	hotelRepo := repository.NewPostgresHotelRepository(db)
 
 	authHandler := handler.NewAuthHandler(userRepo, cfg.JWTSecret)
 	routeHandler := handler.NewRouteHandler(routeRepo)
 	cityHandler := handler.NewCityHandler(cityRepo)
+	hotelHandler := handler.NewHotelHandler(hotelRepo)
 
 	r := chi.NewRouter()
 
@@ -73,22 +75,16 @@ func main() {
 		r.Group(func(r chi.Router) {
 			r.Use(appMiddleware.AuthMiddleware(cfg.JWTSecret))
 
-			r.Get("/protected/ping", func(w http.ResponseWriter, r *http.Request) {
-				userID := r.Context().Value(appMiddleware.UserIDKey)
-
-				w.Header().Set("Content-Type", "application/json")
-				w.WriteHeader(http.StatusOK)
-				fmt.Fprintf(w, `{"message": "pong", "user_id": "%v", "status": "authorized"}`, userID)
-			})
-
 			r.Post("/routes", routeHandler.CreateRoute)
 			r.Get("/routes", routeHandler.ListUserRoutes)
 			r.Get("/routes/{id}", routeHandler.GetRoute)
 			r.Put("/routes/{id}", routeHandler.UpdateRoute)
 			r.Delete("/routes/{id}", routeHandler.DeleteRoute)
 
-			r.Get("/auth/profile", authHandler.GetProfile) 
+			r.Get("/auth/profile", authHandler.GetProfile)
 			r.Put("/auth/profile", authHandler.UpdateProfile)
+
+			r.Get("/city/{cityId}", hotelHandler.ListHotelsByCity)
 		})
 	})
 
