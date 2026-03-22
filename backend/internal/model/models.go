@@ -14,13 +14,13 @@ type User struct {
 }
 
 type UserInfo struct {
-	ID         uuid.UUID `gorm:"type:uuid;primaryKey"`
-	UserId     uuid.UUID `gorm:"type:uuid;not null"`
-	FirstName  string    `gorm:"size:100"`
-	LastName   string    `gorm:"size:100"`
-	MiddleName string    `gorm:"size:100"`
-	Email      string    `gorm:"uniqueIndex;size:255"`
-	Phone      string    `gorm:"size:20"`
+    ID         uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
+    UserId     uuid.UUID `gorm:"type:uuid;not null" json:"userId"`
+    FirstName  string    `gorm:"size:100" json:"firstName"`
+    LastName   string    `gorm:"size:100" json:"lastName"`
+    MiddleName string    `gorm:"size:100" json:"middleName"`
+    Email      string    `gorm:"uniqueIndex;size:255" json:"email"`
+    Phone      string    `gorm:"size:20" json:"phone"`
 }
 
 type City struct {

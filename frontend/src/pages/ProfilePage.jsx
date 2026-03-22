@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { PencilLine, Check, X } from "lucide-react";
 import Header from "../components/Header";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext"; // Должен содержать updateProfile
 import "../styles/ProfilePage.css";
 
 const fallbackProfile = {
@@ -13,37 +13,30 @@ const fallbackProfile = {
 };
 
 function ProfilePage() {
-  const { user, register } = useAuth();
+  // 1. Достаем updateProfile вместо register
+  const { user, updateProfile } = useAuth(); 
 
-  const initialProfile = user
-    ? {
-        lastName: user.lastName || "",
-        firstName: user.firstName || "",
-        middleName: user.middleName || "",
-        email: user.email || "",
-        phone: user.phone || "",
-        password: user.password || "",
-      }
-    : fallbackProfile;
+  // Функция для нормализации данных (если бэкенд присылает FirstName вместо firstName)
+  const mapUserData = (u) => {
+    if (!u) return fallbackProfile;
+    return {
+      lastName: u.lastName || "",
+      firstName: u.firstName || "",
+      middleName: u.middleName || "",
+      email: u.email || "",
+      phone: u.phone || "",
+    };
+  };
 
-  const [profile, setProfile] = useState(initialProfile);
-  const [draftProfile, setDraftProfile] = useState(initialProfile);
+  const [profile, setProfile] = useState(() => mapUserData(user));
+  const [draftProfile, setDraftProfile] = useState(() => mapUserData(user));
   const [isEditing, setIsEditing] = useState(false);
 
+  // Синхронизация, если данные пользователя загрузились позже (после fetchProfile)
   useEffect(() => {
-    const updatedProfile = user
-      ? {
-          lastName: user.lastName || "",
-          firstName: user.firstName || "",
-          middleName: user.middleName || "",
-          email: user.email || "",
-          phone: user.phone || "",
-          password: user.password || "",
-        }
-      : fallbackProfile;
-
-    setProfile(updatedProfile);
-    setDraftProfile(updatedProfile);
+    const freshData = mapUserData(user);
+    setProfile(freshData);
+    setDraftProfile(freshData);
   }, [user]);
 
   const handleStartEditing = () => {
@@ -56,14 +49,17 @@ function ProfilePage() {
     setIsEditing(false);
   };
 
-  const handleSaveEditing = () => {
-    setProfile(draftProfile);
-
+  // 2. ИСПОЛЬЗУЕМ ОБНОВЛЕНИЕ ВМЕСТО РЕГИСТРАЦИИ
+  const handleSaveEditing = async () => {
     if (user) {
-      register(draftProfile);
+      const success = await updateProfile(draftProfile);
+      if (success) {
+        setProfile(draftProfile);
+        setIsEditing(false);
+      } else {
+        alert("Не удалось сохранить изменения");
+      }
     }
-
-    setIsEditing(false);
   };
 
   const handleChange = (field, value) => {
@@ -78,69 +74,60 @@ function ProfilePage() {
   return (
     <div className="profile-page">
       <Header />
-
       <main className="profile-page__content">
         <section className="profile-card">
           <h1 className="profile-card__title">Профиль</h1>
-
           <div className="profile-card__body">
             <div className="profile-card__avatar" />
-
             <div className="profile-info-card">
               {!isEditing && (
                 <button
                   type="button"
                   className="profile-info-card__edit-btn"
                   onClick={handleStartEditing}
-                  aria-label="Редактировать профиль"
                 >
                   <PencilLine className="profile-info-card__edit-icon" />
                 </button>
               )}
 
               <div className="profile-info-card__grid">
+                {/* Фамилия */}
                 <span className="profile-info-card__label">Фамилия:</span>
                 {isEditing ? (
                   <input
                     className="profile-info-card__input"
-                    type="text"
                     value={currentData.lastName}
                     onChange={(e) => handleChange("lastName", e.target.value)}
                   />
                 ) : (
-                  <span className="profile-info-card__value">
-                    {currentData.lastName}
-                  </span>
+                  <span className="profile-info-card__value">{currentData.lastName}</span>
                 )}
 
+                {/* Имя */}
                 <span className="profile-info-card__label">Имя:</span>
                 {isEditing ? (
                   <input
                     className="profile-info-card__input"
-                    type="text"
                     value={currentData.firstName}
                     onChange={(e) => handleChange("firstName", e.target.value)}
                   />
                 ) : (
-                  <span className="profile-info-card__value">
-                    {currentData.firstName}
-                  </span>
+                  <span className="profile-info-card__value">{currentData.firstName}</span>
                 )}
 
+                {/* Отчество */}
                 <span className="profile-info-card__label">Отчество:</span>
                 {isEditing ? (
                   <input
                     className="profile-info-card__input"
-                    type="text"
                     value={currentData.middleName}
                     onChange={(e) => handleChange("middleName", e.target.value)}
                   />
                 ) : (
-                  <span className="profile-info-card__value">
-                    {currentData.middleName}
-                  </span>
+                  <span className="profile-info-card__value">{currentData.middleName}</span>
                 )}
 
+                {/* Email (обычно только для чтения, но оставим как в дизайне) */}
                 <span className="profile-info-card__label">Email:</span>
                 {isEditing ? (
                   <input
@@ -150,23 +137,19 @@ function ProfilePage() {
                     onChange={(e) => handleChange("email", e.target.value)}
                   />
                 ) : (
-                  <span className="profile-info-card__value">
-                    {currentData.email}
-                  </span>
+                  <span className="profile-info-card__value">{currentData.email}</span>
                 )}
 
+                {/* Телефон */}
                 <span className="profile-info-card__label">Номер телефона:</span>
                 {isEditing ? (
                   <input
                     className="profile-info-card__input"
-                    type="text"
                     value={currentData.phone}
                     onChange={(e) => handleChange("phone", e.target.value)}
                   />
                 ) : (
-                  <span className="profile-info-card__value">
-                    {currentData.phone}
-                  </span>
+                  <span className="profile-info-card__value">{currentData.phone}</span>
                 )}
               </div>
 
@@ -176,16 +159,13 @@ function ProfilePage() {
                     type="button"
                     className="profile-info-card__action-btn"
                     onClick={handleSaveEditing}
-                    aria-label="Сохранить изменения"
                   >
                     <Check className="profile-info-card__action-icon profile-info-card__action-icon--save" />
                   </button>
-
                   <button
                     type="button"
                     className="profile-info-card__action-btn"
                     onClick={handleCancelEditing}
-                    aria-label="Отменить изменения"
                   >
                     <X className="profile-info-card__action-icon profile-info-card__action-icon--cancel" />
                   </button>

@@ -8,6 +8,7 @@ import (
 
 	"luxetravel/internal/model"
 	"luxetravel/internal/repository"
+	appMiddleware "luxetravel/internal/middleware"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
@@ -129,8 +130,62 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
-		"token":   token,
-		"message": "Welcome!",
-	})
+	json.NewEncoder(w).Encode(map[string]interface{}{
+        "token": token,
+        "user": map[string]string{
+            "id":    user.ID.String(),
+            "email": input.Email,
+        },
+    })
+}
+
+func (h *AuthHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
+    userIDVal := r.Context().Value(appMiddleware.UserIDKey)
+    
+    userIDStr, ok := userIDVal.(string)
+    if !ok {
+        http.Error(w, "Пользователь не авторизован", http.StatusUnauthorized)
+        return
+    }
+
+    userID, err := uuid.Parse(userIDStr)
+    if err != nil {
+        http.Error(w, "Некорректный ID", http.StatusBadRequest)
+        return
+    }
+
+    userInfo, err := h.Repo.GetInfoByUserID(userID)
+    if err != nil {
+        http.Error(w, "Профиль не найден", http.StatusNotFound)
+        return
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(userInfo)
+}
+
+func (h *AuthHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
+    userIDVal := r.Context().Value(appMiddleware.UserIDKey)
+    userIDStr, ok := userIDVal.(string)
+    if !ok {
+        http.Error(w, "Не авторизован", http.StatusUnauthorized)
+        return
+    }
+
+    var input model.UserInfo
+    if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+        http.Error(w, "Некорректный JSON", http.StatusBadRequest)
+        return
+    }
+
+    uid, _ := uuid.Parse(userIDStr)
+    input.UserId = uid
+
+    if err := h.Repo.UpdateInfo(input); err != nil {
+        http.Error(w, "Ошибка при обновлении профиля", http.StatusInternalServerError)
+        return
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(input)
 }

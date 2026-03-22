@@ -3,70 +3,70 @@ import api from './api';
 class AuthService {
     async register(userData) {
         try {
-            // 1. Собираем все поля, которые ввел пользователь в форму
-            // Имена ключей должны В ТОЧНОСТИ совпадать с JSON-тегами в Go
-            const requestData = {
-                lastName: userData.lastName,
-                firstName: userData.firstName,
-                middleName: userData.middleName,
-                email: userData.email,
-                phone: userData.phone,
-                password: userData.password,
-            };
-
-            // 2. Если в api.js baseURL НЕ включает /v1, добавь его здесь: '/v1/auth/register'
-            const response = await api.post('/auth/register', requestData);
-
-            // Сохраняем данные профиля (без пароля) для удобства
-            localStorage.setItem('user', JSON.stringify(response));
-
+            const response = await api.post('/auth/register', userData);
             return { success: true, data: response };
         } catch (error) {
-            console.error('Registration error:', error);
-            // Пытаемся вытащить сообщение об ошибке от бэкенда
-            const message = error.response?.data || error.message || 'Ошибка при регистрации';
-            return {
-                success: false,
-                error: message
-            };
+            return { success: false, error: error.response?.data || error.message };
         }
     }
 
     async login(email, password) {
         try {
-            const requestData = {
-                email: email, // Бэкенд теперь ждет 'email', а не 'login'
-                password: password,
-            };
+            const response = await api.post('/auth/login', { email, password });
+            const data = response; 
 
-            const response = await api.post('/auth/login', requestData);
-
-            // Сохраняем токен в localStorage
-            if (response.token) {
-                localStorage.setItem('auth_token', response.token);
-                localStorage.setItem('user_email', email);
+            if (data && data.token) {
+                localStorage.setItem('auth_token', data.token);
+                localStorage.setItem('user', JSON.stringify({ email: email }));
+                return { success: true, data: data };
+            } else {
+                throw new Error("Токен не найден в ответе сервера");
             }
-
-            return { success: true, data: response };
         } catch (error) {
-            console.error('Login error:', error);
-            const message = error.response?.data || 'Неверный email или пароль';
-            return {
-                success: false,
-                error: message
-            };
+            return { success: false, error: error.message || 'Ошибка при входе' };
         }
     }
 
-    // Остальные методы (logout, getToken и т.д.) остаются без изменений
-    logout() {
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('user');
-        localStorage.removeItem('user_email');
+    getUser() {
+        const user = localStorage.getItem('user');
+        if (!user || user === "undefined") { 
+            return null;
+        }
+        try {
+            return JSON.parse(user);
+        } catch (e) {
+            console.error("Ошибка парсинга пользователя из localStorage", e);
+            localStorage.removeItem('user');
+            return null;
+        }
+    }
+
+    async getProfile() {
+        try {
+            const response = await api.get('/auth/profile');
+            return { success: true, data: response };
+        } catch (error) {
+            return { success: false, error: error.response?.data };
+        }
+    }
+
+    async updateProfile(profileData) {
+        try {
+            const response = await api.put('/auth/profile', profileData);
+            return { success: true, data: response };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
     }
 
     getToken() {
         return localStorage.getItem('auth_token');
+    }
+
+    logout() {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user');
+        localStorage.removeItem('user_email');
     }
 
     isAuthenticated() {

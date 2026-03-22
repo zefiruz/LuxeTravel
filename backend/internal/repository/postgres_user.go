@@ -11,6 +11,8 @@ type UserRepository interface {
 	Create(user model.User) error
 	CreateWithInfo(user model.User, info model.UserInfo) error
 	GetByEmail(email string) (model.User, error)
+	GetInfoByUserID(userID uuid.UUID) (model.UserInfo, error)
+	UpdateInfo(info model.UserInfo) error
 }
 
 type PostgresUserRepository struct {
@@ -72,4 +74,18 @@ func (r *PostgresUserRepository) GetByEmail(email string) (model.User, error) {
 		First(&user).Error
 
 	return user, err
+}
+
+func (r *PostgresUserRepository) GetInfoByUserID(userID uuid.UUID) (model.UserInfo, error) {
+    var info model.UserInfo
+    
+    err := r.db.Where("user_id = ?", userID).First(&info).Error
+    
+    return info, err
+}
+
+func (r *PostgresUserRepository) UpdateInfo(info model.UserInfo) error {
+    return r.db.Model(&model.UserInfo{}).
+        Where("user_id = ?", info.UserId).
+        Updates(info).Error
 }

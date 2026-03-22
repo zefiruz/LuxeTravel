@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import authService from '../services/auth';
 
-const AuthContext = createContext();
+export const AuthContext = createContext();
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -16,20 +16,49 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    // Проверяем наличие токена при загрузке приложения
-    const token = authService.getToken();
-    if (token) {
-      const savedUser = authService.getUser();
-      if (savedUser) {
-        setUser(savedUser);
-      } else {
-        // Можно сделать запрос к API для получения данных пользователя
-        // fetchUserProfile();
+  const fetchProfile = async () => {
+    try {
+      const result = await authService.getProfile(); // Вызывает GET /auth/profile
+      if (result.success) {
+        setUser(result.data);
+        localStorage.setItem('user', JSON.stringify(result.data));
       }
+    } catch (err) {
+      console.error("Не удалось загрузить профиль", err);
     }
-    setLoading(false);
+  };
+
+  useEffect(() => {
+    const initAuth = async () => {
+      const token = authService.getToken();
+      if (token) {
+        const savedUser = authService.getUser();
+        if (savedUser) setUser(savedUser);
+
+        await fetchProfile();
+      }
+      setLoading(false);
+    };
+    initAuth();
   }, []);
+
+  const updateProfile = async (profileData) => {
+    setError(null);
+    try {
+      const result = await authService.updateProfile(profileData);
+      if (result.success) {
+        setUser(profileData);
+        localStorage.setItem('user', JSON.stringify(profileData));
+        return true;
+      } else {
+        setError(result.error);
+        return false;
+      }
+    } catch (err) {
+      setError(err.message);
+      return false;
+    }
+  };
 
   const register = async (userData) => {
     setError(null);
@@ -53,17 +82,15 @@ export const AuthProvider = ({ children }) => {
     setError(null);
     try {
       const result = await authService.login(email, password);
-
       if (result.success) {
-        // Можно получить данные пользователя и установить
-        setUser({ email });
+        await fetchProfile();
         return true;
       } else {
         setError(result.error);
         return false;
       }
     } catch (err) {
-      setError(err.message);
+      setError("Ошибка сервера");
       return false;
     }
   };
@@ -81,6 +108,7 @@ export const AuthProvider = ({ children }) => {
     register,
     login,
     logout,
+    updateProfile,
     isAuthenticated: authService.isAuthenticated(),
   };
 

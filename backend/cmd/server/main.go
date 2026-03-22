@@ -86,6 +86,9 @@ func main() {
 			r.Get("/routes/{id}", routeHandler.GetRoute)
 			r.Put("/routes/{id}", routeHandler.UpdateRoute)
 			r.Delete("/routes/{id}", routeHandler.DeleteRoute)
+
+			r.Get("/auth/profile", authHandler.GetProfile) 
+			r.Put("/auth/profile", authHandler.UpdateProfile)
 		})
 	})
 
