@@ -1,8 +1,11 @@
+import React, { useContext } from 'react';
 import { Link } from "react-router-dom";
 import { MapPinned, CircleUserRound } from "lucide-react";
 import "../styles/Header.css";
+import React, { useContext } from "react";
 
 function Header() {
+  const { user } = useContext(AuthContext);
   return (
     <header className="header">
       <Link to="/route-builder" className="header__logo">
@@ -17,7 +20,9 @@ function Header() {
 
         <Link to="/auth" className="header__nav-btn">
           <CircleUserRound className="header__icon" />
-          <span>Профиль</span>
+          {user ?
+            (<span>user.email</span>)
+            : (<span>Профиль</span>)}
         </Link>
       </nav>
     </header>
