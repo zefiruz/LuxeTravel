@@ -3,11 +3,13 @@ package repository
 import (
 	"luxetravel/internal/model"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type CityRepository interface {
 	GetAll() ([]model.City, error)
+	GetById(id uuid.UUID) (*model.City, error)
 }
 
 type postgresCityRepository struct {
@@ -22,4 +24,12 @@ func (r *postgresCityRepository) GetAll() ([]model.City, error) {
 	var cities []model.City
 	err := r.db.Find(&cities).Error
 	return cities, err
+}
+
+func (r *postgresCityRepository) GetById(id uuid.UUID) (*model.City, error) {
+	var city model.City
+	if err := r.db.First(&city, "id = ?", id).Error; err != nil {
+		return nil, err
+	}
+	return &city, nil
 }

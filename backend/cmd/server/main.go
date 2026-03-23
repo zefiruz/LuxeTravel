@@ -70,6 +70,9 @@ func main() {
 		r.Post("/auth/login", authHandler.Login)
 
 		r.Get("/cities", cityHandler.ListCities)
+		r.Get("/cities/{id}", cityHandler.GetCity)
+
+		r.Get("/city/{cityId}", hotelHandler.ListHotelsByCity)
 
 		// ЗАКРЫТЫЕ РУЧКИ
 		r.Group(func(r chi.Router) {
@@ -83,8 +86,6 @@ func main() {
 
 			r.Get("/auth/profile", authHandler.GetProfile)
 			r.Put("/auth/profile", authHandler.UpdateProfile)
-
-			r.Get("/city/{cityId}", hotelHandler.ListHotelsByCity)
 		})
 	})
 
