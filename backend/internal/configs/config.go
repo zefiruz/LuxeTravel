@@ -12,6 +12,7 @@ type Config struct {
 	DBDSN      string
 	ServerPort string
 	JWTSecret  string
+	GigaChatSecret string
 }
 
 func getEnv(key string, defaultValue string) string {
@@ -27,7 +28,7 @@ func LoadConfig() *Config {
 		log.Println("Файл .env не найден, используются системные переменные окружения")
 	}
 
-	requriedEnv := []string{"DB_HOST", "DB_USER", "DB_PASSWORD", "DB_NAME", "JWT_SECRET"}
+	requriedEnv := []string{"DB_HOST", "DB_USER", "DB_PASSWORD", "DB_NAME", "JWT_SECRET", "GIGA_CHAT_SECRET"}
 	for _, env := range requriedEnv {
 		if os.Getenv(env) == "" {
 			log.Fatalf("Критическая ошибка: переменная окружения %s не установлена", env)
@@ -48,5 +49,6 @@ func LoadConfig() *Config {
 		DBDSN:      dsn,
 		ServerPort: getEnv("SERVER_PORT", ":8080"),
 		JWTSecret:  os.Getenv("JWT_SECRET"),
+		GigaChatSecret: os.Getenv("GIGA_CHAT_SECRET"),
 	}
 }

@@ -13,7 +13,7 @@ type RouteRepository interface {
 	Update(route *model.Route) error
 	Delete(id uuid.UUID) error
 	GetAllById(userID uuid.UUID) ([]model.Route, error)
-	//BookRoute(routeID uuid.UUID, bookings []model.Booking) error
+	CreateBooking(booking *model.Booking) error
 }
 
 type postgresRouteRepository struct {
@@ -28,6 +28,10 @@ func (r *postgresRouteRepository) Create(route *model.Route) error {
 	return r.db.Create(route).Error
 }
 
+func (r *postgresRouteRepository) CreateBooking(booking *model.Booking) error {
+	return r.db.Create(booking).Error
+}
+
 func (r *postgresRouteRepository) GetById(id uuid.UUID) (*model.Route, error) {
 	var route model.Route
 	err := r.db.Preload("Bookings").First(&route, "id = ?", id).Error
@@ -39,16 +43,12 @@ func (r *postgresRouteRepository) Update(route *model.Route) error {
 }
 
 func (r *postgresRouteRepository) Delete(id uuid.UUID) error {
-    return r.db.Delete(&model.Route{}, "id = ?", id).Error
+	return r.db.Delete(&model.Route{}, "id = ?", id).Error
 }
 
 func (r *postgresRouteRepository) GetAllById(userID uuid.UUID) ([]model.Route, error) {
-    var routes []model.Route
-    // Используем Preload, чтобы сразу видеть города в списке
-    err := r.db.Where("user_id = ?", userID).Find(&routes).Error
-    return routes, err
+	var routes []model.Route
+	// Используем Preload, чтобы сразу видеть города в списке
+	err := r.db.Where("user_id = ?", userID).Preload("Bookings").Find(&routes).Error
+	return routes, err
 }
-
-// func (r * postgresRouteRepository) BookRoute(routeID uuid.UUID, bookings []model.Booking) error{
-// 	return r.db.
-// }

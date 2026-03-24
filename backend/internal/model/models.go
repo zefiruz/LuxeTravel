@@ -14,13 +14,13 @@ type User struct {
 }
 
 type UserInfo struct {
-    ID         uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
-    UserId     uuid.UUID `gorm:"type:uuid;not null" json:"userId"`
-    FirstName  string    `gorm:"size:100" json:"firstName"`
-    LastName   string    `gorm:"size:100" json:"lastName"`
-    MiddleName string    `gorm:"size:100" json:"middleName"`
-    Email      string    `gorm:"uniqueIndex;size:255" json:"email"`
-    Phone      string    `gorm:"size:20" json:"phone"`
+	ID         uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
+	UserId     uuid.UUID `gorm:"type:uuid;not null" json:"userId"`
+	FirstName  string    `gorm:"size:100" json:"firstName"`
+	LastName   string    `gorm:"size:100" json:"lastName"`
+	MiddleName string    `gorm:"size:100" json:"middleName"`
+	Email      string    `gorm:"uniqueIndex;size:255" json:"email"`
+	Phone      string    `gorm:"size:20" json:"phone"`
 }
 
 type City struct {
@@ -54,7 +54,6 @@ type Route struct {
 	StartDate      time.Time `json:"start_date"`
 	EndDate        time.Time `json:"end_date"`
 	TravelersCount int       `json:"travelers_count"`
-	Mode           string    `json:"mode"`
 	Cities         []string  `gorm:"serializer:json" json:"cities"`
 	TripIdea       string    `json:"trip_idea"`
 	CreatedAt      time.Time `json:"created_at"`

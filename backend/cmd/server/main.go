@@ -10,6 +10,7 @@ import (
 	appMiddleware "luxetravel/internal/middleware"
 	"luxetravel/internal/model"
 	"luxetravel/internal/repository"
+	"luxetravel/internal/service"
 
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
@@ -45,11 +46,13 @@ func main() {
 	cityRepo := repository.NewPostgresCityRepository(db)
 	hotelRepo := repository.NewPostgresHotelRepository(db)
 
+	aiService := service.NewGigaChatService(cfg.GigaChatSecret)
+
 	authHandler := handler.NewAuthHandler(userRepo, cfg.JWTSecret)
-	routeHandler := handler.NewRouteHandler(routeRepo)
+	routeHandler := handler.NewRouteHandler(routeRepo, aiService)
 	cityHandler := handler.NewCityHandler(cityRepo)
 	hotelHandler := handler.NewHotelHandler(hotelRepo)
-
+	
 	r := chi.NewRouter()
 
 	r.Use(cors.Handler(cors.Options{
@@ -78,11 +81,18 @@ func main() {
 		r.Group(func(r chi.Router) {
 			r.Use(appMiddleware.AuthMiddleware(cfg.JWTSecret))
 
-			r.Post("/routes", routeHandler.CreateRoute)
-			r.Get("/routes", routeHandler.ListUserRoutes)
-			r.Get("/routes/{id}", routeHandler.GetRoute)
-			r.Put("/routes/{id}", routeHandler.UpdateRoute)
-			r.Delete("/routes/{id}", routeHandler.DeleteRoute)
+			r.Route("/routes", func(r chi.Router) {
+				r.Post("/manual", routeHandler.CreateRouteManual)
+				r.Post("/generate", routeHandler.CreateRouteAI)
+				r.Post("/{routeId}/bookings", routeHandler.AddBookingToRoute)
+
+				r.Get("/", routeHandler.ListUserRoutes)
+				r.Get("/{id}", routeHandler.GetRoute)
+
+				r.Put("/{id}", routeHandler.UpdateRoute)
+
+				r.Delete("/{id}", routeHandler.DeleteRoute)
+			})
 
 			r.Get("/auth/profile", authHandler.GetProfile)
 			r.Put("/auth/profile", authHandler.UpdateProfile)
