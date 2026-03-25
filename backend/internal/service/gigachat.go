@@ -13,27 +13,31 @@ import (
 	"github.com/google/uuid"
 )
 
-type GigaChatService struct {
-	AuthKey string
-	Client  *http.Client
-	accessToken string    
-    expiresAt   time.Time
+type GigaChatService interface {
+    GenerateCities(tripIdea string, availableCities []string) ([]string, error)
 }
 
-func NewGigaChatService(authKey string) *GigaChatService {
+type gigaChatService struct {
+	AuthKey     string
+	Client      *http.Client
+	accessToken string
+	expiresAt   time.Time
+}
+
+func NewGigaChatService(authKey string) GigaChatService {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
-	return &GigaChatService{
+	return &gigaChatService{
 		AuthKey: authKey,
 		Client:  &http.Client{Transport: tr, Timeout: 30 * time.Second},
 	}
 }
 
-func (s *GigaChatService) getAccessToken() (string, error) {
+func (s *gigaChatService) getAccessToken() (string, error) {
 	if s.accessToken != "" && time.Now().Before(s.expiresAt.Add(-1*time.Minute)) {
-        return s.accessToken, nil
-    }
+		return s.accessToken, nil
+	}
 
 	reqUrl := "https://ngw.devices.sberbank.ru:9443/api/v2/oauth"
 	data := url.Values{}
@@ -52,8 +56,8 @@ func (s *GigaChatService) getAccessToken() (string, error) {
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-        return "", fmt.Errorf("oauth failed with status: %d", res.StatusCode)
-    }
+		return "", fmt.Errorf("oauth failed with status: %d", res.StatusCode)
+	}
 
 	var result struct {
 		AccessToken string `json:"access_token"`
@@ -61,22 +65,30 @@ func (s *GigaChatService) getAccessToken() (string, error) {
 	}
 
 	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
-        return "", err
-    }
+		return "", err
+	}
 
 	s.accessToken = result.AccessToken
-    s.expiresAt = time.UnixMilli(result.ExpiresAt)
-	
+	s.expiresAt = time.UnixMilli(result.ExpiresAt)
+
 	return result.AccessToken, nil
 }
 
-func (s *GigaChatService) GenerateCities(tripIdea string) ([]string, error) {
+func (s *gigaChatService) GenerateCities(tripIdea string, availableCities []string) ([]string, error) {
 	token, err := s.getAccessToken()
 	if err != nil {
 		return nil, fmt.Errorf("ошибка получения токена: %v", err)
 	}
 
-	systemPrompt := "Ты опытный туроператор по России. Пользователь опишет свои пожелания, а ты должен вернуть ТОЛЬКО названия 3-х подходящих городов через запятую, без лишнего текста."
+	citiesList := strings.Join(availableCities, ", ")
+
+	systemPrompt := fmt.Sprintf(
+        "Ты опытный туроператор по России. Твоя задача — предложить 3 города из списка ниже, "+
+        "которые лучше всего подходят под запрос пользователя. "+
+        "ВЫБИРАЙ ТОЛЬКО ИЗ ЭТОГО СПИСКА: %s. "+
+        "Верни только названия через запятую, без лишних слов.", 
+        citiesList,
+    )
 
 	payload := map[string]interface{}{
 		"model": "GigaChat",
@@ -106,7 +118,7 @@ func (s *GigaChatService) GenerateCities(tripIdea string) ([]string, error) {
 			} `json:"message"`
 		} `json:"choices"`
 	}
-	
+
 	if err := json.NewDecoder(res.Body).Decode(&chatRes); err != nil || len(chatRes.Choices) == 0 {
 		return nil, fmt.Errorf("ошибка парсинга ответа нейросети")
 	}

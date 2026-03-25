@@ -16,75 +16,64 @@ import (
 
 type RouteHandler struct {
 	Repo      repository.RouteRepository
-	AIService *service.GigaChatService
+	CityRepo  repository.CityRepository
+	AIService service.GigaChatService
 }
 
-func NewRouteHandler(repo repository.RouteRepository, aiService *service.GigaChatService) *RouteHandler {
+func NewRouteHandler(repo repository.RouteRepository, cityRepo repository.CityRepository, aiService service.GigaChatService) *RouteHandler {
 	return &RouteHandler{
-		Repo: repo,
+		Repo:      repo,
+		CityRepo:  cityRepo,
 		AIService: aiService,
 	}
 }
 
-func (h *RouteHandler) CreateRouteManual(w http.ResponseWriter, r *http.Request) {
-	var input struct {
-		StartDate      string   `json:"start_date"`
-		EndDate        string   `json:"end_date"`
-		TravelersCount int      `json:"travelers_count"`
-		Cities         []string `json:"cities"`
+// SuggestCitiesAI — просто возвращает список объектов городов по совету ИИ
+func (h *RouteHandler) SuggestCitiesAI(w http.ResponseWriter, r *http.Request) {
+	cityNames, err := h.Repo.GetAvailableCityNames()
+	if err != nil {
+		http.Error(w, "Ошибка получения списка городов", 500)
+		return
 	}
 
+	var input struct {
+		TripIdea string `json:"trip_idea"`
+	}
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		http.Error(w, "Некорректный JSON", http.StatusBadRequest)
 		return
 	}
 
-	if len(input.Cities) == 0 {
-		http.Error(w, "Список городов не может быть пустым", http.StatusBadRequest)
-		return
-	}
-
-	rawUserID := r.Context().Value(middleware.UserIDKey)
-	userIDStr, ok := rawUserID.(string)
-	if !ok {
-		http.Error(w, "Ошибка авторизации: неверный ID пользователя", http.StatusUnauthorized)
-		return
-	}
-
-	userID, err := uuid.Parse(userIDStr)
+	aiCities, err := h.AIService.GenerateCities(input.TripIdea, cityNames)
 	if err != nil {
-		http.Error(w, "Неверный формат UUID", http.StatusBadRequest)
+		http.Error(w, "Ошибка ИИ", 500)
 		return
 	}
 
-	parsedStart, _ := time.Parse("2006-01-02", input.StartDate)
-	parsedEnd, _ := time.Parse("2006-01-02", input.EndDate)
-
-	newRoute := model.Route{
-		ID:             uuid.New(),
-		UserID:         userID,
-		StartDate:      parsedStart,
-		EndDate:        parsedEnd,
-		TravelersCount: input.TravelersCount,
-		Cities:         input.Cities,
-		CreatedAt:      time.Now(),
+	var suggestedCities []model.City
+	for _, name := range aiCities {
+		city, err := h.CityRepo.GetByName(name)
+		if err == nil {
+			suggestedCities = append(suggestedCities, *city)
+		}
 	}
 
-	if err := h.Repo.Create(&newRoute); err != nil {
-		http.Error(w, "Ошибка сохранения: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(newRoute)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(suggestedCities)
 }
 
-func (h *RouteHandler) CreateRouteAI(w http.ResponseWriter, r *http.Request) {
+// CreateCompleteRoute — создает маршрут и бронирования одновременно
+func (h *RouteHandler) CreateCompleteRoute(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		StartDate      string `json:"start_date"`
 		EndDate        string `json:"end_date"`
 		TravelersCount int    `json:"travelers_count"`
 		TripIdea       string `json:"trip_idea"`
+		Bookings       []struct {
+			RoomID    uuid.UUID `json:"room_id"`
+			StartDate string    `json:"start_date"`
+			EndDate   string    `json:"end_date"`
+		} `json:"bookings"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
@@ -92,171 +81,98 @@ func (h *RouteHandler) CreateRouteAI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if input.TripIdea == "" {
-		http.Error(w, "Описание поездки не может быть пустым", http.StatusBadRequest)
-		return
-	}
-
-	// Обращаемся к GigaChat
-	aiCities, err := h.AIService.GenerateCities(input.TripIdea)
-	if err != nil {
-		http.Error(w, "Ошибка генерации ИИ: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	rawUserID := r.Context().Value(middleware.UserIDKey)
-	userIDStr, ok := rawUserID.(string)
+	userIDStr, ok := r.Context().Value(middleware.UserIDKey).(string)
 	if !ok {
-		http.Error(w, "Ошибка авторизации: неверный ID пользователя", http.StatusUnauthorized)
+		http.Error(w, "Не авторизован", http.StatusUnauthorized)
 		return
 	}
-
-	userID, err := uuid.Parse(userIDStr)
-	if err != nil {
-		http.Error(w, "Неверный формат UUID", http.StatusBadRequest)
-		return
-	}
+	userID, _ := uuid.Parse(userIDStr)
 
 	parsedStart, _ := time.Parse("2006-01-02", input.StartDate)
 	parsedEnd, _ := time.Parse("2006-01-02", input.EndDate)
 
+	// Подтягиваем начальные статусы (в идеале ID должны быть в константах или кеше)
+	routeStatusID, _ := h.Repo.GetStatusByTitle("Created")
+	bookingStatusID, _ := h.Repo.GetBookingStatusByTitle("Pending")
+
+	var routeBookings []model.Booking
+	for _, b := range input.Bookings {
+		bStart, _ := time.Parse("2006-01-02", b.StartDate)
+		bEnd, _ := time.Parse("2006-01-02", b.EndDate)
+
+		routeBookings = append(routeBookings, model.Booking{
+			ID:         uuid.New(),
+			RoomTypeID: b.RoomID,
+			StatusID:   bookingStatusID,
+			StartDate:  bStart,
+			EndDate:    bEnd,
+			CreatedAt:  time.Now(),
+		})
+	}
+
 	newRoute := model.Route{
-		ID:             uuid.New(),
-		UserID:         userID,
-		StartDate:      parsedStart,
-		EndDate:        parsedEnd,
-		TravelersCount: input.TravelersCount,
-		Cities:         aiCities,
-		TripIdea:       input.TripIdea,
-		CreatedAt:      time.Now(),
+		ID:          uuid.New(),
+		UserID:      userID,
+		StatusID:    routeStatusID,
+		StartDate:   parsedStart,
+		EndDate:     parsedEnd,
+		GuestsCount: input.TravelersCount,
+		Prompt:      input.TripIdea,
+		Bookings:    routeBookings,
+		CreatedAt:   time.Now(),
 	}
 
 	if err := h.Repo.Create(&newRoute); err != nil {
-		http.Error(w, "Ошибка сохранения: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Ошибка сохранения: "+err.Error(), 500)
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(newRoute)
 }
 
-func (h *RouteHandler) AddBookingToRoute(w http.ResponseWriter, r *http.Request) {
-	routeIDStr := chi.URLParam(r, "routeId")
-	routeID, err := uuid.Parse(routeIDStr)
-	if err != nil {
-		http.Error(w, "Неверный ID маршрута", http.StatusBadRequest)
-		return
-	}
-
-	var input struct {
-		RoomID    uuid.UUID `json:"room_id"`
-		StartDate string    `json:"start_date"`
-		EndDate   string    `json:"end_date"`
-	}
-
-	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		http.Error(w, "Некорректный JSON", http.StatusBadRequest)
-		return
-	}
-
-	parsedStart, err := time.Parse("2006-01-02", input.StartDate)
-	if err != nil {
-        http.Error(w, "Неверная дата начала", http.StatusBadRequest)
-        return
-    }
-	parsedEnd, _ := time.Parse("2006-01-02", input.EndDate)
-
-	// ТУТ ДОЛЖНА БЫТЬ ПРОВЕРКА (Нужен доступ к Room Repo или БД)
-
-	newBooking := model.Booking{
-		ID:        uuid.New(),
-		RouteId:   routeID,
-		RoomId:    input.RoomID,
-		StartDate: parsedStart,
-		EndDate:   parsedEnd,
-	}
-
-	if err := h.Repo.CreateBooking(&newBooking); err != nil {
-		http.Error(w, "Ошибка добавления брони", http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(newBooking)
-}
-
+// GetRoute — возвращает маршрут с полной информацией и ценой
 func (h *RouteHandler) GetRoute(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
-
-	if idStr == "" {
-		http.Error(w, "ID маршрута не найден в URL", http.StatusBadRequest)
-		return
-	}
-
-	id, err := uuid.Parse(idStr)
-	if err != nil {
-		http.Error(w, "Некорректный формат UUID", http.StatusBadRequest)
-		return
-	}
+	id, _ := uuid.Parse(chi.URLParam(r, "id"))
 
 	route, err := h.Repo.GetById(id)
 	if err != nil {
-		http.Error(w, "Маршрут не найден", http.StatusNotFound)
+		http.Error(w, "Маршрут не найден", 404)
 		return
 	}
 
 	rawUserID := r.Context().Value(middleware.UserIDKey)
-    currentUserID, _ := uuid.Parse(rawUserID.(string))
-    if route.UserID != currentUserID {
-        http.Error(w, "Доступ запрещен", http.StatusForbidden)
-        return
-    }
-
-	response := map[string]interface{}{
-		"route":       route,
-		"total_price": 800000,
+	currentUserID, _ := uuid.Parse(rawUserID.(string))
+	if route.UserID != currentUserID {
+		http.Error(w, "Доступ запрещен", http.StatusForbidden)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	json.NewEncoder(w).Encode(route)
 }
 
 func (h *RouteHandler) UpdateRoute(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
-	id, _ := uuid.Parse(idStr)
-
-	rawUserID := r.Context().Value(middleware.UserIDKey)
-	currentUserIDStr, ok := rawUserID.(string)
-	if !ok {
-		http.Error(w, "Ошибка авторизации", http.StatusUnauthorized)
-		return
-	}
-	currentUserID, _ := uuid.Parse(currentUserIDStr)
+	id, _ := uuid.Parse(chi.URLParam(r, "id"))
 
 	var input struct {
-		Cities []string `json:"cities"`
+		TripIdea       string `json:"trip_idea"`
+		TravelersCount int    `json:"travelers_count"`
 	}
-
-	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		http.Error(w, "Некорректный JSON", http.StatusBadRequest)
-		return
-	}
+	json.NewDecoder(r.Body).Decode(&input)
 
 	route, err := h.Repo.GetById(id)
 	if err != nil {
-		http.Error(w, "Маршрут не найден", http.StatusNotFound)
+		http.Error(w, "Не найден", 404)
 		return
 	}
 
-	if route.UserID != currentUserID {
-		http.Error(w, "У вас нет прав на редактирование этого маршрута", http.StatusForbidden)
-		return
-	}
-
-	route.Cities = input.Cities
+	route.Prompt = input.TripIdea
+	route.GuestsCount = input.TravelersCount
 
 	if err := h.Repo.Update(route); err != nil {
-		http.Error(w, "Ошибка обновления", http.StatusInternalServerError)
+		http.Error(w, "Ошибка обновления", 500)
 		return
 	}
 
@@ -264,44 +180,21 @@ func (h *RouteHandler) UpdateRoute(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *RouteHandler) DeleteRoute(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
-	id, err := uuid.Parse(idStr)
-	if err != nil {
-		http.Error(w, "Неверный формат ID", http.StatusBadRequest)
-		return
-	}
-
-	rawUserID := r.Context().Value(middleware.UserIDKey)
-	currentUserIDStr := rawUserID.(string)
-	currentUserID, _ := uuid.Parse(currentUserIDStr)
-
-	route, err := h.Repo.GetById(id)
-	if err != nil {
-		http.Error(w, "Маршрут не найден", http.StatusNotFound)
-		return
-	}
-
-	if route.UserID != currentUserID {
-		http.Error(w, "У вас нет прав на удаление этого маршрута", http.StatusForbidden)
-		return
-	}
-
+	id, _ := uuid.Parse(chi.URLParam(r, "id"))
 	if err := h.Repo.Delete(id); err != nil {
-		http.Error(w, "Ошибка при удалении", http.StatusInternalServerError)
+		http.Error(w, "Ошибка", 500)
 		return
 	}
-
 	w.WriteHeader(http.StatusNoContent)
 }
 
 func (h *RouteHandler) ListUserRoutes(w http.ResponseWriter, r *http.Request) {
 	rawUserID := r.Context().Value(middleware.UserIDKey)
-	userIDStr := rawUserID.(string)
-	userID, _ := uuid.Parse(userIDStr)
+	userID, _ := uuid.Parse(rawUserID.(string))
 
 	routes, err := h.Repo.GetAllById(userID)
 	if err != nil {
-		http.Error(w, "Ошибка получения списка", http.StatusInternalServerError)
+		http.Error(w, "Ошибка", 500)
 		return
 	}
 

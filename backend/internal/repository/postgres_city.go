@@ -10,6 +10,7 @@ import (
 type CityRepository interface {
 	GetAll() ([]model.City, error)
 	GetById(id uuid.UUID) (*model.City, error)
+	GetByName(name string) (*model.City, error)
 }
 
 type postgresCityRepository struct {
@@ -32,4 +33,13 @@ func (r *postgresCityRepository) GetById(id uuid.UUID) (*model.City, error) {
 		return nil, err
 	}
 	return &city, nil
+}
+
+func (r *postgresCityRepository) GetByName(name string) (*model.City, error) {
+    var city model.City
+    err := r.db.Where("title ILIKE ?", name).First(&city).Error
+    if err != nil {
+        return nil, err
+    }
+    return &city, nil
 }

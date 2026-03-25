@@ -29,13 +29,18 @@ func main() {
 	fmt.Println("Успешное подключение к PostgreSQL")
 
 	err = db.AutoMigrate(
+		&model.Role{},
+		&model.RouteStatus{},
+		&model.BookingStatus{},
+		&model.City{},
 		&model.User{},
 		&model.UserInfo{},
-		&model.City{},
 		&model.Hotel{},
 		&model.Room{},
 		&model.Route{},
 		&model.Booking{},
+		&model.HotelManager{},
+		&model.Meet{},
 	)
 	if err != nil {
 		log.Fatal("Ошибка миграции таблиц: ", err)
@@ -49,10 +54,10 @@ func main() {
 	aiService := service.NewGigaChatService(cfg.GigaChatSecret)
 
 	authHandler := handler.NewAuthHandler(userRepo, cfg.JWTSecret)
-	routeHandler := handler.NewRouteHandler(routeRepo, aiService)
+	routeHandler := handler.NewRouteHandler(routeRepo, cityRepo, aiService)
 	cityHandler := handler.NewCityHandler(cityRepo)
 	hotelHandler := handler.NewHotelHandler(hotelRepo)
-	
+
 	r := chi.NewRouter()
 
 	r.Use(cors.Handler(cors.Options{
@@ -75,18 +80,17 @@ func main() {
 		r.Get("/cities", cityHandler.ListCities)
 		r.Get("/cities/{id}", cityHandler.GetCity)
 
-		r.Get("/city/{cityId}", hotelHandler.ListHotelsByCity)
+		r.Get("/cities/{cityId}/hotels", hotelHandler.ListHotelsByCity)
 
 		// ЗАКРЫТЫЕ РУЧКИ
 		r.Group(func(r chi.Router) {
 			r.Use(appMiddleware.AuthMiddleware(cfg.JWTSecret))
 
 			r.Route("/routes", func(r chi.Router) {
-				r.Post("/manual", routeHandler.CreateRouteManual)
-				r.Post("/generate", routeHandler.CreateRouteAI)
-				r.Post("/{routeId}/bookings", routeHandler.AddBookingToRoute)
+				r.Post("/generate", routeHandler.SuggestCitiesAI)
+				r.Post("/", routeHandler.CreateCompleteRoute) // Создать весь маршрут целиком
 
-				r.Get("/", routeHandler.ListUserRoutes)
+				r.Get("/", routeHandler.ListUserRoutes) // Получить список моих маршрутов
 				r.Get("/{id}", routeHandler.GetRoute)
 
 				r.Put("/{id}", routeHandler.UpdateRoute)
