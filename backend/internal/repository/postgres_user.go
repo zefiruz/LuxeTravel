@@ -16,15 +16,15 @@ type UserRepository interface {
 	GetRoleByTitle(title string) (uuid.UUID, error)
 }
 
-type PostgresUserRepository struct {
+type postgresUserRepository struct {
 	db *gorm.DB
 }
 
-func NewPostgresUserRepository(db *gorm.DB) *PostgresUserRepository {
-	return &PostgresUserRepository{db: db}
+func NewPostgresUserRepository(db *gorm.DB) *postgresUserRepository {
+	return &postgresUserRepository{db: db}
 }
 
-func (r *PostgresUserRepository) Create(u model.User) error {
+func (r *postgresUserRepository) Create(u model.User) error {
 	return r.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(&u).Error; err != nil {
 			return err
@@ -43,13 +43,13 @@ func (r *PostgresUserRepository) Create(u model.User) error {
 	})
 }
 
-func (r *PostgresUserRepository) GetByID(id uuid.UUID) (model.User, error) {
+func (r *postgresUserRepository) GetByID(id uuid.UUID) (model.User, error) {
 	var user model.User
 	err := r.db.First(&user, "id = ?", id).Error
 	return user, err
 }
 
-func (r *PostgresUserRepository) CreateWithInfo(user model.User, info model.UserInfo) error {
+func (r *postgresUserRepository) CreateWithInfo(user model.User, info model.UserInfo) error {
 	return r.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(&user).Error; err != nil {
 			return err
@@ -65,7 +65,7 @@ func (r *PostgresUserRepository) CreateWithInfo(user model.User, info model.User
 	})
 }
 
-func (r *PostgresUserRepository) GetByEmail(email string) (*model.User, error) {
+func (r *postgresUserRepository) GetByEmail(email string) (*model.User, error) {
 	var user model.User
 
 	err := r.db.Preload("Role").Where("email = ?", email).First(&user).Error
@@ -75,7 +75,7 @@ func (r *PostgresUserRepository) GetByEmail(email string) (*model.User, error) {
 	return &user, nil
 }
 
-func (r *PostgresUserRepository) GetInfoByUserID(userID uuid.UUID) (*model.UserInfo, error) {
+func (r *postgresUserRepository) GetInfoByUserID(userID uuid.UUID) (*model.UserInfo, error) {
 	var info model.UserInfo
 
 	err := r.db.Where("user_id = ?", userID).First(&info).Error
@@ -83,13 +83,13 @@ func (r *PostgresUserRepository) GetInfoByUserID(userID uuid.UUID) (*model.UserI
 	return &info, err
 }
 
-func (r *PostgresUserRepository) UpdateInfo(info model.UserInfo) error {
+func (r *postgresUserRepository) UpdateInfo(info model.UserInfo) error {
 	return r.db.Model(&model.UserInfo{}).
 		Where("user_id = ?", info.UserID).
 		Updates(info).Error
 }
 
-func (r *PostgresUserRepository) GetRoleByTitle(title string) (uuid.UUID, error) {
+func (r *postgresUserRepository) GetRoleByTitle(title string) (uuid.UUID, error) {
 	var role model.Role
 	err := r.db.Where("title = ?", title).First(&role).Error
 	if err != nil {

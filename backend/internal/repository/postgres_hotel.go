@@ -9,6 +9,8 @@ import (
 
 type HotelRepository interface {
 	GetByCityID(cityID uuid.UUID) ([]model.Hotel, error)
+	Create(hotel *model.Hotel) error
+	CreateRoomType(rt *model.RoomType) error
 }
 
 type postgresHotelRepository struct {
@@ -17,6 +19,14 @@ type postgresHotelRepository struct {
 
 func NewPostgresHotelRepository(db *gorm.DB) HotelRepository {
 	return &postgresHotelRepository{db: db}
+}
+
+func (r *postgresHotelRepository) Create(hotel *model.Hotel) error {
+    return r.db.Create(hotel).Error
+}
+
+func (r *postgresHotelRepository) CreateRoomType(rt *model.RoomType) error {
+    return r.db.Create(rt).Error
 }
 
 func (r *postgresHotelRepository) GetByCityID(cityID uuid.UUID) ([]model.Hotel, error) {
