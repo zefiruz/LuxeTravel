@@ -85,7 +85,7 @@ func main() {
 		// ЗАКРЫТЫЕ РУЧКИ
 		r.Group(func(r chi.Router) {
 			r.Use(appMiddleware.AuthMiddleware(cfg.JWTSecret))
-
+			//r.Use(appMiddleware.CheckRole("manager"))
 			r.Route("/routes", func(r chi.Router) {
 				r.Post("/generate", routeHandler.SuggestCitiesAI)
 				r.Post("/", routeHandler.CreateCompleteRoute) // Создать весь маршрут целиком
