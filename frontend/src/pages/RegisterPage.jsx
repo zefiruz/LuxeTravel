@@ -6,7 +6,7 @@ import "../styles/AuthPages.css";
 
 function RegisterPage() {
   const navigate = useNavigate();
-  const { register, error, loading } = useAuth();
+  const { register, error, loading, login } = useAuth();
 
   const [form, setForm] = useState({
     lastName: "",
@@ -38,9 +38,15 @@ function RegisterPage() {
     }
 
     const success = await register(form);
-
+    console.log(success);
     if (success) {
-      navigate("/profile");
+      const success_login = await login(form.email, form.password);
+      if (success_login) {
+        navigate("/profile");
+      }
+      else {
+        navigate("/login");
+      }
     } else {
       setLocalError(error || "Ошибка при регистрации");
     }

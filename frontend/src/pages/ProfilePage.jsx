@@ -1,22 +1,20 @@
 import { useEffect, useState } from "react";
 import { PencilLine, Check, X } from "lucide-react";
 import Header from "../components/Header";
-import { useAuth } from "../context/AuthContext"; // Должен содержать updateProfile
+import { useAuth } from "../context/AuthContext"; 
 import "../styles/ProfilePage.css";
 
-const fallbackProfile = {
-  lastName: "Иванов",
-  firstName: "Иван",
-  middleName: "Иванович",
-  email: "pochta@mail.ru",
-  phone: "+7 (910)-123-45-67",
-};
+// const fallbackProfile = {
+//   lastName: "Иванов",
+//   firstName: "Иван",
+//   middleName: "Иванович",
+//   email: "pochta@mail.ru",
+//   phone: "+7 (910)-123-45-67",
+// };
 
 function ProfilePage() {
-  // 1. Достаем updateProfile вместо register
-  const { user, updateProfile } = useAuth(); 
+  const { user, updateProfile } = useAuth();
 
-  // Функция для нормализации данных (если бэкенд присылает FirstName вместо firstName)
   const mapUserData = (u) => {
     if (!u) return fallbackProfile;
     return {
@@ -32,7 +30,6 @@ function ProfilePage() {
   const [draftProfile, setDraftProfile] = useState(() => mapUserData(user));
   const [isEditing, setIsEditing] = useState(false);
 
-  // Синхронизация, если данные пользователя загрузились позже (после fetchProfile)
   useEffect(() => {
     const freshData = mapUserData(user);
     setProfile(freshData);

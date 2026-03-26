@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8080/api'; // Замените на ваш URL
+const API_BASE_URL = 'http://localhost:8080/api'; 
 
 class ApiService {
   constructor() {

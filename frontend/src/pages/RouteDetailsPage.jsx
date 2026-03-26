@@ -49,7 +49,7 @@ function RouteDetailsPage() {
             {routeStops.map((stop) => (
               <div className="route-details-stop" key={stop.id}>
                 <div className="route-details-stop__image" />
-
+                
                 <div className="route-details-stop__info">
                   <p className="route-details-stop__city">{stop.city}</p>
                   <p className="route-details-stop__dates">{stop.dates}</p>

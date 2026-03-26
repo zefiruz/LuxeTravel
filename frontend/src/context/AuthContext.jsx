@@ -18,7 +18,8 @@ export const AuthProvider = ({ children }) => {
 
   const fetchProfile = async () => {
     try {
-      const result = await authService.getProfile(); // Вызывает GET /auth/profile
+      const result = await authService.getProfile();
+      console.log(result);// Вызывает GET /auth/profile
       if (result.success) {
         setUser(result.data);
         localStorage.setItem('user', JSON.stringify(result.data));
