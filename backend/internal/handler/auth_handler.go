@@ -2,13 +2,12 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 
+	appMiddleware "luxetravel/internal/middleware"
 	"luxetravel/internal/model"
 	"luxetravel/internal/repository"
-	appMiddleware "luxetravel/internal/middleware"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
@@ -54,8 +53,6 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Printf("Данные после Decode: %+v\n", input)
-
 	if input.Email == "" || input.Password == "" || input.FirstName == "" {
 		http.Error(w, "Заполните обязательные поля", http.StatusBadRequest)
 		return
@@ -67,22 +64,27 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	roleID, err := h.Repo.GetRoleByTitle("client")
+	if err != nil {
+		http.Error(w, "Системная ошибка: роль не найдена", 500)
+		return
+	}
+
 	userID := uuid.New()
 
 	newUser := model.User{
 		ID:           userID,
-		Login:        input.Email,
+		Email:        input.Email,
 		PasswordHash: string(hashedPassword),
-		Role:         "client",
+		RoleID:       roleID,
 	}
 
 	newUserInfo := model.UserInfo{
 		ID:         uuid.New(),
-		UserId:     userID,
+		UserID:     userID,
 		FirstName:  input.FirstName,
 		LastName:   input.LastName,
 		MiddleName: input.MiddleName,
-		Email:      input.Email,
 		Phone:      input.Phone,
 	}
 
@@ -123,69 +125,66 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := h.generateToken(user.ID, user.Role)
+	token, err := h.generateToken(user.ID, user.Role.Title)
 	if err != nil {
-		http.Error(w, "Ошибка генерации токена", http.StatusInternalServerError)
+		http.Error(w, "Ошибка токена", 500)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
-        "token": token,
-        "user": map[string]string{
-            "id":    user.ID.String(),
-            "email": input.Email,
-        },
-    })
+		"token": token,
+		"user":  map[string]string{"id": user.ID.String(), "role": user.Role.Title},
+	})
 }
 
 func (h *AuthHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
-    userIDVal := r.Context().Value(appMiddleware.UserIDKey)
-    
-    userIDStr, ok := userIDVal.(string)
-    if !ok {
-        http.Error(w, "Пользователь не авторизован", http.StatusUnauthorized)
-        return
-    }
+	userIDVal := r.Context().Value(appMiddleware.UserIDKey)
 
-    userID, err := uuid.Parse(userIDStr)
-    if err != nil {
-        http.Error(w, "Некорректный ID", http.StatusBadRequest)
-        return
-    }
+	userIDStr, ok := userIDVal.(string)
+	if !ok {
+		http.Error(w, "Пользователь не авторизован", http.StatusUnauthorized)
+		return
+	}
 
-    userInfo, err := h.Repo.GetInfoByUserID(userID)
-    if err != nil {
-        http.Error(w, "Профиль не найден", http.StatusNotFound)
-        return
-    }
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		http.Error(w, "Некорректный ID", http.StatusBadRequest)
+		return
+	}
 
-    w.Header().Set("Content-Type", "application/json")
-    json.NewEncoder(w).Encode(userInfo)
+	userInfo, err := h.Repo.GetInfoByUserID(userID)
+	if err != nil {
+		http.Error(w, "Профиль не найден", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(userInfo)
 }
 
 func (h *AuthHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
-    userIDVal := r.Context().Value(appMiddleware.UserIDKey)
-    userIDStr, ok := userIDVal.(string)
-    if !ok {
-        http.Error(w, "Не авторизован", http.StatusUnauthorized)
-        return
-    }
+	userIDVal := r.Context().Value(appMiddleware.UserIDKey)
+	userIDStr, ok := userIDVal.(string)
+	if !ok {
+		http.Error(w, "Не авторизован", http.StatusUnauthorized)
+		return
+	}
 
-    var input model.UserInfo
-    if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-        http.Error(w, "Некорректный JSON", http.StatusBadRequest)
-        return
-    }
+	var input model.UserInfo
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		http.Error(w, "Некорректный JSON", http.StatusBadRequest)
+		return
+	}
 
-    uid, _ := uuid.Parse(userIDStr)
-    input.UserId = uid
+	uid, _ := uuid.Parse(userIDStr)
+	input.UserID = uid
 
-    if err := h.Repo.UpdateInfo(input); err != nil {
-        http.Error(w, "Ошибка при обновлении профиля", http.StatusInternalServerError)
-        return
-    }
+	if err := h.Repo.UpdateInfo(input); err != nil {
+		http.Error(w, "Ошибка при обновлении профиля", http.StatusInternalServerError)
+		return
+	}
 
-    w.Header().Set("Content-Type", "application/json")
-    json.NewEncoder(w).Encode(input)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(input)
 }

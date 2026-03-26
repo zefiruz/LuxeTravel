@@ -13,7 +13,10 @@ type RouteRepository interface {
 	Update(route *model.Route) error
 	Delete(id uuid.UUID) error
 	GetAllById(userID uuid.UUID) ([]model.Route, error)
-	//BookRoute(routeID uuid.UUID, bookings []model.Booking) error
+	CreateBooking(booking *model.Booking) error
+	GetAvailableCityNames() ([]string, error)
+	GetStatusByTitle(title string) (uuid.UUID, error)
+    GetBookingStatusByTitle(title string) (uuid.UUID, error)
 }
 
 type postgresRouteRepository struct {
@@ -28,10 +31,17 @@ func (r *postgresRouteRepository) Create(route *model.Route) error {
 	return r.db.Create(route).Error
 }
 
+func (r *postgresRouteRepository) CreateBooking(booking *model.Booking) error {
+	return r.db.Create(booking).Error
+}
+
 func (r *postgresRouteRepository) GetById(id uuid.UUID) (*model.Route, error) {
-	var route model.Route
-	err := r.db.Preload("Bookings").First(&route, "id = ?", id).Error
-	return &route, err
+    var route model.Route
+    err := r.db.
+        Preload("Status").
+        Preload("Bookings.Status").
+        First(&route, "id = ?", id).Error
+    return &route, err
 }
 
 func (r *postgresRouteRepository) Update(route *model.Route) error {
@@ -39,16 +49,39 @@ func (r *postgresRouteRepository) Update(route *model.Route) error {
 }
 
 func (r *postgresRouteRepository) Delete(id uuid.UUID) error {
-    return r.db.Delete(&model.Route{}, "id = ?", id).Error
+	return r.db.Delete(&model.Route{}, "id = ?", id).Error
 }
 
 func (r *postgresRouteRepository) GetAllById(userID uuid.UUID) ([]model.Route, error) {
     var routes []model.Route
-    // Используем Preload, чтобы сразу видеть города в списке
-    err := r.db.Where("user_id = ?", userID).Find(&routes).Error
+    err := r.db.
+        Where("user_id = ?", userID).
+        Preload("Status").
+        Preload("Bookings.Room.Hotel.City"). 
+        Find(&routes).Error
     return routes, err
 }
 
-// func (r * postgresRouteRepository) BookRoute(routeID uuid.UUID, bookings []model.Booking) error{
-// 	return r.db.
-// }
+func (r *postgresRouteRepository) GetAvailableCityNames() ([]string, error) {
+    var names []string
+    err := r.db.Model(&model.City{}).Pluck("title", &names).Error
+    return names, err
+}
+
+func (r *postgresRouteRepository) GetStatusByTitle(title string) (uuid.UUID, error) {
+    var status model.RouteStatus
+    err := r.db.Where("title = ?", title).First(&status).Error
+    if err != nil {
+        return uuid.Nil, err
+    }
+    return status.ID, nil
+}
+
+func (r *postgresRouteRepository) GetBookingStatusByTitle(title string) (uuid.UUID, error) {
+    var status model.BookingStatus
+    err := r.db.Where("title = ?", title).First(&status).Error
+    if err != nil {
+        return uuid.Nil, err
+    }
+    return status.ID, nil
+}

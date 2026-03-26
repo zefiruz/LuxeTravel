@@ -10,6 +10,7 @@ import (
 	appMiddleware "luxetravel/internal/middleware"
 	"luxetravel/internal/model"
 	"luxetravel/internal/repository"
+	"luxetravel/internal/service"
 
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
@@ -28,13 +29,18 @@ func main() {
 	fmt.Println("Успешное подключение к PostgreSQL")
 
 	err = db.AutoMigrate(
+		&model.Role{},
+		&model.RouteStatus{},
+		&model.BookingStatus{},
+		&model.City{},
 		&model.User{},
 		&model.UserInfo{},
-		&model.City{},
 		&model.Hotel{},
-		&model.Room{},
+		&model.RoomType{},
 		&model.Route{},
 		&model.Booking{},
+		&model.HotelManager{},
+		&model.Meet{},
 	)
 	if err != nil {
 		log.Fatal("Ошибка миграции таблиц: ", err)
@@ -44,11 +50,15 @@ func main() {
 	routeRepo := repository.NewPostgresRouteRepository(db)
 	cityRepo := repository.NewPostgresCityRepository(db)
 	hotelRepo := repository.NewPostgresHotelRepository(db)
+	adminRepo := repository.NewPostgresAdminRepository(db)
+
+	aiService := service.NewGigaChatService(cfg.GigaChatSecret)
 
 	authHandler := handler.NewAuthHandler(userRepo, cfg.JWTSecret)
-	routeHandler := handler.NewRouteHandler(routeRepo)
+	routeHandler := handler.NewRouteHandler(routeRepo, cityRepo, aiService)
 	cityHandler := handler.NewCityHandler(cityRepo)
 	hotelHandler := handler.NewHotelHandler(hotelRepo)
+	adminHandler := handler.NewAdminHandler(adminRepo, cityRepo, hotelRepo)
 
 	r := chi.NewRouter()
 
@@ -65,27 +75,58 @@ func main() {
 	r.Use(middleware.Recoverer)
 
 	r.Route("/api", func(r chi.Router) {
-		// ОТКРЫТЫЕ РУЧКИ
+		// --- ПУБЛИЧНЫЕ РУЧКИ  ---
 		r.Post("/auth/register", authHandler.Register)
 		r.Post("/auth/login", authHandler.Login)
 
 		r.Get("/cities", cityHandler.ListCities)
 		r.Get("/cities/{id}", cityHandler.GetCity)
+		r.Get("/cities/{cityId}/hotels", hotelHandler.ListHotelsByCity)
 
-		r.Get("/city/{cityId}", hotelHandler.ListHotelsByCity)
-
-		// ЗАКРЫТЫЕ РУЧКИ
+		// --- ОБЩИЕ ЗАКРЫТЫЕ РУЧКИ ---
 		r.Group(func(r chi.Router) {
 			r.Use(appMiddleware.AuthMiddleware(cfg.JWTSecret))
 
-			r.Post("/routes", routeHandler.CreateRoute)
-			r.Get("/routes", routeHandler.ListUserRoutes)
-			r.Get("/routes/{id}", routeHandler.GetRoute)
-			r.Put("/routes/{id}", routeHandler.UpdateRoute)
-			r.Delete("/routes/{id}", routeHandler.DeleteRoute)
-
 			r.Get("/auth/profile", authHandler.GetProfile)
 			r.Put("/auth/profile", authHandler.UpdateProfile)
+
+			// --- ЗОНА КЛИЕНТА (и Админа) ---
+			r.Group(func(r chi.Router) {
+				r.Use(appMiddleware.CheckRole("client", "admin"))
+
+				r.Route("/routes", func(r chi.Router) {
+					r.Post("/generate", routeHandler.SuggestCitiesAI)
+					r.Post("/", routeHandler.CreateCompleteRoute)
+					r.Get("/", routeHandler.ListUserRoutes)
+					r.Get("/{id}", routeHandler.GetRoute)
+					r.Put("/{id}", routeHandler.UpdateRoute)
+					r.Delete("/{id}", routeHandler.DeleteRoute)
+				})
+			})
+
+			// --- ЗОНА МЕНЕДЖЕРА (и Админа) ---
+			r.Group(func(r chi.Router) {
+				r.Use(appMiddleware.CheckRole("manager", "admin"))
+
+				r.Route("/manager", func(r chi.Router) {
+					// ...
+				})
+			})
+
+			// --- ЗОНА АДМИНИСТРАТОРА ---
+			r.Group(func(r chi.Router) {
+				r.Use(appMiddleware.CheckRole("admin"))
+
+				r.Route("/admin", func(r chi.Router) {
+					r.Get("/users", adminHandler.GetAllUsers)
+					r.Put("/users/{id}/role", adminHandler.UpdateUserRole)
+
+					r.Post("/hotel-managers", adminHandler.AssignManager)
+					r.Post("/cities", cityHandler.CreateCity)
+					r.Post("/hotels", hotelHandler.CreateHotel)
+
+				})
+			})
 		})
 	})
 

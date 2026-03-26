@@ -10,6 +10,8 @@ import (
 type CityRepository interface {
 	GetAll() ([]model.City, error)
 	GetById(id uuid.UUID) (*model.City, error)
+	GetByName(name string) (*model.City, error)
+	Create(city *model.City) error
 }
 
 type postgresCityRepository struct {
@@ -18,6 +20,10 @@ type postgresCityRepository struct {
 
 func NewPostgresCityRepository(db *gorm.DB) CityRepository {
 	return &postgresCityRepository{db: db}
+}
+
+func (r *postgresCityRepository) Create(city *model.City) error {
+    return r.db.Create(city).Error
 }
 
 func (r *postgresCityRepository) GetAll() ([]model.City, error) {
@@ -32,4 +38,13 @@ func (r *postgresCityRepository) GetById(id uuid.UUID) (*model.City, error) {
 		return nil, err
 	}
 	return &city, nil
+}
+
+func (r *postgresCityRepository) GetByName(name string) (*model.City, error) {
+    var city model.City
+    err := r.db.Where("title ILIKE ?", name).First(&city).Error
+    if err != nil {
+        return nil, err
+    }
+    return &city, nil
 }
