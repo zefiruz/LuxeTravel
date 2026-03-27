@@ -84,9 +84,7 @@ func (r *postgresUserRepository) GetInfoByUserID(userID uuid.UUID) (*model.UserI
 }
 
 func (r *postgresUserRepository) UpdateInfo(info model.UserInfo) error {
-	return r.db.Model(&model.UserInfo{}).
-		Where("user_id = ?", info.UserID).
-		Updates(info).Error
+	return r.db.Model(&model.UserInfo{}).Where("user_id = ?", info.UserID).Updates(info).Error
 }
 
 func (r *postgresUserRepository) GetRoleByTitle(title string) (uuid.UUID, error) {

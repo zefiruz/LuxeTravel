@@ -107,31 +107,31 @@ func (h *CityHandler) CreateCity(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *HotelHandler) CreateHotel(w http.ResponseWriter, r *http.Request) {
-    var input struct {
-        Title       string    `json:"title"`
-        Description string    `json:"description"`
-        CityID      uuid.UUID `json:"city_id"`
-        Email       string    `json:"email"`
-        Address     string    `json:"address"`
-    }
+	var input struct {
+		Title       string    `json:"title"`
+		Description string    `json:"description"`
+		CityID      uuid.UUID `json:"city_id"`
+		Email       string    `json:"email"`
+		Address     string    `json:"address"`
+	}
 
-    if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-        http.Error(w, "Invalid input", http.StatusBadRequest)
-        return
-    }
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		http.Error(w, "Invalid input", http.StatusBadRequest)
+		return
+	}
 
-    hotel := model.Hotel{
-        ID:          uuid.New(),
-        Title:       input.Title,
-        Description: input.Description,
-        CityID:      input.CityID,
-        Email:       input.Email,
-        Address:     input.Address,
-    }
+	hotel := model.Hotel{
+		ID:          uuid.New(),
+		Title:       input.Title,
+		Description: input.Description,
+		CityID:      input.CityID,
+		Email:       input.Email,
+		Address:     input.Address,
+	}
 
-    if err := h.Repo.Create(&hotel); err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
-    json.NewEncoder(w).Encode(hotel)
+	if err := h.Repo.Create(&hotel); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(hotel)
 }
