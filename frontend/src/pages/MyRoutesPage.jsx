@@ -40,9 +40,7 @@ function MyRoutesPage() {
           </div>
 
           <div className="routes-table-card__footer">
-            <button type="button" className="routes-table-card__status-btn">
-              Забронировано
-            </button>
+            <span className="routes-table-card__status-badge">Забронировано</span>
           </div>
         </section>
       </main>

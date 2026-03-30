@@ -1,10 +1,10 @@
-	package model
+package model
 
-	import (
-		"time"
+import (
+	"time"
 
-		"github.com/google/uuid"
-	)
+	"github.com/google/uuid"
+)
 
 // --- Справочники (Dictionary Tables) ---
 
@@ -35,7 +35,6 @@ type City struct {
 
 type User struct {
 	ID           uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
-	Login        string    `gorm:"type:text;uniqueIndex;not null" json:"login"`
 	PasswordHash string    `gorm:"type:text;not null" json:"-"`
 	RoleID       uuid.UUID `gorm:"type:uuid" json:"role_id"`
 	Role         Role      `gorm:"foreignKey:RoleID" json:"role"`

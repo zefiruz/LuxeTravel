@@ -63,7 +63,7 @@ func main() {
 	r := chi.NewRouter()
 
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:5173","http://127.0.0.1:5173"},
+		AllowedOrigins:   []string{"http://localhost:5173", "http://127.0.0.1:5173"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
@@ -119,12 +119,14 @@ func main() {
 
 				r.Route("/admin", func(r chi.Router) {
 					r.Get("/users", adminHandler.GetAllUsers)
+
 					r.Put("/users/{id}/role", adminHandler.UpdateUserRole)
+					r.Put("/cities/{id}", cityHandler.UpdateCity)
+					r.Put("/hotels/{id}", hotelHandler.UpdateHotel)
 
 					r.Post("/hotel-managers", adminHandler.AssignManager)
 					r.Post("/cities", cityHandler.CreateCity)
 					r.Post("/hotels", hotelHandler.CreateHotel)
-
 				})
 			})
 		})

@@ -1,0 +1,88 @@
+.trips-preview-page {
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+.trips-preview-page__content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 28px 24px 48px;
+}
+
+.trips-preview-page__title {
+  margin: 10px 0 26px;
+  text-align: center;
+  font-size: var(--fs-heading);
+  font-weight: 400;
+  line-height: var(--lh-snug);
+  color: var(--text-color);
+}
+
+.trips-preview-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.trips-preview-card {
+  width: 100%;
+  border-radius: 18px;
+  padding: 14px 18px;
+  background-color: var(--light-card-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.trips-preview-card__left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.trips-preview-card__marker {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background-color: #4a4a4a;
+  flex-shrink: 0;
+}
+
+.trips-preview-card__meta {
+  min-width: 0;
+}
+
+.trips-preview-card__name {
+  margin: 0 0 4px;
+  font-size: var(--fs-16);
+  font-weight: 400;
+  line-height: var(--lh-snug);
+  color: var(--dark-text-color);
+}
+
+.trips-preview-card__info {
+  margin: 0;
+  font-size: var(--fs-14);
+  line-height: var(--lh-normal);
+  color: var(--dark-text-color);
+}
+
+.trips-preview-card__info--muted {
+  color: rgba(45, 37, 35, 0.7);
+}
+
+.trips-preview-card__btn {
+  border: none;
+  border-radius: 10px;
+  padding: 8px 16px;
+  background-color: #ab9985;
+  color: #1e1e1e;
+  font-size: var(--fs-14);
+  line-height: var(--lh-1);
+  cursor: pointer;
+  white-space: nowrap;
+}
+

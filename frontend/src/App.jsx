@@ -10,6 +10,7 @@ import ProfilePage from "./pages/ProfilePage";
 import AuthChoicePage from "./pages/AuthChoicePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
+import HotelBookingsPage from "./pages/HotelBookingsPage";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
       <Route path="/auth" element={<AuthChoicePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/hotels/:hotelId/bookings" element={<HotelBookingsPage />} />
     </Routes>
   );
 }

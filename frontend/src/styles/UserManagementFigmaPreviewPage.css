@@ -1,0 +1,412 @@
+.user-management-preview {
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+.user-management-preview__content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 28px 24px 48px;
+}
+
+.user-management-preview__title {
+  margin: 10px 0 18px;
+  text-align: center;
+  font-size: var(--fs-30);
+  font-weight: 400;
+  line-height: var(--lh-snug);
+}
+
+.user-management-preview__search {
+  width: 100%;
+  max-width: 920px;
+  display: block;
+  margin: 0 auto 18px;
+  min-height: 40px;
+  border-radius: 10px;
+  border: 1px solid rgba(239, 232, 226, 0.35);
+  background-color: rgba(239, 232, 226, 0.12);
+  padding: 0 14px;
+  font: inherit;
+  font-size: var(--fs-14);
+  color: var(--text-color);
+  outline: none;
+}
+
+.user-management-preview__list {
+  max-width: 920px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.user-management-card {
+  border-radius: 16px;
+  padding: 14px 18px;
+  background-color: var(--light-surface-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.user-management-card__text {
+  margin: 0;
+  font-size: var(--fs-16);
+  line-height: var(--lh-normal);
+  color: var(--dark-text-color);
+}
+
+.user-management-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.user-management-card__btn {
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font: inherit;
+  font-size: var(--fs-14);
+  line-height: var(--lh-1);
+  background-color: #ab9985;
+  color: #1e1e1e;
+  cursor: pointer;
+}
+
+.user-management-card__role-dd {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.user-management-card__role-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 150px;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font: inherit;
+  font-size: var(--fs-14);
+  line-height: var(--lh-1);
+  background-color: #ab9985;
+  color: #1e1e1e;
+  cursor: pointer;
+}
+
+.user-management-card__role-chevron {
+  font-size: var(--fs-12);
+  line-height: var(--lh-1);
+  opacity: 0.9;
+}
+
+.user-management-card__role-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-width: 100%;
+  width: max-content;
+  border-radius: 8px;
+  border: 1px solid rgba(114, 57, 63, 0.4);
+  background-color: var(--light-surface-color);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.28);
+  z-index: 30;
+  overflow: hidden;
+}
+
+.user-management-card__role-option {
+  display: block;
+  width: 100%;
+  border: none;
+  padding: 10px 14px;
+  font: inherit;
+  font-size: var(--fs-14);
+  line-height: var(--lh-normal);
+  text-align: left;
+  cursor: pointer;
+  color: var(--dark-text-color);
+  background-color: #cfc7bd;
+}
+
+.user-management-card__role-option:hover {
+  background-color: #b8a997;
+}
+
+.user-management-card__role-option--active {
+  background-color: #a8937f;
+  color: #1e1e1e;
+}
+
+.user-management-card__role-option--active:hover {
+  background-color: #978671;
+}
+
+.user-hotels-modal__backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 50;
+}
+
+.user-hotels-modal {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  border-radius: 14px;
+  background-color: var(--light-surface-color);
+  padding: 18px 18px 20px;
+}
+
+.user-hotels-modal__close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--dark-text-color);
+  cursor: pointer;
+  padding: 0;
+  z-index: 2;
+}
+
+.user-hotels-modal__close-btn:hover {
+  background-color: rgba(114, 57, 63, 0.12);
+}
+
+.user-hotels-modal__close-icon {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2.25;
+}
+
+.user-hotels-modal__title {
+  margin: 0 0 16px;
+  padding: 0 36px;
+  text-align: center;
+  font-size: var(--fs-22);
+  font-weight: 400;
+  line-height: var(--lh-snug);
+  color: var(--dark-text-color);
+}
+
+.user-hotels-modal__hotel-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.user-hotels-modal__hotel-card {
+  border-radius: 16px;
+  padding: 14px 16px;
+  background-color: var(--light-card-color);
+  border: 2px solid #72393f;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.user-hotels-modal__hotel-name {
+  margin: 0 0 6px;
+  font-size: var(--fs-18);
+  line-height: var(--lh-snug);
+  color: var(--dark-text-color);
+}
+
+.user-hotels-modal__hotel-meta {
+  margin: 0;
+  font-size: var(--fs-14);
+  line-height: var(--lh-normal);
+  color: rgba(45, 37, 35, 0.72);
+}
+
+.user-hotels-modal__delete-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font: inherit;
+  font-size: var(--fs-14);
+  line-height: var(--lh-1);
+  background-color: #ab9985;
+  color: #1e1e1e;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.user-hotels-modal__add-btn {
+  width: 100%;
+  min-height: 72px;
+  margin-top: 16px;
+  border-radius: 14px;
+  border: 1px dashed rgba(171, 153, 133, 0.7);
+  background: transparent;
+  color: var(--dark-text-color);
+  font: inherit;
+  font-size: var(--fs-20);
+  line-height: var(--lh-snug);
+  cursor: pointer;
+}
+
+.user-add-hotel-modal__backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 70px 24px 24px;
+  z-index: 60;
+}
+
+.user-add-hotel-modal {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  background-color: var(--light-surface-color);
+  border-radius: 12px;
+  padding: 16px 16px 18px;
+}
+
+.user-add-hotel-modal__close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--dark-text-color);
+  cursor: pointer;
+  padding: 0;
+  z-index: 2;
+}
+
+.user-add-hotel-modal__close-btn:hover {
+  background-color: rgba(114, 57, 63, 0.12);
+}
+
+.user-add-hotel-modal__close-icon {
+  width: 17px;
+  height: 17px;
+  stroke-width: 2.25;
+}
+
+.user-add-hotel-modal__field {
+  display: block;
+  margin: 0 0 12px;
+  padding-right: 28px;
+}
+
+.user-add-hotel-modal__label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: var(--fs-14);
+  color: var(--dark-text-color);
+  line-height: var(--lh-snug);
+}
+
+.user-add-hotel-modal__input {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid rgba(74, 64, 60, 0.35);
+  border-radius: 10px;
+  background-color: #ffffff;
+  color: var(--dark-text-color);
+  font: inherit;
+  font-size: var(--fs-16);
+  padding: 0 14px;
+  outline: none;
+}
+
+.user-add-hotel-modal__email-line {
+  margin: 0 0 14px;
+  font-size: var(--fs-14);
+  line-height: var(--lh-normal);
+  color: rgba(45, 37, 35, 0.75);
+}
+
+.user-add-hotel-modal__suggestions {
+  margin: 0 0 16px;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.user-add-hotel-modal__suggestion {
+  margin: 0;
+}
+
+.user-add-hotel-modal__suggestion-btn {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(114, 57, 63, 0.45);
+  background-color: var(--light-surface-color);
+  color: var(--dark-text-color);
+  font: inherit;
+  cursor: pointer;
+}
+
+.user-add-hotel-modal__suggestion-name {
+  font-size: var(--fs-16);
+  line-height: var(--lh-snug);
+}
+
+.user-add-hotel-modal__suggestion-email {
+  font-size: var(--fs-14);
+  line-height: var(--lh-normal);
+  color: rgba(45, 37, 35, 0.68);
+}
+
+.user-add-hotel-modal__save-btn {
+  width: 100%;
+  margin-top: 4px;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 16px;
+  background-color: #72393f;
+  color: var(--text-color);
+  font: inherit;
+  font-size: var(--fs-16);
+  line-height: var(--lh-1);
+  cursor: pointer;
+}
+
+.user-add-hotel-modal__save-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+

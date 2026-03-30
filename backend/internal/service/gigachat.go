@@ -14,7 +14,7 @@ import (
 )
 
 type GigaChatService interface {
-    GenerateCities(tripIdea string, availableCities []string) ([]string, error)
+	GenerateCities(tripIdea string, availableCities []string) ([]string, error)
 }
 
 type gigaChatService struct {
@@ -83,12 +83,12 @@ func (s *gigaChatService) GenerateCities(tripIdea string, availableCities []stri
 	citiesList := strings.Join(availableCities, ", ")
 
 	systemPrompt := fmt.Sprintf(
-        "Ты опытный туроператор по России. Твоя задача — предложить 3 города из списка ниже, "+
-        "которые лучше всего подходят под запрос пользователя. "+
-        "ВЫБИРАЙ ТОЛЬКО ИЗ ЭТОГО СПИСКА: %s. "+
-        "Верни только названия через запятую, без лишних слов.", 
-        citiesList,
-    )
+		"Ты опытный туроператор по России. Твоя задача — предложить 3 города из списка ниже, "+
+			"которые лучше всего подходят под запрос пользователя. "+
+			"ВЫБИРАЙ ТОЛЬКО ИЗ ЭТОГО СПИСКА: %s. "+
+			"Верни только названия через запятую, без лишних слов.",
+		citiesList,
+	)
 
 	payload := map[string]interface{}{
 		"model": "GigaChat",

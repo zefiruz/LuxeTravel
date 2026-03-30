@@ -45,9 +45,9 @@
 .route-details-card__title {
   margin: 0 0 10px;
   text-align: center;
-  font-size: 22px;
+  font-size: var(--fs-heading);
   font-weight: 400;
-  line-height: 1.2;
+  line-height: var(--lh-snug);
   color: #3d3633;
 }
 
@@ -85,7 +85,7 @@
 .route-details-stop__dates,
 .route-details-stop__hotel {
   margin: 0;
-  font-size: 14px;
-  line-height: 1.35;
+  font-size: var(--fs-14);
+  line-height: var(--lh-normal);
   color: #4b433f;
 }

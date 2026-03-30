@@ -8,12 +8,6 @@
   box-sizing: border-box;
 }
 
-body {
-  margin: 0;
-  background-color: var(--bg-color);
-  font-family: "Inter", Arial, sans-serif;
-  color: var(--detail-color);
-}
 
 button {
   font: inherit;
@@ -39,9 +33,9 @@ button {
 
 .route-title {
   margin: 0;
-  font-size: 38px;
+  font-size: var(--fs-heading);
   font-weight: 400;
-  line-height: 1.1;
+  line-height: var(--lh-tight);
   color: var(--detail-color);
   display: flex;
   align-items: center;
@@ -151,8 +145,8 @@ button {
 }
 
 .city-label__text {
-  font-size: 20px;
-  line-height: 1.1;
+  font-size: var(--fs-20);
+  line-height: var(--lh-tight);
   color: var(--detail-color);
 }
 
@@ -208,8 +202,8 @@ button {
   border-radius: 10px;
   background-color: #efefef;
   color: #3b3b3b;
-  font-size: 13px;
-  line-height: 1;
+  font-size: var(--fs-12);
+  line-height: var(--lh-1);
   padding: 8px 12px;
   white-space: nowrap;
   cursor: pointer;
@@ -240,8 +234,8 @@ button {
 
 .route-price {
   margin: 0;
-  font-size: 18px;
-  line-height: 1.2;
+  font-size: var(--fs-18);
+  line-height: var(--lh-snug);
   color: var(--detail-color);
 }
 
@@ -251,9 +245,9 @@ button {
   padding: 10px 22px;
   background-color: #efefef;
   color: #3b3b3b;
-  font-size: 16px;
+  font-size: var(--fs-16);
   cursor: pointer;
-  line-height: 1;
+  line-height: var(--lh-1);
 }
 
 .book-route-btn {
@@ -262,7 +256,7 @@ button {
   padding: 10px 22px;
   background-color: #efefef;
   color: #3b3b3b;
-  font-size: 16px;
+  font-size: var(--fs-16);
   cursor: pointer;
-  line-height: 1;
+  line-height: var(--lh-1);
 }

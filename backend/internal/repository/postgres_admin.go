@@ -42,7 +42,6 @@ func (r *postgresAdminRepository) UpdateUserRole(userID uuid.UUID, roleID uuid.U
 	return nil
 }
 
-
 func (r *postgresAdminRepository) AssignManagerToHotel(userID uuid.UUID, hotelID uuid.UUID) error {
 	var user model.User
 	err := r.db.Joins("Role").First(&user, "users.id = ?", userID).Error

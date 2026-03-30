@@ -16,7 +16,7 @@ type RouteRepository interface {
 	CreateBooking(booking *model.Booking) error
 	GetAvailableCityNames() ([]string, error)
 	GetStatusByTitle(title string) (uuid.UUID, error)
-    GetBookingStatusByTitle(title string) (uuid.UUID, error)
+	GetBookingStatusByTitle(title string) (uuid.UUID, error)
 }
 
 type postgresRouteRepository struct {
@@ -36,12 +36,12 @@ func (r *postgresRouteRepository) CreateBooking(booking *model.Booking) error {
 }
 
 func (r *postgresRouteRepository) GetById(id uuid.UUID) (*model.Route, error) {
-    var route model.Route
-    err := r.db.
-        Preload("Status").
-        Preload("Bookings.Status").
-        First(&route, "id = ?", id).Error
-    return &route, err
+	var route model.Route
+	err := r.db.
+		Preload("Status").
+		Preload("Bookings.Status").
+		First(&route, "id = ?", id).Error
+	return &route, err
 }
 
 func (r *postgresRouteRepository) Update(route *model.Route) error {
@@ -53,35 +53,35 @@ func (r *postgresRouteRepository) Delete(id uuid.UUID) error {
 }
 
 func (r *postgresRouteRepository) GetAllById(userID uuid.UUID) ([]model.Route, error) {
-    var routes []model.Route
-    err := r.db.
-        Where("user_id = ?", userID).
-        Preload("Status").
-        Preload("Bookings.Room.Hotel.City"). 
-        Find(&routes).Error
-    return routes, err
+	var routes []model.Route
+	err := r.db.
+		Where("user_id = ?", userID).
+		Preload("Status").
+		Preload("Bookings.Room.Hotel.City").
+		Find(&routes).Error
+	return routes, err
 }
 
 func (r *postgresRouteRepository) GetAvailableCityNames() ([]string, error) {
-    var names []string
-    err := r.db.Model(&model.City{}).Pluck("title", &names).Error
-    return names, err
+	var names []string
+	err := r.db.Model(&model.City{}).Pluck("title", &names).Error
+	return names, err
 }
 
 func (r *postgresRouteRepository) GetStatusByTitle(title string) (uuid.UUID, error) {
-    var status model.RouteStatus
-    err := r.db.Where("title = ?", title).First(&status).Error
-    if err != nil {
-        return uuid.Nil, err
-    }
-    return status.ID, nil
+	var status model.RouteStatus
+	err := r.db.Where("title = ?", title).First(&status).Error
+	if err != nil {
+		return uuid.Nil, err
+	}
+	return status.ID, nil
 }
 
 func (r *postgresRouteRepository) GetBookingStatusByTitle(title string) (uuid.UUID, error) {
-    var status model.BookingStatus
-    err := r.db.Where("title = ?", title).First(&status).Error
-    if err != nil {
-        return uuid.Nil, err
-    }
-    return status.ID, nil
+	var status model.BookingStatus
+	err := r.db.Where("title = ?", title).First(&status).Error
+	if err != nil {
+		return uuid.Nil, err
+	}
+	return status.ID, nil
 }

@@ -9,9 +9,9 @@ import (
 )
 
 type Config struct {
-	DBDSN      string
-	ServerPort string
-	JWTSecret  string
+	DBDSN          string
+	ServerPort     string
+	JWTSecret      string
 	GigaChatSecret string
 }
 
@@ -46,9 +46,9 @@ func LoadConfig() *Config {
 	)
 
 	return &Config{
-		DBDSN:      dsn,
-		ServerPort: getEnv("SERVER_PORT", ":8080"),
-		JWTSecret:  os.Getenv("JWT_SECRET"),
+		DBDSN:          dsn,
+		ServerPort:     getEnv("SERVER_PORT", ":8080"),
+		JWTSecret:      os.Getenv("JWT_SECRET"),
 		GigaChatSecret: os.Getenv("GIGA_CHAT_SECRET"),
 	}
 }
