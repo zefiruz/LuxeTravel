@@ -69,7 +69,7 @@ function RouteCreationPage() {
         .filter(city => !selectedIds.has(city.id))
         .map(city => ({
           value: city.id,
-          label: city.name,
+          label: city.title,
           ...city
         }));
       setCitiesToSelect(formattedCities);
@@ -174,6 +174,7 @@ function RouteCreationPage() {
                   isValidNewOption={() => false}
                   noOptionsMessage={() => "Ничего не найдено"}
                   className="route-form-card__select"
+                  classNamePrefix="react-select"
                 />
               ))}
 
