@@ -1,7 +1,7 @@
 .my-routes-page {
   min-height: 100vh;
   background-color: #1e1e1e;
-  color: #efe8e2;
+  color: var(--dark-text-color);
 }
 
 .my-routes-page__content {
@@ -27,10 +27,10 @@
 
 .my-routes-page__title {
   margin: 0;
-  font-size: 34px;
+  font-size: var(--fs-heading);
   font-weight: 400;
-  line-height: 1.1;
-  color: #efe8e2;
+  line-height: var(--lh-tight);
+  color: var(--text-color);
 }
 
 .routes-table-card {
@@ -41,6 +41,7 @@
   border: 2px solid #72393f;
   border-radius: 18px;
   padding: 18px 14px 10px;
+  position: relative;
 }
 
 .routes-table-card__header {
@@ -49,9 +50,9 @@
   align-items: center;
   column-gap: 18px;
   padding: 0 18px 14px;
-  font-size: 18px;
-  line-height: 1.2;
-  color: #4d403d;
+  font-size: var(--fs-16);
+  line-height: var(--lh-snug);
+  color: var(--dark-text-color);
 }
 
 .routes-table-card__row {
@@ -66,9 +67,9 @@
 }
 
 .routes-table-card__cell {
-  font-size: 18px;
-  line-height: 1.2;
-  color: #f7f3ee;
+  font-size: var(--fs-16);
+  line-height: var(--lh-snug);
+  color: var(--dark-text-color);
 }
 
 .routes-table-card__details-btn {
@@ -78,24 +79,25 @@
   padding: 8px 18px;
   background-color: #ab9985;
   color: #1e1e1e;
-  font-size: 14px;
-  line-height: 1;
+  font-size: var(--fs-14);
+  line-height: var(--lh-1);
   cursor: pointer;
 }
 
 .routes-table-card__footer {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 10px;
+  position: absolute;
+  top: 12px;
+  right: 16px;
 }
 
-.routes-table-card__status-btn {
-  border: none;
-  border-radius: 8px;
-  padding: 8px 16px;
-  background-color: #72393f;
+.routes-table-card__status-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 6px 14px;
+  background-color: rgba(171, 153, 133, 0.62);
   color: #1e1e1e;
-  font-size: 14px;
-  line-height: 1;
-  cursor: default;
+  font-size: var(--fs-14);
+  line-height: var(--lh-1);
+  user-select: none;
 }

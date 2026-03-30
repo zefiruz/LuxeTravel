@@ -1,3 +1,36 @@
+:root {
+  --bg-color: #1e1e1e;
+  --text-color: #efe8e2;
+  --accent-color: #72393f;
+  --light-card-color: #d9d9d9;
+  --light-surface-color: #efe8e2;
+  --dark-text-color: #2d2523;
+  --base-font-family: "Inter", Arial, sans-serif;
+  --base-font-size: 16px;
+  --base-line-height: 1.4;
+
+  /* Typography scale (project-wide) */
+  --fs-12: 12px; /* captions, very small helper text */
+  --fs-14: 14px; /* secondary text, table text */
+  --fs-16: 16px; /* base body text */
+  --fs-18: 18px; /* lead / emphasized body */
+  --fs-20: 20px; /* small headings / labels */
+  --fs-22: 22px; /* card titles */
+  --fs-24: 24px; /* section headings / logo */
+  --fs-28: 28px; /* auth titles / prominent actions */
+  --fs-30: 30px; /* admin & form titles */
+  --fs-34: 34px; /* page titles */
+  --fs-38: 38px; /* route titles */
+  --fs-64: 64px; /* landing display title */
+  --fs-heading: var(--fs-34);
+
+  --lh-1: 1;
+  --lh-tight: 1.1;
+  --lh-snug: 1.2;
+  --lh-normal: 1.4;
+  --lh-relaxed: 1.45;
+}
+
 html,
 body,
 #root {
@@ -5,16 +38,25 @@ body,
   padding: 0;
   width: 100%;
   min-height: 100%;
-  background-color: #1e1e1e;
+  background-color: var(--bg-color);
 }
 
 body {
-  font-family: "Inter", Arial, sans-serif;
-  color: #efe8e2;
+  font-family: var(--base-font-family);
+  font-size: var(--base-font-size);
+  line-height: var(--base-line-height);
+  color: var(--text-color);
 }
 
 *,
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
 }

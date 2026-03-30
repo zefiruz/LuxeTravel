@@ -1,19 +1,26 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { PencilLine, Check, X } from "lucide-react";
 import Header from "../components/Header";
-import { useAuth } from "../context/AuthContext"; 
+import { useAuth } from "../context";
 import "../styles/ProfilePage.css";
 
-// const fallbackProfile = {
-//   lastName: "Иванов",
-//   firstName: "Иван",
-//   middleName: "Иванович",
-//   email: "pochta@mail.ru",
-//   phone: "+7 (910)-123-45-67",
-// };
+const fallbackProfile = {
+  lastName: "Иванов",
+  firstName: "Иван",
+  middleName: "Иванович",
+  email: "pochta@mail.ru",
+  phone: "+7 (910)-123-45-67",
+};
 
 function ProfilePage() {
-  const { user, updateProfile } = useAuth();
+  const navigate = useNavigate();
+  const { user, updateProfile, logout, isAuthenticated } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/auth", { replace: true });
+  };
 
   const mapUserData = (u) => {
     if (!u) return fallbackProfile;
@@ -46,7 +53,6 @@ function ProfilePage() {
     setIsEditing(false);
   };
 
-  // 2. ИСПОЛЬЗУЕМ ОБНОВЛЕНИЕ ВМЕСТО РЕГИСТРАЦИИ
   const handleSaveEditing = async () => {
     if (user) {
       const success = await updateProfile(draftProfile);
@@ -82,13 +88,13 @@ function ProfilePage() {
                   type="button"
                   className="profile-info-card__edit-btn"
                   onClick={handleStartEditing}
+                  aria-label="Редактировать профиль"
                 >
                   <PencilLine className="profile-info-card__edit-icon" />
                 </button>
               )}
 
               <div className="profile-info-card__grid">
-                {/* Фамилия */}
                 <span className="profile-info-card__label">Фамилия:</span>
                 {isEditing ? (
                   <input
@@ -100,7 +106,6 @@ function ProfilePage() {
                   <span className="profile-info-card__value">{currentData.lastName}</span>
                 )}
 
-                {/* Имя */}
                 <span className="profile-info-card__label">Имя:</span>
                 {isEditing ? (
                   <input
@@ -112,7 +117,6 @@ function ProfilePage() {
                   <span className="profile-info-card__value">{currentData.firstName}</span>
                 )}
 
-                {/* Отчество */}
                 <span className="profile-info-card__label">Отчество:</span>
                 {isEditing ? (
                   <input
@@ -124,7 +128,6 @@ function ProfilePage() {
                   <span className="profile-info-card__value">{currentData.middleName}</span>
                 )}
 
-                {/* Email (обычно только для чтения, но оставим как в дизайне) */}
                 <span className="profile-info-card__label">Email:</span>
                 {isEditing ? (
                   <input
@@ -137,7 +140,6 @@ function ProfilePage() {
                   <span className="profile-info-card__value">{currentData.email}</span>
                 )}
 
-                {/* Телефон */}
                 <span className="profile-info-card__label">Номер телефона:</span>
                 {isEditing ? (
                   <input
@@ -156,6 +158,7 @@ function ProfilePage() {
                     type="button"
                     className="profile-info-card__action-btn"
                     onClick={handleSaveEditing}
+                    aria-label="Сохранить изменения"
                   >
                     <Check className="profile-info-card__action-icon profile-info-card__action-icon--save" />
                   </button>
@@ -163,6 +166,7 @@ function ProfilePage() {
                     type="button"
                     className="profile-info-card__action-btn"
                     onClick={handleCancelEditing}
+                    aria-label="Отменить изменения"
                   >
                     <X className="profile-info-card__action-icon profile-info-card__action-icon--cancel" />
                   </button>
@@ -170,6 +174,18 @@ function ProfilePage() {
               )}
             </div>
           </div>
+
+          {isAuthenticated && (
+            <div className="profile-card__logout-wrap">
+              <button
+                type="button"
+                className="profile-card__logout-btn"
+                onClick={handleLogout}
+              >
+                Выйти
+              </button>
+            </div>
+          )}
         </section>
       </main>
     </div>

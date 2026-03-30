@@ -45,10 +45,10 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 38px;
+  font-size: var(--fs-heading);
   font-weight: 400;
   color: #efe8e2;
-  line-height: 1.1;
+  line-height: var(--lh-tight);
 }
 
 .route-point-title__icon {
@@ -141,17 +141,17 @@
 }
 
 .route-point-label__text {
-  font-size: 24px;
+  font-size: var(--fs-24);
   color: #efe8e2;
-  line-height: 1.1;
+  line-height: var(--lh-tight);
 }
 
 .route-point-description {
   margin: 22px 0 0;
   max-width: 500px;
   text-align: center;
-  font-size: 16px;
-  line-height: 1.45;
+  font-size: var(--fs-16);
+  line-height: var(--lh-relaxed);
   color: #efe8e2;
 }
 
@@ -167,14 +167,14 @@
   padding: 8px 14px;
   background-color: #efefef;
   color: #3b3b3b;
-  font-size: 14px;
+  font-size: var(--fs-14);
   cursor: pointer;
-  line-height: 1;
+  line-height: var(--lh-1);
 }
 
 .route-point-empty {
   margin: 80px 0 0;
   text-align: center;
-  font-size: 20px;
+  font-size: var(--fs-20);
   color: #efe8e2;
 }

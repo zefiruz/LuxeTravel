@@ -17,10 +17,6 @@ function RouteCreationPage() {
   const [endDate, setEndDate] = useState("2026-04-25");
   const [tripIdea, setTripIdea] = useState("");
 
-  console.log("cities:", cities);
-  console.log("citiesToSelect:", citiesToSelect);
-  console.log("selectedCities:", selectedCities);
-
   const handleCityChange = (index, selectedOption) => {
     const newSelectedCities = [...selectedCities];
     newSelectedCities[index] = selectedOption;
@@ -53,7 +49,6 @@ function RouteCreationPage() {
       tripIdea: mode === "unknown" ? tripIdea : "",
     };
 
-    console.log("Отправляемые данные:", routeData);
     navigate("/route-builder");
   };
 
@@ -174,6 +169,7 @@ function RouteCreationPage() {
                   isValidNewOption={() => false}
                   noOptionsMessage={() => "Ничего не найдено"}
                   className="route-form-card__select"
+                  classNamePrefix="react-select"
                 />
               ))}
 

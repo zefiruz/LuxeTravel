@@ -22,9 +22,9 @@
 .profile-card__title {
   margin: 0 0 28px;
   text-align: center;
-  font-size: 22px;
+  font-size: var(--fs-heading);
   font-weight: 400;
-  line-height: 1.2;
+  line-height: var(--lh-snug);
   color: #4a403c;
 }
 
@@ -82,14 +82,14 @@
 }
 
 .profile-info-card__label {
-  font-size: 14px;
-  line-height: 1.3;
+  font-size: var(--fs-14);
+  line-height: var(--lh-normal);
   color: #4a403c;
 }
 
 .profile-info-card__value {
-  font-size: 14px;
-  line-height: 1.3;
+  font-size: var(--fs-14);
+  line-height: var(--lh-normal);
   color: #4a403c;
 }
 
@@ -99,8 +99,8 @@
   border: none;
   outline: none;
   background-color: transparent;
-  font-size: 14px;
-  line-height: 1.3;
+  font-size: var(--fs-14);
+  line-height: var(--lh-normal);
   color: #4a403c;
   padding: 0;
   border-bottom: 1px solid rgba(74, 64, 60, 0.3);
@@ -137,4 +137,27 @@
 
 .profile-info-card__action-icon--cancel {
   color: #72393f;
+}
+
+.profile-card__logout-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 28px;
+}
+
+.profile-card__logout-btn {
+  min-width: 160px;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 28px;
+  font: inherit;
+  font-size: var(--fs-16);
+  line-height: var(--lh-1);
+  cursor: pointer;
+  background-color: #4a4a4a;
+  color: #efe8e2;
+}
+
+.profile-card__logout-btn:hover {
+  filter: brightness(1.08);
 }
