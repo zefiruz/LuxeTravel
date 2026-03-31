@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"luxetravel/internal/configs"
 	"luxetravel/internal/handler"
@@ -134,6 +135,16 @@ func main() {
 				})
 			})
 		})
+	})
+
+	r.Get("/*", func(w http.ResponseWriter, r *http.Request) {
+		// API-роуты уже обработаны выше, всё остальное — фронтенд
+		if strings.HasPrefix(r.URL.Path, "/api") {
+			http.NotFound(w, r)
+			return
+		}
+		fs := http.FileServer(http.Dir("static"))
+		http.StripPrefix("/", fs).ServeHTTP(w, r)
 	})
 
 	fmt.Println("Работает...")

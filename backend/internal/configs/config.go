@@ -24,31 +24,36 @@ func getEnv(key string, defaultValue string) string {
 }
 
 func LoadConfig() *Config {
-	if err := godotenv.Load(".env", "../.env"); err != nil {
-		log.Println("Файл .env не найден, используются системные переменные окружения")
-	}
+    _ = godotenv.Load(".env", "../.env") 
 
-	requriedEnv := []string{"DB_HOST", "DB_USER", "DB_PASSWORD", "DB_NAME", "JWT_SECRET", "GIGA_CHAT_SECRET"}
-	for _, env := range requriedEnv {
-		if os.Getenv(env) == "" {
-			log.Fatalf("Критическая ошибка: переменная окружения %s не установлена", env)
-		}
-	}
+    cfg := &Config{
+        DBDSN:          getEnv("DBDSN", ""),          
+        ServerPort:     getEnv("SERVER_PORT", ":8080"),
+        JWTSecret:      getEnv("JWT_SECRET", ""),
+        GigaChatSecret: getEnv("GIGA_CHAT_SECRET", ""),
+    }
 
-	dsn := fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_NAME"),
-		getEnv("DB_PORT", "5432"),
-		getEnv("DB_SSLMODE", "disable"),
-	)
+    if cfg.DBDSN == "" {
+        cfg.DBDSN = fmt.Sprintf(
+            "host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
+            getEnv("DB_HOST", ""),
+            getEnv("DB_USER", ""),
+            getEnv("DB_PASSWORD", ""),
+            getEnv("DB_NAME", ""),
+            getEnv("DB_PORT", "5432"),
+            getEnv("DB_SSLMODE", "disable"),
+        )
+    }
 
-	return &Config{
-		DBDSN:          dsn,
-		ServerPort:     getEnv("SERVER_PORT", ":8080"),
-		JWTSecret:      os.Getenv("JWT_SECRET"),
-		GigaChatSecret: os.Getenv("GIGA_CHAT_SECRET"),
-	}
+    if cfg.DBDSN == "" {
+        log.Fatal("Критическая ошибка: DBDSN не установлен")
+    }
+    if cfg.JWTSecret == "" {
+        log.Fatal("Критическая ошибка: JWT_SECRET не установлен")
+    }
+    if cfg.GigaChatSecret == "" {
+        log.Fatal("Критическая ошибка: GIGA_CHAT_SECRET не установлен")
+    }
+
+    return cfg
 }
