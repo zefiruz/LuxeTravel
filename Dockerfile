@@ -2,23 +2,25 @@
 FROM node:20-alpine AS frontend-builder
 WORKDIR /app/frontend
 
+# Копируем package.json и устанавливаем зависимости
 COPY frontend/package*.json ./
 RUN npm ci --frozen-lockfile
 
+# Копируем весь фронтенд и собираем
 COPY frontend/ ./
 RUN npm run build
 
-# ====================== 2. Сборка Go  ======================
-FROM golang:1.22-alpine AS go-builder
+# ====================== 2. Сборка Go ======================
+FROM golang:1.25-alpine AS go-builder
 WORKDIR /workspace
 
-# Копируем ВСЁ сразу — это решает баг Kaniko/Amvera
 COPY . .
 
-# Копируем собранный фронтенд
+# Копируем собранный фронтенд в static (важно!)
+# Vite по умолчанию собирает в папку dist
 COPY --from=frontend-builder /app/frontend/dist ./static
 
-# Собираем приложение
+# Собираем Go-приложение
 RUN CGO_ENABLED=0 GOOS=linux go build -o /app/server ./backend/cmd/server
 
 # ====================== 3. Финальный образ ======================
