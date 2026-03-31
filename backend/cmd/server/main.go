@@ -40,7 +40,6 @@ func main() {
 		&model.Route{},
 		&model.Booking{},
 		&model.HotelManager{},
-		&model.Meet{},
 	)
 	if err != nil {
 		log.Fatal("Ошибка миграции таблиц: ", err)
@@ -51,6 +50,7 @@ func main() {
 	cityRepo := repository.NewPostgresCityRepository(db)
 	hotelRepo := repository.NewPostgresHotelRepository(db)
 	adminRepo := repository.NewPostgresAdminRepository(db)
+	managerRepo := repository.NewPostgresManagerRepository(db)
 
 	aiService := service.NewGigaChatService(cfg.GigaChatSecret)
 
@@ -59,6 +59,7 @@ func main() {
 	cityHandler := handler.NewCityHandler(cityRepo)
 	hotelHandler := handler.NewHotelHandler(hotelRepo)
 	adminHandler := handler.NewAdminHandler(adminRepo, cityRepo, hotelRepo)
+	managerHandler := handler.NewManagerHandler(managerRepo)
 
 	r := chi.NewRouter()
 
@@ -109,7 +110,10 @@ func main() {
 				r.Use(appMiddleware.CheckRole("manager", "admin"))
 
 				r.Route("/manager", func(r chi.Router) {
-					// ...
+					r.Get("/bookings", managerHandler.ListBookings)
+					r.Get("/bookings/{id}", managerHandler.GetBooking)
+					r.Put("/bookings/{id}/status", managerHandler.UpdateStatus)
+					r.Post("/room-types", managerHandler.CreateRoomType)
 				})
 			})
 

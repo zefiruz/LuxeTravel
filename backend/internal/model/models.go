@@ -39,6 +39,7 @@ type User struct {
 	RoleID       uuid.UUID `gorm:"type:uuid" json:"role_id"`
 	Role         Role      `gorm:"foreignKey:RoleID" json:"role"`
 	Email        string    `gorm:"size:100;uniqueIndex;not null" json:"email"`
+	UserInfo     UserInfo  `gorm:"foreignKey:UserID" json:"info"`
 }
 
 type UserInfo struct {
@@ -97,16 +98,4 @@ type HotelManager struct {
 	ID      uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
 	UserID  uuid.UUID `gorm:"type:uuid;not null" json:"user_id"`
 	HotelID uuid.UUID `gorm:"type:uuid;not null" json:"hotel_id"`
-}
-
-type Meet struct {
-	ID         uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
-	ManagerID  uuid.UUID `gorm:"type:uuid;not null" json:"manager_id"`
-	BookingID  uuid.UUID `gorm:"type:uuid;not null" json:"booking_id"`
-	Location   string    `json:"location"`
-	Time       time.Time `json:"time"`
-	Note       string    `json:"note"`
-	MeeterInfo string    `json:"meeter_info"`
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
 }
