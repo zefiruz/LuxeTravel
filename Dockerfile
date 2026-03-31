@@ -1,4 +1,4 @@
-# ==================== 1. Сборка фронтенда ====================
+# ====================== 1. Сборка фронтенда ======================
 FROM node:20-alpine AS frontend-builder
 WORKDIR /app/frontend
 
@@ -8,29 +8,24 @@ RUN npm ci --frozen-lockfile
 COPY frontend/ ./
 RUN npm run build
 
-# ==================== 2. Сборка Go ====================
+# ====================== 2. Сборка Go-приложения ======================
 FROM golang:1.22-alpine AS go-builder
 WORKDIR /app
 
-# Сначала копируем только go.mod и go.sum — чтобы лучше кэшировался слой зависимостей
+# Копируем go-модули (для кэширования зависимостей)
 COPY go.mod go.sum ./
 RUN go mod download
 
-# Теперь копируем весь остальной код
+# Копируем весь проект
 COPY . .
 
-# Копируем собранный фронтенд в папку static
+# Копируем собранный фронтенд в папку static (Go будет её отдавать)
 COPY --from=frontend-builder /app/frontend/dist ./static
 
-# Собираем Go-приложение
-# Важно: укажи правильный путь к main.go
-# Если main.go находится в корне проекта:
-RUN CGO_ENABLED=0 GOOS=linux go build -o server .
+# Собираем приложение (главный main.go находится в backend/cmd/server/)
+RUN CGO_ENABLED=0 GOOS=linux go build -o server ./backend/cmd/server
 
-# Если main.go находится в папке backend/:
-# RUN CGO_ENABLED=0 GOOS=linux go build -o server ./backend
-
-# ==================== 3. Финальный минимальный образ ====================
+# ====================== 3. Финальный лёгкий образ ======================
 FROM alpine:latest
 WORKDIR /app
 
