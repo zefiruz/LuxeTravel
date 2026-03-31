@@ -8,29 +8,28 @@ RUN npm ci --frozen-lockfile
 COPY frontend/ ./
 RUN npm run build
 
-# ====================== 2. Сборка Go-приложения ======================
+# ====================== 2. Сборка Go ======================
 FROM golang:1.22-alpine AS go-builder
-WORKDIR /app
 
-# Копируем go-модули (для кэширования зависимостей)
-COPY go.mod go.sum ./
-RUN go mod download
+# Копируем ВСЁ сразу в одну директорию
+WORKDIR /workspace
 
-# Копируем весь проект
 COPY . .
 
-# Копируем собранный фронтенд в папку static (Go будет её отдавать)
+# Копируем собранный фронтенд
 COPY --from=frontend-builder /app/frontend/dist ./static
 
-# Собираем приложение (главный main.go находится в backend/cmd/server/)
-RUN CGO_ENABLED=0 GOOS=linux go build -o server ./backend/cmd/server
+# Переходим в папку с Go-кодом и собираем
+WORKDIR /workspace/backend/cmd/server
 
-# ====================== 3. Финальный лёгкий образ ======================
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app/server .
+
+# ====================== 3. Финальный образ ======================
 FROM alpine:latest
 WORKDIR /app
 
 COPY --from=go-builder /app/server .
-COPY --from=go-builder /app/static ./static
+COPY --from=go-builder /workspace/static ./static
 
 EXPOSE 80
 CMD ["./server"]
