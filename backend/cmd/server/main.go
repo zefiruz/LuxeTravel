@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"luxetravel/internal/configs"
@@ -137,14 +139,28 @@ func main() {
 		})
 	})
 
+	workDir, _ := os.Getwd()
+	filesDir := http.Dir(filepath.Join(workDir, "static"))
+
 	r.Get("/*", func(w http.ResponseWriter, r *http.Request) {
-		// API-роуты уже обработаны выше, всё остальное — фронтенд
+		// Если это запрос к API, который не обработался выше — отдаем 404
 		if strings.HasPrefix(r.URL.Path, "/api") {
 			http.NotFound(w, r)
 			return
 		}
-		fs := http.FileServer(http.Dir("static"))
-		http.StripPrefix("/", fs).ServeHTTP(w, r)
+
+		// Проверяем, существует ли физический файл (картинка, js, css)
+		path := filepath.Clean(r.URL.Path)
+		f, err := filesDir.Open(path)
+		if err != nil {
+			// Если файла нет (это роут фронтенда) — отдаем index.html
+			http.ServeFile(w, r, filepath.Join(string(filesDir), "index.html"))
+			return
+		}
+		f.Close()
+
+		// Если файл есть — отдаем его
+		http.FileServer(filesDir).ServeHTTP(w, r)
 	})
 
 	fmt.Println("Работает...")
