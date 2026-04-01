@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"luxetravel/internal/configs"
 	"luxetravel/internal/handler"
@@ -40,7 +43,6 @@ func main() {
 		&model.Route{},
 		&model.Booking{},
 		&model.HotelManager{},
-		&model.Meet{},
 	)
 	if err != nil {
 		log.Fatal("Ошибка миграции таблиц: ", err)
@@ -51,6 +53,7 @@ func main() {
 	cityRepo := repository.NewPostgresCityRepository(db)
 	hotelRepo := repository.NewPostgresHotelRepository(db)
 	adminRepo := repository.NewPostgresAdminRepository(db)
+	managerRepo := repository.NewPostgresManagerRepository(db)
 
 	aiService := service.NewGigaChatService(cfg.GigaChatSecret)
 
@@ -59,6 +62,7 @@ func main() {
 	cityHandler := handler.NewCityHandler(cityRepo)
 	hotelHandler := handler.NewHotelHandler(hotelRepo)
 	adminHandler := handler.NewAdminHandler(adminRepo, cityRepo, hotelRepo)
+	managerHandler := handler.NewManagerHandler(managerRepo)
 
 	r := chi.NewRouter()
 
@@ -109,7 +113,10 @@ func main() {
 				r.Use(appMiddleware.CheckRole("manager", "admin"))
 
 				r.Route("/manager", func(r chi.Router) {
-					// ...
+					r.Get("/bookings", managerHandler.ListBookings)
+					r.Get("/bookings/{id}", managerHandler.GetBooking)
+					r.Put("/bookings/{id}/status", managerHandler.UpdateStatus)
+					r.Post("/room-types", managerHandler.CreateRoomType)
 				})
 			})
 
@@ -130,6 +137,30 @@ func main() {
 				})
 			})
 		})
+	})
+
+	workDir, _ := os.Getwd()
+	filesDir := http.Dir(filepath.Join(workDir, "static"))
+
+	r.Get("/*", func(w http.ResponseWriter, r *http.Request) {
+		// Если это запрос к API, который не обработался выше — отдаем 404
+		if strings.HasPrefix(r.URL.Path, "/api") {
+			http.NotFound(w, r)
+			return
+		}
+
+		// Проверяем, существует ли физический файл (картинка, js, css)
+		path := filepath.Clean(r.URL.Path)
+		f, err := filesDir.Open(path)
+		if err != nil {
+			// Если файла нет (это роут фронтенда) — отдаем index.html
+			http.ServeFile(w, r, filepath.Join(string(filesDir), "index.html"))
+			return
+		}
+		f.Close()
+
+		// Если файл есть — отдаем его
+		http.FileServer(filesDir).ServeHTTP(w, r)
 	})
 
 	fmt.Println("Работает...")
