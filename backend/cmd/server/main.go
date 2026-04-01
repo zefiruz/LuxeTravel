@@ -86,6 +86,7 @@ func main() {
 		r.Get("/cities", cityHandler.ListCities)
 		r.Get("/cities/{id}", cityHandler.GetCity)
 		r.Get("/cities/{cityId}/hotels", hotelHandler.ListHotelsByCity)
+		r.Get("/image", cityHandler.GetCityImage)
 
 		// --- ОБЩИЕ ЗАКРЫТЫЕ РУЧКИ ---
 		r.Group(func(r chi.Router) {
