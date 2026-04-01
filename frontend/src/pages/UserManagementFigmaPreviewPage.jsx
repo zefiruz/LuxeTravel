@@ -216,11 +216,10 @@ function UserManagementFigmaPreviewPage() {
                           type="button"
                           role="option"
                           aria-selected={user.role === ROLES.USER}
-                          className={`user-management-card__role-option${
-                            user.role === ROLES.USER
+                          className={`user-management-card__role-option${user.role === ROLES.USER
                               ? " user-management-card__role-option--active"
                               : ""
-                          }`}
+                            }`}
                           onClick={() => handleRoleChange(user.id, ROLES.USER)}
                         >
                           {ROLES.USER}
@@ -231,11 +230,10 @@ function UserManagementFigmaPreviewPage() {
                           type="button"
                           role="option"
                           aria-selected={user.role === ROLES.MANAGER}
-                          className={`user-management-card__role-option${
-                            user.role === ROLES.MANAGER
+                          className={`user-management-card__role-option${user.role === ROLES.MANAGER
                               ? " user-management-card__role-option--active"
                               : ""
-                          }`}
+                            }`}
                           onClick={() =>
                             handleRoleChange(user.id, ROLES.MANAGER)
                           }

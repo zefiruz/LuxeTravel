@@ -10,12 +10,13 @@ function RouteCreationPage() {
   const { cities, loading, error } = useCities();
 
   const [mode, setMode] = useState("known");
-  const [selectedCities, setSelectedCities] = useState([null]);
+  const [selectedCities, setSelectedCities] = useState([]);
   const [citiesToSelect, setCitiesToSelect] = useState([]);
   const [travelersCount, setTravelersCount] = useState("");
   const [startDate, setStartDate] = useState("2026-03-18");
   const [endDate, setEndDate] = useState("2026-04-25");
   const [tripIdea, setTripIdea] = useState("");
+  const [localError, setLocalError] = useState(null);
 
   const handleCityChange = (index, selectedOption) => {
     const newSelectedCities = [...selectedCities];
@@ -33,8 +34,46 @@ function RouteCreationPage() {
     setSelectedCities(newSelectedCities);
   };
 
+  const handleClearIndicator = (index) => {
+    handleRemoveCity(index);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    setLocalError(null);
+
+    if (!startDate || !endDate) {
+      setLocalError("Выберите даты поездки");
+      return;
+    }
+
+    if (new Date(startDate) > new Date(endDate)) {
+      setLocalError("Дата начала не может быть позже даты конца");
+      return;
+    }
+
+    if (!travelersCount || !/^\d+$/.test(travelersCount) || parseInt(travelersCount) < 1) {
+      setLocalError("Количество путников должно быть положительным числом");
+      return;
+    }
+
+    if (mode === "known") {
+      if (selectedCities.length === 0) {
+        setLocalError("Выберите хотя бы один город");
+        return;
+      }
+
+      const hasEmptyCity = selectedCities.some(city => city === null);
+      if (hasEmptyCity) {
+        setLocalError("Заполните все города");
+        return;
+      }
+    }
+
+    if (mode === "unknown" && !tripIdea) {
+      setLocalError("Введите идею поездки");
+      return;
+    }
 
     const routeData = {
       startDate,
@@ -48,7 +87,7 @@ function RouteCreationPage() {
         : [],
       tripIdea: mode === "unknown" ? tripIdea : "",
     };
-
+    localStorage.setItem("")
     navigate("/route-builder");
   };
 
@@ -96,6 +135,12 @@ function RouteCreationPage() {
       <main className="route-creation-page__content">
         <form className="route-form-card" onSubmit={handleSubmit}>
           <h1 className="route-form-card__title">Создание маршрута</h1>
+
+          {localError && (
+            <div className="route-form-card__error">
+              {localError}
+            </div>
+          )}
 
           <div className="route-form-card__divider" />
 
@@ -158,19 +203,28 @@ function RouteCreationPage() {
           {mode === "known" ? (
             <div className="route-form-card__known">
               {selectedCities.map((selectedCity, index) => (
-                <Select
-                  key={index}
-                  options={citiesToSelect}
-                  value={selectedCity}
-                  onChange={(option) => handleCityChange(index, option)}
-                  placeholder="Выберите город..."
-                  isSearchable={true}
-                  isClearable={true}
-                  isValidNewOption={() => false}
-                  noOptionsMessage={() => "Ничего не найдено"}
-                  className="route-form-card__select"
-                  classNamePrefix="react-select"
-                />
+                <div className="route-form-card__city-select-wrapper" key={index}>
+                  <Select
+                    key={index}
+                    options={citiesToSelect}
+                    value={selectedCity}
+                    onChange={(option) => handleCityChange(index, option)}
+                    onClearIndicator={() => handleClearIndicator(index)}
+                    placeholder="Выберите город..."
+                    isSearchable={true}
+                    isValidNewOption={() => false}
+                    noOptionsMessage={() => "Ничего не найдено"}
+                    className="route-form-card__select"
+                    classNamePrefix="react-select"
+                  />
+                  <button
+                    type="button"
+                    className="route-form-card__clear-btn"
+                    onClick={() => handleRemoveCity(index)}
+                  >
+                    ✕
+                  </button>
+                </div>
               ))}
 
               <button
