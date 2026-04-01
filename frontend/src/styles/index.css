@@ -5,11 +5,16 @@
   --light-card-color: #d9d9d9;
   --light-surface-color: #efe8e2;
   --dark-text-color: #2d2523;
-  --base-font-family: "Inter", Arial, sans-serif;
+
+  --font-ui: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-ui);
+  --base-font-family: var(--font-ui);
+  --heading-font-family: var(--font-display);
+
   --base-font-size: 16px;
   --base-line-height: 1.4;
 
-  /* Typography scale (project-wide) */
+
   --fs-12: 12px; /* captions, very small helper text */
   --fs-14: 14px; /* secondary text, table text */
   --fs-16: 16px; /* base body text */
@@ -46,6 +51,25 @@ body {
   font-size: var(--base-font-size);
   line-height: var(--base-line-height);
   color: var(--text-color);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--heading-font-family);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* react-select (Emotion) задаёт системный шрифт — выравниваем под проект */
+.react-select__control,
+.react-select__menu,
+.react-select__option,
+.react-select__single-value,
+.react-select__input-container,
+.react-select__placeholder,
+.react-select__menu-notice {
+  font-family: var(--base-font-family) !important;
 }
 
 *,
