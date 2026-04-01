@@ -1,4 +1,4 @@
-const API_BASE_URL = '/api';
+const API_BASE_URL = 'https://luxetravel-zbbn138.amvera.io/api';
 
 class ApiService {
   constructor() {
