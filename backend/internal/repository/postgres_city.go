@@ -13,6 +13,7 @@ type CityRepository interface {
 	GetByName(name string) (*model.City, error)
 	Create(city *model.City) error
 	UpdateCityInfo(info model.City) error
+	GetByTitle(title string) (*model.City, error)
 }
 
 type postgresCityRepository struct {
@@ -60,4 +61,10 @@ func (r *postgresCityRepository) UpdateCityInfo(info model.City) error {
 		return gorm.ErrRecordNotFound
 	}
 	return nil
+}
+
+func (r *postgresCityRepository) GetByTitle(title string) (*model.City, error) {
+    var city model.City
+    err := r.db.Where("title ILIKE ?", title).First(&city).Error
+    return &city, err
 }
