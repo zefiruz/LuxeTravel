@@ -15,8 +15,8 @@ import (
 	"luxetravel/internal/repository"
 	"luxetravel/internal/service"
 
-	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -60,7 +60,7 @@ func main() {
 	authHandler := handler.NewAuthHandler(userRepo, cfg.JWTSecret)
 	routeHandler := handler.NewRouteHandler(routeRepo, cityRepo, aiService)
 	cityHandler := handler.NewCityHandler(cityRepo)
-	hotelHandler := handler.NewHotelHandler(hotelRepo)
+	hotelHandler := handler.NewHotelHandler(hotelRepo, cityRepo)
 	adminHandler := handler.NewAdminHandler(adminRepo, cityRepo, hotelRepo)
 	managerHandler := handler.NewManagerHandler(managerRepo)
 

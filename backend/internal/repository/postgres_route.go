@@ -57,7 +57,8 @@ func (r *postgresRouteRepository) GetAllById(userID uuid.UUID) ([]model.Route, e
 	err := r.db.
 		Where("user_id = ?", userID).
 		Preload("Status").
-		Preload("Bookings.Room.Hotel.City").
+		Preload("Bookings.Status").
+		Preload("Bookings.RoomType.Hotel.City").
 		Find(&routes).Error
 	return routes, err
 }

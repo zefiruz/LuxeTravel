@@ -15,12 +15,12 @@ import (
 )
 
 type HotelHandler struct {
-	Repo repository.HotelRepository
+	Repo     repository.HotelRepository
 	CityRepo repository.CityRepository
 }
 
-func NewHotelHandler(repo repository.HotelRepository) *HotelHandler {
-	return &HotelHandler{Repo: repo}
+func NewHotelHandler(repo repository.HotelRepository, cityRepo repository.CityRepository) *HotelHandler {
+	return &HotelHandler{Repo: repo, CityRepo: cityRepo}
 }
 
 func (h *HotelHandler) ListHotelsByCity(w http.ResponseWriter, r *http.Request) {
@@ -75,4 +75,48 @@ func (h *HotelHandler) UpdateHotel(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(input)
+}
+
+func (h *HotelHandler) CreateHotel(w http.ResponseWriter, r *http.Request) {
+	var input struct {
+		Title       string    `json:"title"`
+		Description string    `json:"description"`
+		CityID      uuid.UUID `json:"city_id"`
+		Email       string    `json:"email"`
+		Address     string    `json:"address"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		http.Error(w, "Некорректный JSON", http.StatusBadRequest)
+		return
+	}
+
+	if input.Title == "" || input.CityID == uuid.Nil {
+		http.Error(w, "Название отеля и город обязательны", http.StatusBadRequest)
+		return
+	}
+
+	_, err := h.CityRepo.GetById(input.CityID)
+	if err != nil {
+		http.Error(w, "Указанный город не найден", http.StatusBadRequest)
+		return
+	}
+
+	hotel := model.Hotel{
+		ID:          uuid.New(),
+		Title:       input.Title,
+		Description: input.Description,
+		CityID:      input.CityID,
+		Email:       input.Email,
+		Address:     input.Address,
+	}
+
+	if err := h.Repo.Create(&hotel); err != nil {
+		http.Error(w, "Ошибка создания отеля: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(hotel)
 }
