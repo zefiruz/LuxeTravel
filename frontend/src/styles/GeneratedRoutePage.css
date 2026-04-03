@@ -209,7 +209,7 @@ button {
   cursor: pointer;
 }
 
-.route-row--bottom > .route-connector-block {
+.route-row--bottom>.route-connector-block {
   margin-left: 0;
   margin-right: 30px;
 }
@@ -259,4 +259,20 @@ button {
   font-size: var(--fs-16);
   cursor: pointer;
   line-height: var(--lh-1);
+}
+
+.book-route-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.book-route-btn:hover:not(:disabled) {
+  background-color: #e0e0e0;
+}
+
+.route-booking-error {
+  margin: 12px 0 0;
+  font-size: var(--fs-14);
+  color: #ff6b6b;
+  text-align: center;
 }

@@ -3,12 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { MapPin, X } from "lucide-react";
 import Header from "../components/Header";
 import { useRoute } from "../context/RouteContext";
+import api from "../services/api";
 import "../styles/GeneratedRoutePage.css";
 
 function GeneratedRoutePage() {
   const [isEditing, setIsEditing] = useState(false);
+  const [isBooking, setIsBooking] = useState(false);
+  const [bookingError, setBookingError] = useState(null);
   const navigate = useNavigate();
-  const { routePoints, removeRoutePoint, addRoutePointAtIndex, loadRoutePointsFromStorage } = useRoute();
+  const { routePoints, selectedHotelsByCity, travelersCount, removeRoutePoint, addRoutePointAtIndex, loadRoutePointsFromStorage } = useRoute();
 
   useEffect(() => {
     loadRoutePointsFromStorage();
@@ -35,6 +38,73 @@ function GeneratedRoutePage() {
 
   const handleAddPoint = (insertIndex) => {
     addRoutePointAtIndex(insertIndex);
+  };
+
+  const handleBookRoute = async () => {
+    setBookingError(null);
+    setIsBooking(true);
+
+    try {
+      // Собираем даты из маршрута (берём из первого и последнего города)
+      const allBookings = [];
+      let globalStartDate = null;
+      let globalEndDate = null;
+
+      // Формируем bookings из selectedHotelsByCity
+      for (const cityId of Object.keys(selectedHotelsByCity)) {
+        const hotelData = selectedHotelsByCity[cityId];
+
+        if (hotelData.roomId && hotelData.startDate && hotelData.endDate) {
+          allBookings.push({
+            room_id: hotelData.roomId,
+            start_date: hotelData.startDate,
+            end_date: hotelData.endDate,
+          });
+
+          // Определяем глобальные даты маршрута
+          if (!globalStartDate || hotelData.startDate < globalStartDate) {
+            globalStartDate = hotelData.startDate;
+          }
+          if (!globalEndDate || hotelData.endDate > globalEndDate) {
+            globalEndDate = hotelData.endDate;
+          }
+        }
+      }
+
+      // Если нет бронирований отелей, используем текущие даты
+      if (!globalStartDate || !globalEndDate) {
+        globalStartDate = new Date().toISOString().split('T')[0];
+        globalEndDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      }
+
+      // Собираем trip_idea из названий городов
+      const tripIdea = routePoints
+        .map((city) => city.name || city.title || city.cityName)
+        .filter(Boolean)
+        .join(' → ');
+
+      const requestBody = {
+        start_date: globalStartDate,
+        end_date: globalEndDate,
+        travelers_count: travelersCount || 1,
+        trip_idea: tripIdea || "Маршрут по городам",
+        bookings: allBookings,
+      };
+
+      console.log('Sending route creation request:', requestBody);
+
+      const response = await api.post('/routes', requestBody);
+      console.log('Route created successfully:', response);
+
+      // Показываем успешное сообщение и перенаправляем
+      alert('Маршрут успешно забронирован!');
+      navigate('/my-routes');
+    } catch (error) {
+      console.error('Booking failed:', error);
+      setBookingError(error.message || 'Не удалось забронировать маршрут');
+    } finally {
+      setIsBooking(false);
+    }
   };
 
   return (
@@ -178,10 +248,19 @@ function GeneratedRoutePage() {
               {isEditing ? "Сохранить изменения" : "Редактировать"}
             </button>
 
-            <button className="book-route-btn" type="button">
-              Забронировать
+            <button
+              className="book-route-btn"
+              type="button"
+              onClick={handleBookRoute}
+              disabled={isBooking}
+            >
+              {isBooking ? "Бронирование..." : "Забронировать"}
             </button>
           </div>
+
+          {bookingError && (
+            <p className="route-booking-error">{bookingError}</p>
+          )}
         </section>
       </main>
     </div>
