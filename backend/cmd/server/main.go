@@ -18,6 +18,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/google/uuid"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -75,7 +76,10 @@ func main() {
 			var count int64
 			db.Table(seed.table).Where("title = ?", row.title).Count(&count)
 			if count == 0 {
-				db.Table(seed.table).Create(map[string]interface{}{"title": row.title})
+				db.Table(seed.table).Create(map[string]interface{}{
+					"id":    uuid.New(),
+					"title": row.title,
+				})
 			}
 		}
 	}

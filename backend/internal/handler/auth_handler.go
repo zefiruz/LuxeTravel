@@ -139,28 +139,26 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AuthHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
-	userIDVal := r.Context().Value(appMiddleware.UserIDKey)
-
-	userIDStr, ok := userIDVal.(string)
+	userIDVal, ok := r.Context().Value(appMiddleware.UserIDKey).(string)
 	if !ok {
 		http.Error(w, "Пользователь не авторизован", http.StatusUnauthorized)
 		return
 	}
 
-	userID, err := uuid.Parse(userIDStr)
+	userID, err := uuid.Parse(userIDVal)
 	if err != nil {
 		http.Error(w, "Некорректный ID", http.StatusBadRequest)
 		return
 	}
 
-	userInfo, err := h.Repo.GetInfoByUserID(userID)
+	user, err := h.Repo.GetProfile(userID)
 	if err != nil {
 		http.Error(w, "Профиль не найден", http.StatusNotFound)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(userInfo)
+	json.NewEncoder(w).Encode(user)
 }
 
 func (h *AuthHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {

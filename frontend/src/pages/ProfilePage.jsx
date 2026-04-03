@@ -24,12 +24,13 @@ function ProfilePage() {
 
   const mapUserData = (u) => {
     if (!u) return fallbackProfile;
+    const info = u.info || {};
     return {
-      lastName: u.last_name || u.lastName || "",
-      firstName: u.first_name || u.firstName || "",
-      middleName: u.middle_name || u.middleName || "",
+      lastName: info.last_name || u.lastName || info.lastName || "",
+      firstName: info.first_name || u.firstName || info.firstName || "",
+      middleName: info.middle_name || u.middleName || info.middleName || "",
       email: u.email || "",
-      phone: u.phone || "",
+      phone: info.phone || u.phone || "",
     };
   };
 
