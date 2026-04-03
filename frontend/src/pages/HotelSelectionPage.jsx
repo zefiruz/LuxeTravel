@@ -29,22 +29,36 @@ function HotelSelectionPage() {
 
   // Получаем cityId из routePoints
   const cityData = useMemo(() => {
-    return routePoints.find((p) => p.name === cityName || p.title === cityName);
+    return routePoints.find(
+      (p) => p.name === cityName || p.title === cityName || p.id === cityName
+    );
   }, [cityName, routePoints]);
 
   const cityId = cityData?.id;
 
   // Загрузка отелей для города
   useEffect(() => {
-    if (!cityId) return;
+    if (!cityId) {
+      setLoading(false);
+      return;
+    }
 
     const fetchHotels = async () => {
       try {
         setLoading(true);
+        console.log(`Fetching hotels for cityId: ${cityId}`);
         const response = await api.get(`/cities/${cityId}/hotels`);
-        setHotels(response || []);
+        console.log('Hotels API response:', response);
+        console.log('Is array:', Array.isArray(response));
+        console.log('Hotels count:', Array.isArray(response) ? response.length : 'not an array');
+
+        const hotelsList = Array.isArray(response) ? response : (response?.hotels || response?.data || []);
+        console.log('Final hotels list:', hotelsList);
+
+        setHotels(hotelsList);
         setError(null);
       } catch (err) {
+        console.error('Error fetching hotels:', err);
         setError(err.message);
         setHotels([]);
       } finally {
@@ -55,11 +69,17 @@ function HotelSelectionPage() {
     fetchHotels();
   }, [cityId]);
 
+  // Следим за изменениями hotels
+  useEffect(() => {
+    console.log('Hotels state updated:', hotels);
+    console.log('Hotels length:', hotels.length);
+  }, [hotels]);
+
   // Загрузка сохранённых данных отеля
   useEffect(() => {
     if (cityId && selectedHotelsByCity[cityId]) {
       const savedData = selectedHotelsByCity[cityId];
-      if (savedData.hotelId) {
+      if (savedData.hotelId && hotels.length > 0) {
         const hotelIndex = hotels.findIndex((h) => h.id === savedData.hotelId);
         if (hotelIndex >= 0) {
           setActiveHotelIndex(hotelIndex);
@@ -77,6 +97,12 @@ function HotelSelectionPage() {
     }
   }, [cityId, selectedHotelsByCity, hotels]);
 
+  // Отслеживаем изменения activeHotelIndex
+  useEffect(() => {
+    console.log('Active hotel index changed:', activeHotelIndex);
+    console.log('Current active hotel:', hotels[activeHotelIndex]);
+  }, [activeHotelIndex, hotels]);
+
   // Доступные комнаты для выбранного отеля
   const roomOptions = useMemo(() => {
     const activeHotel = hotels[activeHotelIndex];
@@ -90,16 +116,17 @@ function HotelSelectionPage() {
   }, [hotels, activeHotelIndex]);
 
   const activeHotel = hotels[activeHotelIndex];
-  const secondaryHotel = hotels.find((_, index) => index !== activeHotelIndex);
+  const secondaryHotelIndex = hotels.length > 1 ? (activeHotelIndex + 1) % hotels.length : -1;
+  const secondaryHotel = secondaryHotelIndex >= 0 ? hotels[secondaryHotelIndex] : null;
 
   const handleSelectHotel = (hotel) => {
     const hotelIndex = hotels.findIndex((h) => h.id === hotel.id);
     setActiveHotelIndex(hotelIndex >= 0 ? hotelIndex : 0);
   };
 
-  const handleSelectSecondaryHotel = () => {
-    if (!secondaryHotel) return;
-    handleSelectHotel(secondaryHotel);
+  const handleCycleToNextHotel = () => {
+    if (hotels.length <= 1) return;
+    setActiveHotelIndex((prev) => (prev + 1) % hotels.length);
   };
 
   const handleSaveSelection = () => {
@@ -115,6 +142,8 @@ function HotelSelectionPage() {
     };
 
     setSelectedHotelForCity(cityId, hotelData);
+    console.loglocalStorage.getItem('selectedHotelsByCity');
+
     navigate("/route-builder");
   };
 
@@ -169,7 +198,7 @@ function HotelSelectionPage() {
         <section className="hotel-selection-page__header">
           <div className="hotel-selection-page__title-wrap">
             <span className="hotel-selection-page__title-line" />
-            <h1 className="hotel-selection-page__city-title">{cityName}</h1>
+            <h1 className="hotel-selection-page__city-title">{cityData.title}</h1>
             <span className="hotel-selection-page__title-line" />
           </div>
         </section>
@@ -177,25 +206,36 @@ function HotelSelectionPage() {
         <section className="hotel-selection-layout">
           <div className="hotel-selection-left">
             <div className="hotel-card hotel-card--main">
-              <div className="hotel-card__image hotel-card__image--main" />
-              <h2 className="hotel-card__title">{activeHotel.title}</h2>
-              <button
-                type="button"
-                className="hotel-card__select-btn"
-                onClick={() => handleSelectHotel(activeHotel)}
-              >
-                Выбрать
-              </button>
+              {activeHotel.img_link ? (
+                <img
+                  className="hotel-card__image hotel-card__image--main"
+                  src={activeHotel.img_link}
+                  alt={activeHotel.title}
+                  style={{ objectFit: 'cover' }}
+                />
+              ) : (
+                <div className="hotel-card__image hotel-card__image--main" />
+              )}
+              <h2 className="hotel-card__title">{activeHotel.title}</h2>ч
             </div>
 
             {secondaryHotel && (
               <button
                 type="button"
                 className="hotel-card hotel-card--secondary"
-                onClick={handleSelectSecondaryHotel}
-                aria-label={`Выбрать отель ${secondaryHotel.title}`}
+                onClick={handleCycleToNextHotel}
+                aria-label={`Следующий отель ${secondaryHotel.title}`}
               >
-                <div className="hotel-card__image hotel-card__image--secondary" />
+                {secondaryHotel.img_link ? (
+                  <img
+                    className="hotel-card__image hotel-card__image--secondary"
+                    src={secondaryHotel.img_link}
+                    alt={secondaryHotel.title}
+                    style={{ objectFit: 'cover' }}
+                  />
+                ) : (
+                  <div className="hotel-card__image hotel-card__image--secondary" />
+                )}
                 <span className="hotel-card__subtitle">
                   {secondaryHotel.title}
                 </span>
@@ -208,11 +248,6 @@ function HotelSelectionPage() {
               {activeHotel.description}
             </p>
 
-            {secondaryHotel && (
-              <p className="hotel-selection-description hotel-selection-description--secondary">
-                {secondaryHotel.description}
-              </p>
-            )}
 
             {/* Селектор комнаты */}
             {roomOptions.length > 0 && (
