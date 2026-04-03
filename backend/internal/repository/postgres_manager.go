@@ -9,9 +9,10 @@ import (
 
 type ManagerRepository interface {
 	GetBookings(managerID uuid.UUID) ([]model.Booking, error)
-	UpdateBookingStatus(managerID uuid.UUID, bookingID uuid.UUID, status string) error
+	UpdateBookingStatus(managerID uuid.UUID, bookingID uuid.UUID, statusID uuid.UUID) error
 	GetBookingByID(managerID, bookingID uuid.UUID) (*model.Booking, error)
-    CreateRoomType(managerID uuid.UUID, roomType *model.RoomType) error
+	CreateRoomType(managerID uuid.UUID, roomType *model.RoomType) error
+	GetBookingStatusByTitle(title string) (uuid.UUID, error)
 }
 
 type postgresManagerRepository struct {
@@ -23,20 +24,20 @@ func NewPostgresManagerRepository(db *gorm.DB) ManagerRepository {
 }
 
 func (r *postgresManagerRepository) GetBookings(managerID uuid.UUID) ([]model.Booking, error) {
-    var bookings []model.Booking
+	var bookings []model.Booking
 
-    err := r.db.
-        Joins("JOIN room_types ON room_types.id = bookings.room_type_id").
-        Joins("JOIN hotel_managers ON hotel_managers.hotel_id = room_types.hotel_id").
-        Where("hotel_managers.user_id = ?", managerID).
-        Preload("RoomType").
-        Preload("User").
-        Find(&bookings).Error
+	err := r.db.
+		Joins("JOIN room_types ON room_types.id = bookings.room_type_id").
+		Joins("JOIN hotel_managers ON hotel_managers.hotel_id = room_types.hotel_id").
+		Where("hotel_managers.user_id = ?", managerID).
+		Preload("RoomType").
+		Preload("User").
+		Find(&bookings).Error
 
-    return bookings, err
+	return bookings, err
 }
 
-func (r *postgresManagerRepository) UpdateBookingStatus(managerID uuid.UUID, bookingID uuid.UUID, status string) error {
+func (r *postgresManagerRepository) UpdateBookingStatus(managerID uuid.UUID, bookingID uuid.UUID, statusID uuid.UUID) error {
 	var count int64
 	err := r.db.Table("bookings").
 		Joins("JOIN room_types ON room_types.id = bookings.room_type_id").
@@ -50,33 +51,42 @@ func (r *postgresManagerRepository) UpdateBookingStatus(managerID uuid.UUID, boo
 		return gorm.ErrRecordNotFound
 	}
 
-	return r.db.Model(&model.Booking{}).Where("id = ?", bookingID).Update("status", status).Error
+	return r.db.Model(&model.Booking{}).Where("id = ?", bookingID).Update("status_id", statusID).Error
 }
 
 func (r *postgresManagerRepository) GetBookingByID(managerID, bookingID uuid.UUID) (*model.Booking, error) {
-    var booking model.Booking
-    
-    err := r.db.
-        Joins("JOIN room_types ON room_types.id = bookings.room_type_id").
-        Joins("JOIN hotel_managers ON hotel_managers.hotel_id = room_types.hotel_id").
-        Where("bookings.id = ? AND hotel_managers.user_id = ?", bookingID, managerID).
-        Preload("RoomType").
-        Preload("User").
-        Preload("User.UserInfo").
-        First(&booking).Error
+	var booking model.Booking
 
-    return &booking, err
+	err := r.db.
+		Joins("JOIN room_types ON room_types.id = bookings.room_type_id").
+		Joins("JOIN hotel_managers ON hotel_managers.hotel_id = room_types.hotel_id").
+		Where("bookings.id = ? AND hotel_managers.user_id = ?", bookingID, managerID).
+		Preload("RoomType").
+		Preload("User").
+		Preload("User.UserInfo").
+		First(&booking).Error
+
+	return &booking, err
 }
 
 func (r *postgresManagerRepository) CreateRoomType(managerID uuid.UUID, rt *model.RoomType) error {
-    var count int64
-    r.db.Table("hotel_managers").
-        Where("hotel_id = ? AND user_id = ?", rt.HotelID, managerID).
-        Count(&count)
+	var count int64
+	r.db.Table("hotel_managers").
+		Where("hotel_id = ? AND user_id = ?", rt.HotelID, managerID).
+		Count(&count)
 
-    if count == 0 {
-        return gorm.ErrRecordNotFound
-    }
+	if count == 0 {
+		return gorm.ErrRecordNotFound
+	}
 
-    return r.db.Create(rt).Error
+	return r.db.Create(rt).Error
+}
+
+func (r *postgresManagerRepository) GetBookingStatusByTitle(title string) (uuid.UUID, error) {
+	var status model.BookingStatus
+	err := r.db.Where("title = ?", title).First(&status).Error
+	if err != nil {
+		return uuid.Nil, err
+	}
+	return status.ID, nil
 }
