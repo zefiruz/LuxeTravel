@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"luxetravel/internal/model"
 	"luxetravel/internal/repository"
 
 	"github.com/go-chi/chi/v5"
@@ -83,55 +82,4 @@ func (h *AdminHandler) AssignManager(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-}
-
-func (h *CityHandler) CreateCity(w http.ResponseWriter, r *http.Request) {
-	var input struct {
-		Title string `json:"title"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		http.Error(w, "Invalid input", http.StatusBadRequest)
-		return
-	}
-
-	city := model.City{
-		ID:    uuid.New(),
-		Title: input.Title,
-	}
-
-	if err := h.Repo.Create(&city); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	json.NewEncoder(w).Encode(city)
-}
-
-func (h *HotelHandler) CreateHotel(w http.ResponseWriter, r *http.Request) {
-	var input struct {
-		Title       string    `json:"title"`
-		Description string    `json:"description"`
-		CityID      uuid.UUID `json:"city_id"`
-		Email       string    `json:"email"`
-		Address     string    `json:"address"`
-	}
-
-	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		http.Error(w, "Invalid input", http.StatusBadRequest)
-		return
-	}
-
-	hotel := model.Hotel{
-		ID:          uuid.New(),
-		Title:       input.Title,
-		Description: input.Description,
-		CityID:      input.CityID,
-		Email:       input.Email,
-		Address:     input.Address,
-	}
-
-	if err := h.Repo.Create(&hotel); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	json.NewEncoder(w).Encode(hotel)
 }

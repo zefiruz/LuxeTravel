@@ -81,6 +81,23 @@ func (h *RouteHandler) CreateCompleteRoute(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	parsedStart, err := time.Parse("2006-01-02", input.StartDate)
+	if err != nil {
+		http.Error(w, "Неверный формат start_date: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	parsedEnd, err := time.Parse("2006-01-02", input.EndDate)
+	if err != nil {
+		http.Error(w, "Неверный формат end_date: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if parsedEnd.Before(parsedStart) || parsedEnd.Equal(parsedStart) {
+		http.Error(w, "Дата окончания должна быть позже даты начала", http.StatusBadRequest)
+		return
+	}
+
 	userIDStr, ok := r.Context().Value(middleware.UserIDKey).(string)
 	if !ok {
 		http.Error(w, "Не авторизован", http.StatusUnauthorized)
@@ -88,17 +105,32 @@ func (h *RouteHandler) CreateCompleteRoute(w http.ResponseWriter, r *http.Reques
 	}
 	userID, _ := uuid.Parse(userIDStr)
 
-	parsedStart, _ := time.Parse("2006-01-02", input.StartDate)
-	parsedEnd, _ := time.Parse("2006-01-02", input.EndDate)
-
 	// Подтягиваем начальные статусы (в идеале ID должны быть в константах или кеше)
-	routeStatusID, _ := h.Repo.GetStatusByTitle("Created")
-	bookingStatusID, _ := h.Repo.GetBookingStatusByTitle("Pending")
+	routeStatusID, err := h.Repo.GetStatusByTitle("Created")
+	if err != nil {
+		http.Error(w, "Системная ошибка: статус маршрута не найден", http.StatusInternalServerError)
+		return
+	}
+
+	bookingStatusID, err := h.Repo.GetBookingStatusByTitle("Pending")
+	if err != nil {
+		http.Error(w, "Системная ошибка: статус бронирования не найден", http.StatusInternalServerError)
+		return
+	}
 
 	var routeBookings []model.Booking
 	for _, b := range input.Bookings {
-		bStart, _ := time.Parse("2006-01-02", b.StartDate)
-		bEnd, _ := time.Parse("2006-01-02", b.EndDate)
+		bStart, err := time.Parse("2006-01-02", b.StartDate)
+		if err != nil {
+			http.Error(w, "Неверный формат даты бронирования: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		bEnd, err := time.Parse("2006-01-02", b.EndDate)
+		if err != nil {
+			http.Error(w, "Неверный формат даты окончания бронирования: "+err.Error(), http.StatusBadRequest)
+			return
+		}
 
 		routeBookings = append(routeBookings, model.Booking{
 			ID:         uuid.New(),
@@ -123,7 +155,7 @@ func (h *RouteHandler) CreateCompleteRoute(w http.ResponseWriter, r *http.Reques
 	}
 
 	if err := h.Repo.Create(&newRoute); err != nil {
-		http.Error(w, "Ошибка сохранения: "+err.Error(), 500)
+		http.Error(w, "Ошибка сохранения: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -154,17 +186,31 @@ func (h *RouteHandler) GetRoute(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *RouteHandler) UpdateRoute(w http.ResponseWriter, r *http.Request) {
-	id, _ := uuid.Parse(chi.URLParam(r, "id"))
+	id, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, "Некорректный ID маршрута", http.StatusBadRequest)
+		return
+	}
+
+	route, err := h.Repo.GetById(id)
+	if err != nil {
+		http.Error(w, "Маршрут не найден", http.StatusNotFound)
+		return
+	}
+
+	rawUserID := r.Context().Value(middleware.UserIDKey)
+	currentUserID, _ := uuid.Parse(rawUserID.(string))
+	if route.UserID != currentUserID {
+		http.Error(w, "Доступ запрещен", http.StatusForbidden)
+		return
+	}
 
 	var input struct {
 		TripIdea       string `json:"trip_idea"`
 		TravelersCount int    `json:"travelers_count"`
 	}
-	json.NewDecoder(r.Body).Decode(&input)
-
-	route, err := h.Repo.GetById(id)
-	if err != nil {
-		http.Error(w, "Не найден", 404)
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		http.Error(w, "Некорректный JSON", http.StatusBadRequest)
 		return
 	}
 
@@ -172,7 +218,7 @@ func (h *RouteHandler) UpdateRoute(w http.ResponseWriter, r *http.Request) {
 	route.GuestsCount = input.TravelersCount
 
 	if err := h.Repo.Update(route); err != nil {
-		http.Error(w, "Ошибка обновления", 500)
+		http.Error(w, "Ошибка обновления", http.StatusInternalServerError)
 		return
 	}
 
@@ -180,9 +226,27 @@ func (h *RouteHandler) UpdateRoute(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *RouteHandler) DeleteRoute(w http.ResponseWriter, r *http.Request) {
-	id, _ := uuid.Parse(chi.URLParam(r, "id"))
+	id, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, "Некорректный ID маршрута", http.StatusBadRequest)
+		return
+	}
+
+	route, err := h.Repo.GetById(id)
+	if err != nil {
+		http.Error(w, "Маршрут не найден", http.StatusNotFound)
+		return
+	}
+
+	rawUserID := r.Context().Value(middleware.UserIDKey)
+	currentUserID, _ := uuid.Parse(rawUserID.(string))
+	if route.UserID != currentUserID {
+		http.Error(w, "Доступ запрещен", http.StatusForbidden)
+		return
+	}
+
 	if err := h.Repo.Delete(id); err != nil {
-		http.Error(w, "Ошибка", 500)
+		http.Error(w, "Ошибка удаления: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)

@@ -73,7 +73,13 @@ func (h *ManagerHandler) UpdateStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.Repo.UpdateBookingStatus(managerID, bookingID, input.Status)
+	statusID, err := h.Repo.GetBookingStatusByTitle(input.Status)
+	if err != nil {
+		http.Error(w, "Неверный статус: "+input.Status, http.StatusBadRequest)
+		return
+	}
+
+	err = h.Repo.UpdateBookingStatus(managerID, bookingID, statusID)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			http.Error(w, "Бронь не найдена или доступ запрещен", http.StatusForbidden)

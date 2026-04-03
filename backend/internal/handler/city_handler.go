@@ -105,3 +105,36 @@ func (h *CityHandler) GetCityImage(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }
+
+func (h *CityHandler) CreateCity(w http.ResponseWriter, r *http.Request) {
+	var input struct {
+		Title       string `json:"title"`
+		Description string `json:"description"`
+		ImageURL    string `json:"image_url"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		http.Error(w, "Некорректный JSON", http.StatusBadRequest)
+		return
+	}
+
+	if input.Title == "" {
+		http.Error(w, "Название города обязательно", http.StatusBadRequest)
+		return
+	}
+
+	city := model.City{
+		ID:          uuid.New(),
+		Title:       input.Title,
+		Description: input.Description,
+		ImageURL:    input.ImageURL,
+	}
+
+	if err := h.Repo.Create(&city); err != nil {
+		http.Error(w, "Ошибка создания города: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(city)
+}

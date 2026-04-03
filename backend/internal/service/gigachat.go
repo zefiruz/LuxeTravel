@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -22,6 +23,7 @@ type gigaChatService struct {
 	Client      *http.Client
 	accessToken string
 	expiresAt   time.Time
+	mu          sync.RWMutex
 }
 
 func NewGigaChatService(authKey string) GigaChatService {
@@ -35,9 +37,12 @@ func NewGigaChatService(authKey string) GigaChatService {
 }
 
 func (s *gigaChatService) getAccessToken() (string, error) {
+	s.mu.RLock()
 	if s.accessToken != "" && time.Now().Before(s.expiresAt.Add(-1*time.Minute)) {
+		s.mu.RUnlock()
 		return s.accessToken, nil
 	}
+	s.mu.RUnlock()
 
 	reqUrl := "https://ngw.devices.sberbank.ru:9443/api/v2/oauth"
 	data := url.Values{}
