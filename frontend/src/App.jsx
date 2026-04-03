@@ -20,7 +20,7 @@ function App() {
       <Route path="/route-form" element={<RouteCreationPage />} />
       <Route path="/route-builder" element={<GeneratedRoutePage />} />
       <Route path="/route-point/:id" element={<RoutePointDetailsPage />} />
-      <Route path="/route-point/:id/hotels" element={<HotelSelectionPage />} />
+      <Route path="/route-point/:cityName/hotels" element={<HotelSelectionPage />} />
       <Route path="/my-routes" element={<MyRoutesPage />} />
       <Route path="/my-routes/:id" element={<RouteDetailsPage />} />
       <Route path="/profile" element={<ProfilePage />} />

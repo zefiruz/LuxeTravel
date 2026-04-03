@@ -1,79 +1,143 @@
-import { createContext, useContext, useState } from "react";
-
-const initialRoutePoints = [
-  {
-    id: 1,
-    name: "Москва",
-    description:
-      "Москва — это город, в котором можно провести сразу несколько разных видов отдыха: культурный, гастрономический, активный или просто прогулочный. Это один из крупнейших и самых динамичных городов Европы, где историческая архитектура соседствует с современными пространствами, музеями, парками и ресторанами.",
-  },
-  {
-    id: 2,
-    name: "Дубай",
-    description:
-      "Дубай — это город, где современная архитектура, роскошь и пустынные пейзажи соединяются в одном месте. Это один из самых необычных городов мира, который буквально вырос посреди пустыни и стал символом современных технологий, масштабных проектов и высокого уровня сервиса.",
-  },
-  {
-    id: 3,
-    name: "Норвегия",
-    description:
-      "Норвегия — это страна впечатляющей природы, фьордов, горных маршрутов и спокойного северного ритма жизни. Здесь можно совместить созерцательный отдых, активные прогулки и знакомство с необычной культурой.",
-  },
-  {
-    id: 4,
-    name: "Париж",
-    description:
-      "Париж — это город искусства, архитектуры и длинных прогулок. Здесь сочетаются знаковые достопримечательности, уютные улицы, гастрономия и атмосфера классического европейского путешествия.",
-  },
-  {
-    id: 5,
-    name: "Токио",
-    description:
-      "Токио — это город, где высокие технологии, плотный ритм жизни и традиционная японская культура существуют одновременно. Это точка для ярких впечатлений, гастрономии и необычной городской атмосферы.",
-  },
-  {
-    id: 6,
-    name: "Лондон",
-    description:
-      "Лондон — это классический европейский мегаполис с историей, музеями, парками и узнаваемой городской эстетикой. Здесь удобно сочетать культурный отдых, прогулки и насыщенную городскую программу.",
-  },
-];
+import { createContext, useContext, useState, useEffect } from "react";
 
 const RouteContext = createContext(null);
 
 export function RouteProvider({ children }) {
-  const [routePoints, setRoutePoints] = useState(initialRoutePoints);
-  const [selectedHotelsByCity, setSelectedHotelsByCity] = useState({});
+  const [routePoints, setRoutePoints] = useState(() => {
+    const saved = localStorage.getItem("citiesToTravel");
+    if (!saved) return [];
 
-  const removeRoutePoint = (id) => {
-    setRoutePoints((prev) => prev.filter((point) => point.id !== id));
+    try {
+      const parsed = JSON.parse(saved);
+      return parsed;
+    } catch (error) {
+      console.error("Ошибка парсинга localStorage:", error);
+      return [];
+    }
+  });
+
+  // selectedHotelsByCity: { [cityId]: { hotelId, roomId, startDate, endDate } }
+  const [selectedHotelsByCity, setSelectedHotelsByCity] = useState(() => {
+    const saved = localStorage.getItem("selectedHotelsByCity");
+    if (!saved) return {};
+
+    try {
+      return JSON.parse(saved);
+    } catch (error) {
+      console.error("Ошибка парсинга selectedHotelsByCity:", error);
+      return {};
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem("citiesToTravel", JSON.stringify(routePoints));
+  }, [routePoints]);
+
+  useEffect(() => {
+    localStorage.setItem("selectedHotelsByCity", JSON.stringify(selectedHotelsByCity));
+  }, [selectedHotelsByCity]);
+
+  const loadRoutePointsFromStorage = () => {
+    try {
+      const saved = localStorage.getItem("citiesToTravel");
+      if (!saved) {
+        setRoutePoints([]);
+        return;
+      }
+
+      const parsed = JSON.parse(saved);
+      setRoutePoints(parsed);
+    } catch (error) {
+      console.error("Ошибка загрузки из localStorage:", error);
+      setRoutePoints([]);
+    }
+  };
+
+  const removeRoutePoint = (cityId) => {
+    setRoutePoints((prev) => prev.filter((city) => city.id !== cityId));
 
     setSelectedHotelsByCity((prev) => {
       const updated = { ...prev };
-      delete updated[id];
+      delete updated[cityId];
       return updated;
     });
   };
 
-  const setSelectedHotelForCity = (cityId, hotelId) => {
+  const removeRoutePointByName = (cityName) => {
+    const cityToRemove = routePoints.find(c => c.name === cityName);
+
+    setRoutePoints((prev) => prev.filter((city) => city.name !== cityName));
+
+    // Удаляем отель по id города
+    if (cityToRemove && cityToRemove.id) {
+      setSelectedHotelsByCity((prev) => {
+        const updated = { ...prev };
+        delete updated[cityToRemove.id];
+        return updated;
+      });
+    }
+  };
+
+  const setSelectedHotelForCity = (cityId, hotelData) => {
     setSelectedHotelsByCity((prev) => ({
       ...prev,
-      [cityId]: hotelId,
+      [cityId]: hotelData,
     }));
   };
 
-  const addRoutePointAtIndex = (insertIndex) => {
-    const newPoint = {
-      id: Date.now(),
-      name: "Новая точка",
-      description: "Описание для новой точки маршрута пока не заполнено.",
-    };
-
+  // Добавление новой точки маршрута
+  const addRoutePointAtIndex = (insertIndex, cityData = null) => {
     setRoutePoints((prev) => {
       const updated = [...prev];
-      updated.splice(insertIndex, 0, newPoint);
+
+      // Если переданы данные города, используем их
+      if (cityData) {
+        updated.splice(insertIndex, 0, {
+          id: cityData.id,
+          name: cityData.name || cityData.cityName || "Новый город",
+          ...cityData
+        });
+      } else {
+        updated.splice(insertIndex, 0, {
+          id: Date.now(),
+          name: "Новый город",
+        });
+      }
+
       return updated;
     });
+  };
+
+  const updateRoutePoint = (cityId, updatedData) => {
+    console.log(routePoints);
+    setRoutePoints((prev) =>
+      prev.map((city) =>
+        city.id === cityId ? { ...city, ...updatedData } : city
+      )
+    );
+    console.log(routePoints);
+  };
+
+  const getRoutePointById = (cityId) => {
+    return routePoints.find(city => city.id === cityId);
+  };
+
+  const getRoutePointByIndex = (index) => {
+    return routePoints[index];
+  };
+
+  const moveRoutePoint = (fromIndex, toIndex) => {
+    setRoutePoints((prev) => {
+      const updated = [...prev];
+      const [movedItem] = updated.splice(fromIndex, 1);
+      updated.splice(toIndex, 0, movedItem);
+      return updated;
+    });
+  };
+
+  const clearRoutePoints = () => {
+    setRoutePoints([]);
+    setSelectedHotelsByCity({});
   };
 
   return (
@@ -82,9 +146,16 @@ export function RouteProvider({ children }) {
         routePoints,
         setRoutePoints,
         removeRoutePoint,
-        selectedHotelsByCity,
+        removeRoutePointByName,
         setSelectedHotelForCity,
         addRoutePointAtIndex,
+        updateRoutePoint,
+        getRoutePointById,
+        getRoutePointByIndex,
+        moveRoutePoint,
+        clearRoutePoints,
+        loadRoutePointsFromStorage,
+        selectedHotelsByCity,
       }}
     >
       {children}

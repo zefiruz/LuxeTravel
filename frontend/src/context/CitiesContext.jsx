@@ -7,6 +7,7 @@ export function CitiesProvider({ children }) {
   const [cities, setCities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedCities, setSelectedCities] = useState([]);
   const [selectedHotelsByCity, setSelectedHotelsByCity] = useState({});
 
   useEffect(() => {
@@ -54,6 +55,8 @@ export function CitiesProvider({ children }) {
     <CitiesContext.Provider
       value={{
         cities,
+        selectedCities,
+        setSelectedCities,
         loading,
         error,
         selectedHotelsByCity,

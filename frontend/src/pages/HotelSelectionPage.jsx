@@ -1,133 +1,135 @@
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { X } from "lucide-react";
+import Select from "react-select";
 import Header from "../components/Header";
 import { useRoute } from "../context/RouteContext";
+import { useCities } from "../context/CitiesContext";
+import api from "../services/api";
 import "../styles/HotelSelectionPage.css";
 
-const hotelsByCity = {
-  1: [
-    {
-      id: 101,
-      name: "Hotel National Moscow",
-      description:
-        "Один из самых известных отелей Москвы с исторической атмосферой, видом на центр города и классическим уровнем сервиса.",
-    },
-    {
-      id: 102,
-      name: "Metropol Moscow",
-      description:
-        "Легендарный отель в центре Москвы, сочетающий историческую архитектуру, престижное расположение и высокий уровень комфорта.",
-    },
-  ],
-  2: [
-    {
-      id: 201,
-      name: "Hotel Atlantis The Royal",
-      description:
-        "Atlantis The Royal — один из самых впечатляющих люксовых отелей в мире, расположенный на острове Palm Jumeirah в Дубае. Этот отель стал символом современной роскоши и архитектурного масштаба: его необычная каскадная форма с террасами и панорамными бассейнами уже стала новой визитной карточкой города.",
-    },
-    {
-      id: 202,
-      name: "Hotel Burj Al Arab",
-      description:
-        "Burj Al Arab — один из самых известных и роскошных отелей в мире, расположенный на искусственном острове у побережья Дубая. Здание выполнено в форме паруса и уже много лет считается символом города и уровня роскоши. Отель предлагает исключительные сьюты, что делает пребывание здесь особенно приватным и комфортным.",
-    },
-  ],
-  3: [
-    {
-      id: 301,
-      name: "The Thief",
-      description:
-        "Современный бутик-отель в Норвегии с акцентом на дизайн, приватность и комфортный отдых у воды.",
-    },
-    {
-      id: 302,
-      name: "Hotel Continental Oslo",
-      description:
-        "Один из самых известных отелей Осло с классическим сервисом, удобным расположением и спокойной атмосферой.",
-    },
-  ],
-  4: [
-    {
-      id: 401,
-      name: "Ritz Paris",
-      description:
-        "Иконический парижский отель с богатой историей, классическим интерьером и атмосферой европейской роскоши.",
-    },
-    {
-      id: 402,
-      name: "Le Meurice",
-      description:
-        "Элегантный отель в центре Парижа, сочетающий французскую эстетику, комфорт и близость к главным достопримечательностям.",
-    },
-  ],
-  5: [
-    {
-      id: 501,
-      name: "Park Hyatt Tokyo",
-      description:
-        "Знаменитый токийский отель с панорамными видами на город, высоким уровнем сервиса и спокойной премиальной атмосферой.",
-    },
-    {
-      id: 502,
-      name: "Aman Tokyo",
-      description:
-        "Современный премиальный отель в Токио, сочетающий японскую минималистичность, тишину и высокий уровень приватности.",
-    },
-  ],
-  6: [
-    {
-      id: 601,
-      name: "The Savoy",
-      description:
-        "Классический лондонский отель с узнаваемым стилем, историей и премиальным расположением в центре города.",
-    },
-    {
-      id: 602,
-      name: "The Langham London",
-      description:
-        "Элегантный и статусный отель в Лондоне с высоким уровнем сервиса и классической британской атмосферой.",
-    },
-  ],
-};
-
 function HotelSelectionPage() {
-  const { id } = useParams();
+  const { cityName } = useParams();
   const navigate = useNavigate();
   const { routePoints, selectedHotelsByCity, setSelectedHotelForCity } = useRoute();
+  const { cities } = useCities();
 
-  const cityId = Number(id);
+  // Состояние для отелей и комнат
+  const [hotels, setHotels] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const city = useMemo(
-    () => routePoints.find((point) => point.id === cityId),
-    [cityId, routePoints]
-  );
+  // Состояние для выбранного отеля и комнаты
+  const [activeHotelIndex, setActiveHotelIndex] = useState(0);
+  const [selectedRoom, setSelectedRoom] = useState(null);
 
-  const hotels = useMemo(() => hotelsByCity[cityId] || [], [cityId]);
+  // Состояние для дат
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
-  const activeHotelIndex = useMemo(() => {
-    if (hotels.length === 0) return 0;
+  // Получаем cityId из routePoints
+  const cityData = useMemo(() => {
+    return routePoints.find((p) => p.name === cityName || p.title === cityName);
+  }, [cityName, routePoints]);
 
-    const savedHotelId = selectedHotelsByCity[cityId];
-    if (!savedHotelId) return 0;
+  const cityId = cityData?.id;
 
-    const index = hotels.findIndex((hotel) => hotel.id === savedHotelId);
-    return index >= 0 ? index : 0;
-  }, [hotels, selectedHotelsByCity, cityId]);
+  // Загрузка отелей для города
+  useEffect(() => {
+    if (!cityId) return;
 
-  if (!city) {
+    const fetchHotels = async () => {
+      try {
+        setLoading(true);
+        const response = await api.get(`/cities/${cityId}/hotels`);
+        setHotels(response || []);
+        setError(null);
+      } catch (err) {
+        setError(err.message);
+        setHotels([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHotels();
+  }, [cityId]);
+
+  // Загрузка сохранённых данных отеля
+  useEffect(() => {
+    if (cityId && selectedHotelsByCity[cityId]) {
+      const savedData = selectedHotelsByCity[cityId];
+      if (savedData.hotelId) {
+        const hotelIndex = hotels.findIndex((h) => h.id === savedData.hotelId);
+        if (hotelIndex >= 0) {
+          setActiveHotelIndex(hotelIndex);
+        }
+      }
+      if (savedData.roomId) {
+        setSelectedRoom({ value: savedData.roomId, label: savedData.roomTitle });
+      }
+      if (savedData.startDate) {
+        setStartDate(savedData.startDate);
+      }
+      if (savedData.endDate) {
+        setEndDate(savedData.endDate);
+      }
+    }
+  }, [cityId, selectedHotelsByCity, hotels]);
+
+  // Доступные комнаты для выбранного отеля
+  const roomOptions = useMemo(() => {
+    const activeHotel = hotels[activeHotelIndex];
+    if (!activeHotel || !activeHotel.rooms) return [];
+
+    return activeHotel.rooms.map((room) => ({
+      value: room.id,
+      label: `${room.title} (до ${room.max_guests} гостей) - ${room.price_per_night}₽/ночь`,
+      ...room,
+    }));
+  }, [hotels, activeHotelIndex]);
+
+  const activeHotel = hotels[activeHotelIndex];
+  const secondaryHotel = hotels.find((_, index) => index !== activeHotelIndex);
+
+  const handleSelectHotel = (hotel) => {
+    const hotelIndex = hotels.findIndex((h) => h.id === hotel.id);
+    setActiveHotelIndex(hotelIndex >= 0 ? hotelIndex : 0);
+  };
+
+  const handleSelectSecondaryHotel = () => {
+    if (!secondaryHotel) return;
+    handleSelectHotel(secondaryHotel);
+  };
+
+  const handleSaveSelection = () => {
+    if (!activeHotel || !cityId) return;
+
+    const hotelData = {
+      hotelId: activeHotel.id,
+      hotelName: activeHotel.title,
+      roomId: selectedRoom?.value || null,
+      roomTitle: selectedRoom?.label || null,
+      startDate: startDate || null,
+      endDate: endDate || null,
+    };
+
+    setSelectedHotelForCity(cityId, hotelData);
+    navigate("/route-builder");
+  };
+
+  if (loading) {
     return (
       <div className="hotel-selection-page">
         <Header />
         <main className="hotel-selection-page__content">
-          <p className="hotel-selection-page__empty">Город не найден.</p>
+          <div className="loading-container">Загрузка отелей...</div>
         </main>
       </div>
     );
   }
 
-  if (hotels.length === 0) {
+  if (error || hotels.length === 0) {
     return (
       <div className="hotel-selection-page">
         <Header />
@@ -135,28 +137,20 @@ function HotelSelectionPage() {
           <button
             type="button"
             className="hotel-selection-page__close-btn"
-            onClick={() => navigate(`/route-point/${cityId}`)}
+            onClick={() => navigate("/route-builder")}
             aria-label="Закрыть выбор отеля"
           >
             <X className="hotel-selection-page__close-icon" />
           </button>
 
-          <h1 className="hotel-selection-page__city-title">{city.name}</h1>
+          <h1 className="hotel-selection-page__city-title">{cityName}</h1>
           <p className="hotel-selection-page__empty">
-            Для этого города пока нет отелей.
+            {error ? `Ошибка: ${error}` : "Для этого города пока нет отелей."}
           </p>
         </main>
       </div>
     );
   }
-
-  const activeHotel = hotels[activeHotelIndex];
-  const secondaryHotel = hotels.find((_, index) => index !== activeHotelIndex);
-
-  const handleSelectSecondaryHotel = () => {
-    if (!secondaryHotel) return;
-    setSelectedHotelForCity(cityId, secondaryHotel.id);
-  };
 
   return (
     <div className="hotel-selection-page">
@@ -166,7 +160,7 @@ function HotelSelectionPage() {
         <button
           type="button"
           className="hotel-selection-page__close-btn"
-          onClick={() => navigate(`/route-point/${cityId}`)}
+          onClick={() => navigate("/route-builder")}
           aria-label="Закрыть выбор отеля"
         >
           <X className="hotel-selection-page__close-icon" />
@@ -175,7 +169,7 @@ function HotelSelectionPage() {
         <section className="hotel-selection-page__header">
           <div className="hotel-selection-page__title-wrap">
             <span className="hotel-selection-page__title-line" />
-            <h1 className="hotel-selection-page__city-title">{city.name}</h1>
+            <h1 className="hotel-selection-page__city-title">{cityName}</h1>
             <span className="hotel-selection-page__title-line" />
           </div>
         </section>
@@ -184,7 +178,14 @@ function HotelSelectionPage() {
           <div className="hotel-selection-left">
             <div className="hotel-card hotel-card--main">
               <div className="hotel-card__image hotel-card__image--main" />
-              <h2 className="hotel-card__title">{activeHotel.name}</h2>
+              <h2 className="hotel-card__title">{activeHotel.title}</h2>
+              <button
+                type="button"
+                className="hotel-card__select-btn"
+                onClick={() => handleSelectHotel(activeHotel)}
+              >
+                Выбрать
+              </button>
             </div>
 
             {secondaryHotel && (
@@ -192,11 +193,11 @@ function HotelSelectionPage() {
                 type="button"
                 className="hotel-card hotel-card--secondary"
                 onClick={handleSelectSecondaryHotel}
-                aria-label={`Выбрать отель ${secondaryHotel.name}`}
+                aria-label={`Выбрать отель ${secondaryHotel.title}`}
               >
                 <div className="hotel-card__image hotel-card__image--secondary" />
                 <span className="hotel-card__subtitle">
-                  {secondaryHotel.name}
+                  {secondaryHotel.title}
                 </span>
               </button>
             )}
@@ -212,6 +213,60 @@ function HotelSelectionPage() {
                 {secondaryHotel.description}
               </p>
             )}
+
+            {/* Селектор комнаты */}
+            {roomOptions.length > 0 && (
+              <div className="hotel-selection__room-selector">
+                <label className="hotel-selection__label">Тип номера</label>
+                <Select
+                  options={roomOptions}
+                  value={selectedRoom}
+                  onChange={setSelectedRoom}
+                  placeholder="Выберите тип номера..."
+                  isSearchable={true}
+                  isClearable={true}
+                  noOptionsMessage={() => "Нет доступных номеров"}
+                  className="hotel-selection__select"
+                  classNamePrefix="react-select"
+                />
+              </div>
+            )}
+
+            {/* Календарь для выбора дат */}
+            <div className="hotel-selection__dates">
+              <label className="hotel-selection__label">Даты проживания</label>
+              <div className="hotel-selection__date-row">
+                <input
+                  className="hotel-selection__date-input"
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  min={new Date().toISOString().split("T")[0]}
+                />
+                <input
+                  className="hotel-selection__date-input"
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  min={startDate || new Date().toISOString().split("T")[0]}
+                />
+              </div>
+              {startDate && endDate && new Date(startDate) > new Date(endDate) && (
+                <p className="hotel-selection__error">
+                  Дата заезда не может быть позже даты выезда
+                </p>
+              )}
+            </div>
+
+            {/* Кнопка сохранения */}
+            <button
+              type="button"
+              className="hotel-selection__save-btn"
+              onClick={handleSaveSelection}
+              disabled={!selectedRoom || !startDate || !endDate}
+            >
+              Сохранить выбор
+            </button>
           </div>
         </section>
       </main>

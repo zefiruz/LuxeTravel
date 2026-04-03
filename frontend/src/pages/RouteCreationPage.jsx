@@ -7,10 +7,9 @@ import { useCities } from "../context";
 
 function RouteCreationPage() {
   const navigate = useNavigate();
-  const { cities, loading, error } = useCities();
+  const { cities, loading, error, selectedCities, setSelectedCities } = useCities();
 
   const [mode, setMode] = useState("known");
-  const [selectedCities, setSelectedCities] = useState([]);
   const [citiesToSelect, setCitiesToSelect] = useState([]);
   const [travelersCount, setTravelersCount] = useState("");
   const [startDate, setStartDate] = useState("2026-03-18");
@@ -19,9 +18,11 @@ function RouteCreationPage() {
   const [localError, setLocalError] = useState(null);
 
   const handleCityChange = (index, selectedOption) => {
-    const newSelectedCities = [...selectedCities];
-    newSelectedCities[index] = selectedOption;
-    setSelectedCities(newSelectedCities);
+    setSelectedCities((prev) => {
+      const newSelectedCities = [...prev];
+      newSelectedCities[index] = selectedOption;
+      return newSelectedCities;
+    });
   };
 
   const handleAddCity = () => {
@@ -29,9 +30,11 @@ function RouteCreationPage() {
   };
 
   const handleRemoveCity = (index) => {
-    const newSelectedCities = [...selectedCities];
-    newSelectedCities.splice(index, 1);
-    setSelectedCities(newSelectedCities);
+    setSelectedCities((prev) => {
+      const newSelectedCities = [...prev];
+      newSelectedCities.splice(index, 1);
+      return newSelectedCities;
+    });
   };
 
   const handleClearIndicator = (index) => {
@@ -87,7 +90,7 @@ function RouteCreationPage() {
         : [],
       tripIdea: mode === "unknown" ? tripIdea : "",
     };
-    localStorage.setItem("")
+    localStorage.setItem("citiesToTravel", JSON.stringify(selectedCities));
     navigate("/route-builder");
   };
 
@@ -100,7 +103,7 @@ function RouteCreationPage() {
       );
 
       const formattedCities = cities
-        .filter(city => !selectedIds.has(city.id))
+        .filter(city => !selectedIds.has(String(city.id)))
         .map(city => ({
           value: city.id,
           label: city.title,
