@@ -1,11 +1,9 @@
 .admin-users-page {
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  background: #1e1e1e;
 }
 
 .admin-users-page__content {
-  flex: 1;
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
@@ -24,12 +22,13 @@
   flex: 1;
   max-width: 120px;
   height: 2px;
-  background: #000;
+  background: #72393f;
 }
 
 .admin-users-page__title {
   font-size: 32px;
   font-weight: 700;
+  color: #efe8e2;
   margin: 0;
 }
 
@@ -37,7 +36,7 @@
 .admin-users-page__error {
   text-align: center;
   font-size: 18px;
-  color: #666;
+  color: #ab9985;
 }
 
 .admin-users-page__error {
@@ -45,9 +44,10 @@
 }
 
 .admin-users-table {
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border: 1px solid #72393f;
+  border-radius: 12px;
   overflow: hidden;
+  background: #2d2523;
 }
 
 .admin-users-table__head {
@@ -55,11 +55,10 @@
   grid-template-columns: 1fr 2fr 2fr 1.5fr 1fr 1.5fr;
   gap: 12px;
   padding: 16px 20px;
-  background: #f7fafc;
+  background: #72393f;
   font-weight: 600;
   font-size: 14px;
-  color: #4a5568;
-  border-bottom: 1px solid #e2e8f0;
+  color: #efe8e2;
 }
 
 .admin-users-table__body {
@@ -72,9 +71,10 @@
   grid-template-columns: 1fr 2fr 2fr 1.5fr 1fr 1.5fr;
   gap: 12px;
   padding: 16px 20px;
-  border-bottom: 1px solid #edf2f7;
+  border-bottom: 1px solid rgba(114, 57, 63, 0.3);
   align-items: center;
   font-size: 14px;
+  color: #efe8e2;
 }
 
 .admin-users-table__row:last-child {
@@ -84,16 +84,17 @@
 .admin-users-table__empty {
   padding: 40px 20px;
   text-align: center;
-  color: #a0aec0;
+  color: #ab9985;
   font-size: 16px;
 }
 
 .admin-users-table__role-select {
   padding: 6px 10px;
-  border: 1px solid #cbd5e0;
+  border: 1px solid #72393f;
   border-radius: 4px;
   font-size: 14px;
-  background: #fff;
+  background: #1e1e1e;
+  color: #efe8e2;
 }
 
 .admin-users-table__actions {
@@ -104,35 +105,37 @@
 .admin-users-table__btn {
   padding: 6px 12px;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 13px;
   cursor: pointer;
   transition: background 0.2s;
 }
 
 .admin-users-table__btn--edit {
-  background: #4299e1;
-  color: #fff;
+  background: #ab9985;
+  color: #2d2523;
 }
 
 .admin-users-table__btn--edit:hover {
-  background: #3182ce;
+  background: #c4ad96;
 }
 
 .admin-users-table__btn--save {
-  background: #48bb78;
-  color: #fff;
+  background: #72393f;
+  color: #efe8e2;
 }
 
 .admin-users-table__btn--save:hover {
-  background: #38a169;
+  background: #8a454c;
 }
 
 .admin-users-table__btn--cancel {
-  background: #e2e8f0;
-  color: #4a5568;
+  background: transparent;
+  border: 1px solid #ab9985;
+  color: #ab9985;
 }
 
 .admin-users-table__btn--cancel:hover {
-  background: #cbd5e0;
+  background: #ab9985;
+  color: #2d2523;
 }

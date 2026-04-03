@@ -72,6 +72,7 @@ type RoomType struct {
 type Route struct {
 	ID          uuid.UUID   `gorm:"type:uuid;primaryKey" json:"id"`
 	UserID      uuid.UUID   `gorm:"type:uuid;not null" json:"user_id"`
+	User        User        `gorm:"foreignKey:UserID" json:"user"`
 	StatusID    uuid.UUID   `gorm:"type:uuid" json:"status_id"`
 	Status      RouteStatus `gorm:"foreignKey:StatusID" json:"status"`
 	Prompt      string      `gorm:"column:prompt" json:"trip_idea"`
@@ -88,6 +89,7 @@ type Booking struct {
 	RouteID    uuid.UUID     `gorm:"type:uuid;not null" json:"route_id"`
 	StatusID   uuid.UUID     `gorm:"type:uuid" json:"status_id"`
 	Status     BookingStatus `gorm:"foreignKey:StatusID" json:"status"`
+	RoomType   RoomType      `gorm:"foreignKey:RoomTypeID" json:"room_type"`
 	StartDate  time.Time     `json:"start_date"`
 	EndDate    time.Time     `json:"end_date"`
 	CreatedAt  time.Time     `json:"created_at"`

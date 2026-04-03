@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import Header from "../components/Header";
+import AdminHeader from "../components/AdminHeader";
 import adminService from "../services/admin";
 import "../styles/AdminRouteDetailsPage.css";
 
@@ -10,7 +10,7 @@ function AdminRouteDetailsPage() {
   const [route, setRoute] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [decision, setDecision] = useState("");
+  const [decisionLoading, setDecisionLoading] = useState(false);
 
   useEffect(() => {
     const fetchRoute = async () => {
@@ -29,19 +29,32 @@ function AdminRouteDetailsPage() {
     fetchRoute();
   }, [id]);
 
+  const handleDecision = async (status) => {
+    try {
+      setDecisionLoading(true);
+      await adminService.updateRouteStatus(id, status);
+      setRoute((prev) => ({ ...prev, status: { title: status } }));
+    } catch (err) {
+      alert("Ошибка при обновлении статуса");
+      console.error(err);
+    } finally {
+      setDecisionLoading(false);
+    }
+  };
+
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
     const d = new Date(dateStr);
     return d.toLocaleDateString("ru-RU");
   };
 
-  if (loading) return <div className="admin-route-details-page"><Header /><main className="admin-route-details-page__content"><p>Загрузка...</p></main></div>;
-  if (error) return <div className="admin-route-details-page"><Header /><main className="admin-route-details-page__content"><p className="admin-route-details-page__error">{error}</p></main></div>;
-  if (!route) return <div className="admin-route-details-page"><Header /><main className="admin-route-details-page__content"><p>Маршрут не найден</p></main></div>;
+  if (loading) return <div className="admin-route-details-page"><AdminHeader /><main className="admin-route-details-page__content"><p>Загрузка...</p></main></div>;
+  if (error) return <div className="admin-route-details-page"><AdminHeader /><main className="admin-route-details-page__content"><p className="admin-route-details-page__error">{error}</p></main></div>;
+  if (!route) return <div className="admin-route-details-page"><AdminHeader /><main className="admin-route-details-page__content"><p>Маршрут не найден</p></main></div>;
 
   return (
     <div className="admin-route-details-page">
-      <Header />
+      <AdminHeader />
 
       <main className="admin-route-details-page__content">
         <section className="admin-route-details-page__title-block">
@@ -70,33 +83,34 @@ function AdminRouteDetailsPage() {
             </div>
 
             <div className="admin-route-card__actions">
-              {!decision ? (
+              {route.status?.title === "confirmed" ? (
+                <div className="admin-route-card__status-pill admin-route-card__status-pill--approved">
+                  Подтверждено
+                </div>
+              ) : route.status?.title === "completed" ? (
+                <div className="admin-route-card__status-pill admin-route-card__status-pill--rejected">
+                  Отклонено
+                </div>
+              ) : (
                 <>
                   <button
                     type="button"
                     className="admin-route-card__action-btn"
-                    onClick={() => setDecision("approved")}
+                    onClick={() => handleDecision("confirmed")}
+                    disabled={decisionLoading}
                   >
-                    Подтвердить
+                    {decisionLoading ? "..." : "Подтвердить"}
                   </button>
 
                   <button
                     type="button"
                     className="admin-route-card__action-btn"
-                    onClick={() => setDecision("rejected")}
+                    onClick={() => handleDecision("completed")}
+                    disabled={decisionLoading}
                   >
-                    Отклонить
+                    {decisionLoading ? "..." : "Отклонить"}
                   </button>
                 </>
-              ) : (
-                <div
-                  className={`admin-route-card__status-pill ${decision === "approved"
-                    ? "admin-route-card__status-pill--approved"
-                    : "admin-route-card__status-pill--rejected"
-                    }`}
-                >
-                  {decision === "approved" ? "Подтверждено" : "Отклонено"}
-                </div>
               )}
             </div>
           </div>

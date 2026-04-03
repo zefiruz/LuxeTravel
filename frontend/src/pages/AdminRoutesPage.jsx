@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Header from "../components/Header";
+import AdminHeader from "../components/AdminHeader";
 import adminService from "../services/admin";
 import "../styles/AdminRoutesPage.css";
 
@@ -46,7 +46,7 @@ function AdminRoutesPage() {
 
   return (
     <div className="admin-routes-page">
-      <Header />
+      <AdminHeader />
 
       <main className="admin-routes-page__content">
         <section className="admin-routes-page__title-block">

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Header from "../components/Header";
+import AdminHeader from "../components/AdminHeader";
 import adminService from "../services/admin";
 import "../styles/AdminUsersPage.css";
 
@@ -68,7 +68,7 @@ function AdminUsersPage() {
 
   return (
     <div className="admin-users-page">
-      <Header />
+      <AdminHeader />
 
       <main className="admin-users-page__content">
         <section className="admin-users-page__title-block">

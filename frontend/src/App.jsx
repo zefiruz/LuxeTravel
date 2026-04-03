@@ -11,6 +11,11 @@ import AuthChoicePage from "./pages/AuthChoicePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import HotelBookingsPage from "./pages/HotelBookingsPage";
+import AdminRoutesPage from "./pages/AdminRoutesPage";
+import AdminRouteDetailsPage from "./pages/AdminRouteDetailsPage";
+import AdminUsersPage from "./pages/AdminUsersPage";
+import AdminCitiesPage from "./pages/AdminCitiesPage";
+import AdminHotelsPage from "./pages/AdminHotelsPage";
 
 function App() {
   return (
@@ -28,6 +33,14 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/hotels/:hotelId/bookings" element={<HotelBookingsPage />} />
+
+      {/* Админ */}
+      <Route path="/admin" element={<Navigate to="/admin/routes" replace />} />
+      <Route path="/admin/routes" element={<AdminRoutesPage />} />
+      <Route path="/admin/routes/:id" element={<AdminRouteDetailsPage />} />
+      <Route path="/admin/users" element={<AdminUsersPage />} />
+      <Route path="/admin/cities" element={<AdminCitiesPage />} />
+      <Route path="/admin/hotels" element={<AdminHotelsPage />} />
     </Routes>
   );
 }

@@ -1,0 +1,214 @@
+.admin-cities-page {
+  min-height: 100vh;
+  background: #1e1e1e;
+}
+
+.admin-cities-page__content {
+  padding: 40px;
+}
+
+.admin-cities-page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+
+.admin-cities-page__title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #efe8e2;
+  margin: 0;
+}
+
+.admin-cities-page__add-btn {
+  padding: 8px 20px;
+  background: #72393f;
+  color: #efe8e2;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.admin-cities-page__add-btn:hover {
+  background: #8a454c;
+}
+
+.admin-cities-page__loading,
+.admin-cities-page__error,
+.admin-cities-page__empty {
+  text-align: center;
+  color: #ab9985;
+  font-size: 16px;
+}
+
+.admin-cities-page__error {
+  color: #e53e3e;
+}
+
+.admin-cities-page__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.admin-city-card {
+  background: #2d2523;
+  border: 1px solid #72393f;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.admin-city-card:hover {
+  border-color: #ab9985;
+}
+
+.admin-city-card__image {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+}
+
+.admin-city-card__body {
+  padding: 16px;
+}
+
+.admin-city-card__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #efe8e2;
+  margin: 0 0 8px;
+}
+
+.admin-city-card__desc {
+  font-size: 13px;
+  color: #ab9985;
+  margin: 0 0 12px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.admin-city-card__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-city-card__btn {
+  flex: 1;
+  padding: 6px 12px;
+  background: #ab9985;
+  color: #2d2523;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.admin-city-card__btn:hover {
+  background: #c4ad96;
+}
+
+.admin-city-card__btn--danger {
+  background: transparent;
+  color: #e53e3e;
+  border: 1px solid #e53e3e;
+}
+
+.admin-city-card__btn--danger:hover {
+  background: #e53e3e;
+  color: #fff;
+}
+
+/* Form overlay */
+.admin-city-form-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.admin-city-form {
+  background: #2d2523;
+  border: 1px solid #72393f;
+  border-radius: 16px;
+  padding: 32px;
+  width: 100%;
+  max-width: 440px;
+  color: #efe8e2;
+}
+
+.admin-city-form h2 {
+  margin: 0 0 24px;
+  font-size: 20px;
+}
+
+.admin-city-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.admin-city-form__field span {
+  font-size: 13px;
+  color: #ab9985;
+}
+
+.admin-city-form__field input,
+.admin-city-form__field textarea {
+  padding: 10px 12px;
+  background: #1e1e1e;
+  border: 1px solid #72393f;
+  border-radius: 8px;
+  color: #efe8e2;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.admin-city-form__field input:focus,
+.admin-city-form__field textarea:focus {
+  outline: none;
+  border-color: #ab9985;
+}
+
+.admin-city-form__actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.admin-city-form__btn {
+  flex: 1;
+  padding: 10px;
+  background: #72393f;
+  color: #efe8e2;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.admin-city-form__btn:hover {
+  background: #8a454c;
+}
+
+.admin-city-form__btn--cancel {
+  background: transparent;
+  border: 1px solid #ab9985;
+  color: #ab9985;
+}
+
+.admin-city-form__btn--cancel:hover {
+  background: #ab9985;
+  color: #2d2523;
+}

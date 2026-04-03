@@ -26,7 +26,9 @@ import (
 func main() {
 	cfg := configs.LoadConfig()
 
-	db, err := gorm.Open(postgres.Open(cfg.DBDSN), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(cfg.DBDSN), &gorm.Config{
+		DisableForeignKeyConstraintWhenMigrating: true,
+	})
 	if err != nil {
 		log.Fatal("Ошибка подключения к БД: ", err)
 	}
@@ -124,6 +126,8 @@ func main() {
 		r.Get("/cities/{cityId}/hotels", hotelHandler.ListHotelsByCity)
 		r.Get("/image", cityHandler.GetCityImage)
 
+		r.Post("/generate", routeHandler.SuggestCitiesAI)
+
 		// --- ОБЩИЕ ЗАКРЫТЫЕ РУЧКИ ---
 		r.Group(func(r chi.Router) {
 			r.Use(appMiddleware.AuthMiddleware(cfg.JWTSecret))
@@ -136,7 +140,6 @@ func main() {
 				r.Use(appMiddleware.CheckRole("client", "admin"))
 
 				r.Route("/routes", func(r chi.Router) {
-					r.Post("/generate", routeHandler.SuggestCitiesAI)
 					r.Post("/", routeHandler.CreateCompleteRoute)
 					r.Get("/", routeHandler.ListUserRoutes)
 					r.Get("/{id}", routeHandler.GetRoute)
@@ -165,6 +168,9 @@ func main() {
 					r.Get("/users", adminHandler.GetAllUsers)
 					r.Get("/roles", adminHandler.GetRoles)
 					r.Get("/routes", routeHandler.ListAllRoutes)
+					r.Get("/routes/{id}", routeHandler.GetRouteAdmin)
+					r.Put("/routes/{id}/status", routeHandler.UpdateRouteStatus)
+					r.Get("/hotels", hotelHandler.ListAllHotels)
 					r.Put("/users/{id}/role", adminHandler.UpdateUserRole)
 					r.Put("/cities/{id}", cityHandler.UpdateCity)
 					r.Put("/hotels/{id}", hotelHandler.UpdateHotel)

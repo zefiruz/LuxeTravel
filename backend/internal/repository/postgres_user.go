@@ -79,7 +79,7 @@ func (r *postgresUserRepository) GetByEmail(email string) (*model.User, error) {
 func (r *postgresUserRepository) GetProfile(userID uuid.UUID) (*model.User, error) {
 	var user model.User
 
-	err := r.db.Preload("UserInfo").Select("id", "email", "role_id").First(&user, "id = ?", userID).Error
+	err := r.db.Preload("Role").Preload("UserInfo").First(&user, "id = ?", userID).Error
 	if err != nil {
 		return nil, err
 	}

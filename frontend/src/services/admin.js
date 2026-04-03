@@ -14,17 +14,55 @@ class AdminService {
     return api.get('/admin/roles');
   }
 
-  // === Маршруты (админские эндпоинты) ===
+  // === Маршруты ===
   async getAllRoutes() {
     return api.get('/admin/routes');
   }
 
   async getRoute(id) {
-    return api.get(`/routes/${id}`);
+    return api.get(`/admin/routes/${id}`);
   }
 
   async deleteRoute(id) {
-    return api.delete(`/routes/${id}`);
+    return api.delete(`/admin/routes/${id}`);
+  }
+
+  async updateRouteStatus(id, status) {
+    return api.put(`/admin/routes/${id}/status`, { status });
+  }
+
+  // === Города ===
+  async getCities() {
+    return api.get('/cities');
+  }
+
+  async createCity(data) {
+    return api.post('/admin/cities', data);
+  }
+
+  async updateCity(id, data) {
+    return api.put(`/admin/cities/${id}`, data);
+  }
+
+  async deleteCity(id) {
+    return api.delete(`/admin/cities/${id}`);
+  }
+
+  // === Отели ===
+  async getHotels() {
+    return api.get('/admin/hotels');
+  }
+
+  async createHotel(data) {
+    return api.post('/admin/hotels', data);
+  }
+
+  async updateHotel(id, data) {
+    return api.put(`/admin/hotels/${id}`, data);
+  }
+
+  async deleteHotel(id) {
+    return api.delete(`/admin/hotels/${id}`);
   }
 
   // === Менеджеры отелей ===
