@@ -64,7 +64,7 @@ function RouteCreationPage() {
         .filter(city => !selectedIds.has(city.id))
         .map(city => ({
           value: city.id,
-          label: city.name,
+          label: city.title,
           ...city
         }));
       setCitiesToSelect(formattedCities);
