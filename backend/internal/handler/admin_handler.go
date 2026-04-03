@@ -36,6 +36,17 @@ func (h *AdminHandler) GetAllUsers(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(users)
 }
 
+func (h *AdminHandler) GetRoles(w http.ResponseWriter, r *http.Request) {
+	roles, err := h.Repo.GetRoles()
+	if err != nil {
+		http.Error(w, "Ошибка получения ролей: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(roles)
+}
+
 func (h *AdminHandler) UpdateUserRole(w http.ResponseWriter, r *http.Request) {
 	targetUserID, err := uuid.Parse(chi.URLParam(r, "id"))
 	if err != nil {

@@ -13,6 +13,7 @@ type RouteRepository interface {
 	Update(route *model.Route) error
 	Delete(id uuid.UUID) error
 	GetAllById(userID uuid.UUID) ([]model.Route, error)
+	GetAll() ([]model.Route, error)
 	CreateBooking(booking *model.Booking) error
 	GetAvailableCityNames() ([]string, error)
 	GetStatusByTitle(title string) (uuid.UUID, error)
@@ -59,6 +60,17 @@ func (r *postgresRouteRepository) GetAllById(userID uuid.UUID) ([]model.Route, e
 		Preload("Status").
 		Preload("Bookings.Status").
 		Preload("Bookings.RoomType.Hotel.City").
+		Find(&routes).Error
+	return routes, err
+}
+
+func (r *postgresRouteRepository) GetAll() ([]model.Route, error) {
+	var routes []model.Route
+	err := r.db.
+		Preload("Status").
+		Preload("Bookings.Status").
+		Preload("Bookings.RoomType.Hotel.City").
+		Preload("User").
 		Find(&routes).Error
 	return routes, err
 }

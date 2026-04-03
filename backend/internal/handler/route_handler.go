@@ -265,3 +265,14 @@ func (h *RouteHandler) ListUserRoutes(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(routes)
 }
+
+func (h *RouteHandler) ListAllRoutes(w http.ResponseWriter, r *http.Request) {
+	routes, err := h.Repo.GetAll()
+	if err != nil {
+		http.Error(w, "Ошибка получения маршрутов", 500)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(routes)
+}

@@ -6,11 +6,11 @@ import { useAuth } from "../context";
 import "../styles/ProfilePage.css";
 
 const fallbackProfile = {
-  lastName: "Иванов",
-  firstName: "Иван",
-  middleName: "Иванович",
-  email: "pochta@mail.ru",
-  phone: "+7 (910)-123-45-67",
+  lastName: "",
+  firstName: "",
+  middleName: "",
+  email: "",
+  phone: "",
 };
 
 function ProfilePage() {
@@ -25,9 +25,9 @@ function ProfilePage() {
   const mapUserData = (u) => {
     if (!u) return fallbackProfile;
     return {
-      lastName: u.lastName || "",
-      firstName: u.firstName || "",
-      middleName: u.middleName || "",
+      lastName: u.last_name || u.lastName || "",
+      firstName: u.first_name || u.firstName || "",
+      middleName: u.middle_name || u.middleName || "",
       email: u.email || "",
       phone: u.phone || "",
     };

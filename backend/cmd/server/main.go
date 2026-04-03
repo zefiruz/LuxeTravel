@@ -48,6 +48,38 @@ func main() {
 		log.Fatal("Ошибка миграции таблиц: ", err)
 	}
 
+	// Seed: начальные данные
+	type seedRow struct {
+		title string
+	}
+	seeds := []struct {
+		table string
+		rows  []seedRow
+	}{
+		{
+			table: "roles",
+			rows:  []seedRow{{"client"}, {"manager"}, {"admin"}},
+		},
+		{
+			table: "route_statuses",
+			rows:  []seedRow{{"draft"}, {"confirmed"}, {"completed"}},
+		},
+		{
+			table: "booking_statuses",
+			rows:  []seedRow{{"pending"}, {"confirmed"}, {"cancelled"}},
+		},
+	}
+
+	for _, seed := range seeds {
+		for _, row := range seed.rows {
+			var count int64
+			db.Table(seed.table).Where("title = ?", row.title).Count(&count)
+			if count == 0 {
+				db.Table(seed.table).Create(map[string]interface{}{"title": row.title})
+			}
+		}
+	}
+
 	userRepo := repository.NewPostgresUserRepository(db)
 	routeRepo := repository.NewPostgresRouteRepository(db)
 	cityRepo := repository.NewPostgresCityRepository(db)
@@ -127,7 +159,8 @@ func main() {
 
 				r.Route("/admin", func(r chi.Router) {
 					r.Get("/users", adminHandler.GetAllUsers)
-
+					r.Get("/roles", adminHandler.GetRoles)
+					r.Get("/routes", routeHandler.ListAllRoutes)
 					r.Put("/users/{id}/role", adminHandler.UpdateUserRole)
 					r.Put("/cities/{id}", cityHandler.UpdateCity)
 					r.Put("/hotels/{id}", hotelHandler.UpdateHotel)
