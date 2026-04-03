@@ -1,0 +1,95 @@
+================================================================================
+ВАРИАНТ ТИПОГРАФИКИ: «лучший» (сохранён как эталон для отката)
+Команда пользователю: напишите «верни вариант под названием лучший» — восстановить по этому файлу.
+Дата снимка: 2026-03-29
+================================================================================
+
+ИДЕЯ: один шрифт Onest на весь сайт; заголовки = тот же шрифт, weight 600, letter-spacing -0.02em.
+react-select принудительно var(--base-font-family) с !important из-за Emotion.
+
+--------------------------------------------------------------------------------
+ФАЙЛ: index.html (блок в <head>, шрифты Google)
+--------------------------------------------------------------------------------
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+--------------------------------------------------------------------------------
+ФАЙЛ: src/styles/index.css — заменить блок переменных шрифта, body не трогать; блок h1-h3 и react-select
+--------------------------------------------------------------------------------
+В :root заменить комментарий и 4 строки переменных на:
+
+  /* Onest: один шрифт для интерфейса и заголовков — единый ритм, без «ломаного» сочетания serif/sans */
+  --font-ui: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-ui);
+  --base-font-family: var(--font-ui);
+  --heading-font-family: var(--font-display);
+
+После body { ... } использовать для заголовков и select:
+
+h1,
+h2,
+h3 {
+  font-family: var(--heading-font-family);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* react-select (Emotion) задаёт системный шрифт — выравниваем под проект */
+.react-select__control,
+.react-select__menu,
+.react-select__option,
+.react-select__single-value,
+.react-select__input-container,
+.react-select__placeholder,
+.react-select__menu-notice {
+  font-family: var(--base-font-family) !important;
+}
+
+(Блок *::before/box-sizing и button input textarea select { font: inherit } — как в текущем index.css.)
+
+--------------------------------------------------------------------------------
+ФАЙЛ: src/styles/Header.css — .header__logo
+--------------------------------------------------------------------------------
+.header__logo {
+  font-family: var(--heading-font-family);
+  font-size: var(--fs-24);
+  font-weight: 600;
+  line-height: var(--lh-1);
+  color: #72393f;
+  text-decoration: none;
+}
+
+--------------------------------------------------------------------------------
+ФАЙЛ: src/styles/RouteCreationPage.css — .route-form-card__title и префикс react-select
+--------------------------------------------------------------------------------
+.route-form-card__title {
+  margin: 0;
+  text-align: center;
+  font-size: var(--fs-heading);
+  font-weight: 600;
+  line-height: var(--lh-snug);
+  letter-spacing: -0.02em;
+  color: #2d2523;
+}
+
+Перед .route-form-card__select .react-select__control должны быть:
+
+.route-form-card__select {
+  font-family: var(--base-font-family);
+}
+
+.route-form-card__select .react-select__control {
+  min-height: 46px;
+  border: 1px solid #1e1e1e;
+  border-radius: 8px;
+  background-color: transparent;
+  font-family: inherit;
+}
+
+================================================================================
+КОНЕЦ СНИМКА «лучший»
+================================================================================

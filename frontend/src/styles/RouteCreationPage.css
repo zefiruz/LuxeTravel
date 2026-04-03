@@ -23,8 +23,9 @@
   margin: 0;
   text-align: center;
   font-size: var(--fs-heading);
-  font-weight: 400;
+  font-weight: 600;
   line-height: var(--lh-snug);
+  letter-spacing: -0.02em;
   color: #2d2523;
 }
 
@@ -243,11 +244,16 @@
 }
 
 /* react-select styles (classNamePrefix="react-select" on Select) */
+.route-form-card__select {
+  font-family: var(--base-font-family);
+}
+
 .route-form-card__select .react-select__control {
   min-height: 46px;
   border: 1px solid #1e1e1e;
   border-radius: 8px;
   background-color: transparent;
+  font-family: inherit;
 }
 
 .route-form-card__select .react-select__control:hover {

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"luxetravel/internal/model"
@@ -77,4 +78,30 @@ func (h *CityHandler) UpdateCity(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(input)
+}
+
+func (h *CityHandler) GetCityImage(w http.ResponseWriter, r *http.Request) {
+	title := r.URL.Query().Get("title")
+	if title == "" {
+		http.Error(w, "Параметр title обязателен", http.StatusBadRequest)
+		return
+	}
+
+	city, err := h.Repo.GetByTitle(title)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			http.Error(w, "Город не найден", http.StatusNotFound)
+		} else {
+			http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	response := map[string]string{
+		"title":     city.Title,
+		"image_url": city.ImageURL,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 }
