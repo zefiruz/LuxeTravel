@@ -40,6 +40,7 @@ func (r *postgresRouteRepository) GetById(id uuid.UUID) (*model.Route, error) {
 	err := r.db.
 		Preload("Status").
 		Preload("Bookings.Status").
+		Preload("Bookings.RoomType.Hotel.City").
 		First(&route, "id = ?", id).Error
 	return &route, err
 }
