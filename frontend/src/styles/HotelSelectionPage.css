@@ -37,7 +37,7 @@
 .hotel-selection-page__header {
   display: flex;
   justify-content: center;
-  margin-bottom: 30px;
+  margin-bottom: 24px;
 }
 
 .hotel-selection-page__title-wrap {
@@ -64,9 +64,8 @@
 .hotel-selection-layout {
   display: grid;
   grid-template-columns: 470px 1fr;
-  gap: 70px;
+  gap: 40px;
   align-items: start;
-  transform: translateX(75px);
 }
 
 .hotel-selection-left {
@@ -89,7 +88,7 @@
 
 .hotel-card--secondary {
   width: 240px;
-  margin-top: 40px;
+  margin-top: 24px;
   cursor: pointer;
 }
 
@@ -109,7 +108,7 @@
 }
 
 .hotel-card__title {
-  margin: 14px 0 0;
+  margin: 12px 0 0;
   font-size: var(--fs-16);
   font-weight: 400;
   color: #efe8e2;
@@ -117,7 +116,7 @@
 }
 
 .hotel-card__select-btn {
-  margin-top: 16px;
+  margin-top: 12px;
   padding: 10px 24px;
   background-color: #efe8e2;
   color: #1e1e1e;
@@ -143,9 +142,9 @@
 
 .hotel-selection-right {
   display: grid;
-  grid-template-rows: 260px 134px;
+  grid-template-rows: auto auto;
   align-content: start;
-  row-gap: 58px;
+  row-gap: 15px;
   padding-top: 0;
 }
 
@@ -155,8 +154,6 @@
   font-size: var(--fs-16);
   line-height: var(--lh-normal);
   color: #efe8e2;
-  display: flex;
-  align-items: center;
 }
 
 .hotel-selection-description--main {
@@ -178,7 +175,7 @@
 
 /* Room selector styles */
 .hotel-selection__room-selector {
-  margin-top: 24px;
+  margin-top: 20px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -229,7 +226,7 @@
 
 /* Date selector styles */
 .hotel-selection__dates {
-  margin-top: 24px;
+  margin-top: 20px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -265,7 +262,7 @@
 
 /* Save button */
 .hotel-selection__save-btn {
-  margin-top: 24px;
+  margin-top: 20px;
   padding: 12px 32px;
   background-color: #efe8e2;
   color: #1e1e1e;

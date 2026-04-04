@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"time"
 
@@ -106,13 +107,13 @@ func (h *RouteHandler) CreateCompleteRoute(w http.ResponseWriter, r *http.Reques
 	userID, _ := uuid.Parse(userIDStr)
 
 	// Подтягиваем начальные статусы (в идеале ID должны быть в константах или кеше)
-	routeStatusID, err := h.Repo.GetStatusByTitle("Created")
+	routeStatusID, err := h.Repo.GetStatusByTitle("draft")
 	if err != nil {
 		http.Error(w, "Системная ошибка: статус маршрута не найден", http.StatusInternalServerError)
 		return
 	}
 
-	bookingStatusID, err := h.Repo.GetBookingStatusByTitle("Pending")
+	bookingStatusID, err := h.Repo.GetBookingStatusByTitle("pending")
 	if err != nil {
 		http.Error(w, "Системная ошибка: статус бронирования не найден", http.StatusInternalServerError)
 		return
@@ -264,4 +265,63 @@ func (h *RouteHandler) ListUserRoutes(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(routes)
+}
+
+func (h *RouteHandler) ListAllRoutes(w http.ResponseWriter, r *http.Request) {
+	routes, err := h.Repo.GetAll()
+	if err != nil {
+		http.Error(w, "Ошибка получения маршрутов", 500)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(routes)
+}
+
+func (h *RouteHandler) GetRouteAdmin(w http.ResponseWriter, r *http.Request) {
+	id, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, "Некорректный ID маршрута", http.StatusBadRequest)
+		return
+	}
+
+	route, err := h.Repo.GetById(id)
+	if err != nil {
+		http.Error(w, "Маршрут не найден", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(route)
+}
+
+func (h *RouteHandler) UpdateRouteStatus(w http.ResponseWriter, r *http.Request) {
+	id, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, "Некорректный ID маршрута", http.StatusBadRequest)
+		return
+	}
+
+	var input struct {
+		Status string `json:"status"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		http.Error(w, "Некорректный JSON", http.StatusBadRequest)
+		return
+	}
+
+	statusID, err := h.Repo.GetStatusByTitle(input.Status)
+	if err != nil {
+		log.Printf("Статус маршрута '%s' не найден: %v", input.Status, err)
+		http.Error(w, "Неверный статус", http.StatusBadRequest)
+		return
+	}
+
+	if err := h.Repo.UpdateStatus(id, statusID); err != nil {
+		log.Printf("Ошибка обновления статуса маршрута %s: %v", id, err)
+		http.Error(w, "Ошибка обновления статуса", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }

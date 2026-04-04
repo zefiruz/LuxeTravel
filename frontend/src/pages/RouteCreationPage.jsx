@@ -4,18 +4,22 @@ import Select from 'react-select';
 import Header from "../components/Header";
 import "../styles/RouteCreationPage.css";
 import { useCities } from "../context";
+import { useRoute } from "../context/RouteContext";
+import api from "../services/api";
 
 function RouteCreationPage() {
   const navigate = useNavigate();
   const { cities, loading, error, selectedCities, setSelectedCities } = useCities();
+  const { setRoutePoints, setTravelersCount } = useRoute();
 
   const [mode, setMode] = useState("known");
   const [citiesToSelect, setCitiesToSelect] = useState([]);
-  const [travelersCount, setTravelersCount] = useState("");
+  const [travelersCount, setTravelersCountLocal] = useState("");
   const [startDate, setStartDate] = useState("2026-03-18");
   const [endDate, setEndDate] = useState("2026-04-25");
   const [tripIdea, setTripIdea] = useState("");
   const [localError, setLocalError] = useState(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const handleCityChange = (index, selectedOption) => {
     setSelectedCities((prev) => {
@@ -41,7 +45,7 @@ function RouteCreationPage() {
     handleRemoveCity(index);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLocalError(null);
 
@@ -78,20 +82,57 @@ function RouteCreationPage() {
       return;
     }
 
-    const routeData = {
-      startDate,
-      endDate,
-      travelersCount: parseInt(travelersCount),
-      mode,
-      cities: mode === "known"
-        ? selectedCities
-          .filter(city => city !== null)
-          .map(city => city.value)
-        : [],
-      tripIdea: mode === "unknown" ? tripIdea : "",
-    };
-    localStorage.setItem("citiesToTravel", JSON.stringify(selectedCities));
-    navigate("/route-builder");
+    // Сохраняем количество путешественников в контекст
+    setTravelersCount(parseInt(travelersCount));
+
+    if (mode === "known") {
+      // Статический режим: просто сохраняем выбранные города
+      localStorage.setItem("citiesToTravel", JSON.stringify(selectedCities));
+      navigate("/route-builder");
+    } else {
+      // AI режим: отправляем запрос на генерацию маршрута
+      setIsGenerating(true);
+      try {
+        const response = await api.post('/generate', {
+          trip_idea: tripIdea,
+          guest_count: parseInt(travelersCount),
+        });
+
+        console.log('AI generated route:', response);
+
+        // Преобразуем полученные города в формат routePoints
+        const generatedCities = Array.isArray(response)
+          ? response
+          : (response?.cities || response?.route || []);
+
+        if (generatedCities.length === 0) {
+          setLocalError("AI не смог подобрать города. Попробуйте другую формулировку.");
+          return;
+        }
+
+        // Преобразуем в формат, который ожидает routePoints
+        const routePointsData = generatedCities.map((city) => ({
+          id: city.id,
+          name: city.title || city.name,
+          title: city.title || city.name,
+          description: city.description || "",
+          image_url: city.image_url || "",
+        }));
+
+        console.log('Generated route points:', routePointsData);
+
+        // Сохраняем в контекст и localStorage
+        setRoutePoints(routePointsData);
+        localStorage.setItem("citiesToTravel", JSON.stringify(routePointsData));
+
+        navigate("/route-builder");
+      } catch (err) {
+        console.error('AI generation failed:', err);
+        setLocalError(err.message || "Ошибка при генерации маршрута");
+      } finally {
+        setIsGenerating(false);
+      }
+    }
   };
 
   useEffect(() => {
@@ -173,7 +214,7 @@ function RouteCreationPage() {
               type="number"
               min="1"
               value={travelersCount}
-              onChange={(e) => setTravelersCount(e.target.value)}
+              onChange={(e) => setTravelersCountLocal(e.target.value)}
             />
           </div>
 
@@ -250,8 +291,12 @@ function RouteCreationPage() {
             </div>
           )}
 
-          <button type="submit" className="route-form-card__submit-btn">
-            Сгенерировать
+          <button
+            type="submit"
+            className="route-form-card__submit-btn"
+            disabled={isGenerating}
+          >
+            {isGenerating ? "Генерация маршрута..." : "Сгенерировать"}
           </button>
         </form>
       </main>

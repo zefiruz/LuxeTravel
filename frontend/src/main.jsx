@@ -8,6 +8,8 @@ import TripsFigmaPreviewPage from "./pages/TripsFigmaPreviewPage";
 import HotelManagementFigmaPreviewPage from "./pages/HotelManagementFigmaPreviewPage";
 import HotelBookingsPage from "./pages/HotelBookingsPage";
 import UserManagementFigmaPreviewPage from "./pages/UserManagementFigmaPreviewPage";
+import ManagerHotelsPage from "./pages/ManagerHotelsPage";
+import ManagerBookingsPage from "./pages/ManagerBookingsPage";
 import "./styles/index.css";
 
 const hash = window.location.hash;
@@ -35,6 +37,14 @@ const previewComponent = (() => {
   if (hash === "#preview-hotels") return null;
   if (hash === "#preview-users-management") return <UserManagementFigmaPreviewPage />;
   if (hash === "#preview-trips") return <TripsFigmaPreviewPage />;
+  if (hash === "#preview-manager") return (
+    <Routes>
+      <Route path="/" element={<ManagerHotelsPage />} />
+      <Route path="/manager/hotels" element={<ManagerHotelsPage />} />
+      <Route path="/manager/hotels/:hotelId/bookings" element={<ManagerBookingsPage />} />
+      <Route path="/manager/bookings" element={<ManagerBookingsPage />} />
+    </Routes>
+  );
   return null;
 })();
 

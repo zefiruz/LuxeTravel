@@ -64,6 +64,7 @@
   background-color: #cfc7bd;
   border-radius: 16px;
   padding: 0 18px;
+  margin-bottom: 5px;
 }
 
 .routes-table-card__cell {
@@ -100,4 +101,39 @@
   font-size: var(--fs-14);
   line-height: var(--lh-1);
   user-select: none;
+}
+
+.my-routes-page__empty {
+  max-width: 1080px;
+  margin: 60px auto 0;
+  text-align: center;
+}
+
+.my-routes-page__empty p {
+  margin: 0 0 20px;
+  font-size: var(--fs-18);
+  color: #efe8e2;
+}
+
+.my-routes-page__create-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 12px 28px;
+  background-color: #72393f;
+  color: #efe8e2;
+  font-size: var(--fs-16);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.my-routes-page__create-btn:hover {
+  background-color: #8a454d;
+}
+
+.my-routes-page__error {
+  max-width: 1080px;
+  margin: 40px auto 0;
+  text-align: center;
+  font-size: var(--fs-16);
+  color: #ff6b6b;
 }

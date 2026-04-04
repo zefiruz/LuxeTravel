@@ -16,6 +16,19 @@ export function RouteProvider({ children }) {
     }
   });
 
+  // travelersCount: количество путешественников
+  const [travelersCount, setTravelersCount] = useState(() => {
+    const saved = localStorage.getItem("travelersCount");
+    if (!saved) return 1;
+
+    try {
+      return parseInt(saved);
+    } catch (error) {
+      console.error("Ошибка парсинга travelersCount:", error);
+      return 1;
+    }
+  });
+
   // selectedHotelsByCity: { [cityId]: { hotelId, roomId, startDate, endDate } }
   const [selectedHotelsByCity, setSelectedHotelsByCity] = useState(() => {
     const saved = localStorage.getItem("selectedHotelsByCity");
@@ -32,6 +45,10 @@ export function RouteProvider({ children }) {
   useEffect(() => {
     localStorage.setItem("citiesToTravel", JSON.stringify(routePoints));
   }, [routePoints]);
+
+  useEffect(() => {
+    localStorage.setItem("travelersCount", String(travelersCount));
+  }, [travelersCount]);
 
   useEffect(() => {
     localStorage.setItem("selectedHotelsByCity", JSON.stringify(selectedHotelsByCity));
@@ -137,6 +154,7 @@ export function RouteProvider({ children }) {
 
   const clearRoutePoints = () => {
     setRoutePoints([]);
+    setTravelersCount(1);
     setSelectedHotelsByCity({});
   };
 
@@ -145,6 +163,8 @@ export function RouteProvider({ children }) {
       value={{
         routePoints,
         setRoutePoints,
+        travelersCount,
+        setTravelersCount,
         removeRoutePoint,
         removeRoutePointByName,
         setSelectedHotelForCity,

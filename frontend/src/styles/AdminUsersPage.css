@@ -1,0 +1,211 @@
+.admin-users-page {
+  min-height: 100vh;
+  background: #1e1e1e;
+}
+
+.admin-users-page__content {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.admin-users-page__title-block {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.admin-users-page__title-line {
+  flex: 1;
+  max-width: 120px;
+  height: 2px;
+  background: #72393f;
+}
+
+.admin-users-page__title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #efe8e2;
+  margin: 0;
+}
+
+.admin-users-page__loading,
+.admin-users-page__error {
+  text-align: center;
+  font-size: 18px;
+  color: #ab9985;
+}
+
+.admin-users-page__error {
+  color: #e53e3e;
+}
+
+/* === Панель управления === */
+.admin-users-page__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.admin-users-page__search {
+  flex: 1;
+  min-width: 220px;
+}
+
+.admin-users-page__search-input {
+  width: 100%;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid rgba(114, 57, 63, 0.4);
+  border-radius: 8px;
+  background-color: #2d2523;
+  color: #efe8e2;
+  font-size: 14px;
+  font-family: var(--font-ui);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.admin-users-page__search-input::placeholder {
+  color: rgba(239, 232, 226, 0.4);
+}
+
+.admin-users-page__search-input:focus {
+  border-color: #72393f;
+}
+
+.admin-users-page__filters {
+  display: flex;
+  gap: 4px;
+}
+
+.admin-users-page__filter-btn {
+  height: 32px;
+  padding: 0 14px;
+  border: 1px solid rgba(114, 57, 63, 0.3);
+  border-radius: 8px;
+  background: transparent;
+  color: #efe8e2;
+  font-size: 14px;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.admin-users-page__filter-btn:hover {
+  background: rgba(114, 57, 63, 0.2);
+}
+
+.admin-users-page__filter-btn.active {
+  background: #72393f;
+  border-color: #72393f;
+}
+
+.admin-users-page__count {
+  font-size: 14px;
+  color: #ab9985;
+  white-space: nowrap;
+}
+
+/* === Таблица === */
+.admin-users-table {
+  border: 1px solid #72393f;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #2d2523;
+}
+
+.admin-users-table__head {
+  display: grid;
+  grid-template-columns: 1fr 2fr 2fr 1.5fr 1fr 1.5fr;
+  gap: 12px;
+  padding: 16px 20px;
+  background: #72393f;
+  font-weight: 600;
+  font-size: 14px;
+  color: #efe8e2;
+}
+
+.admin-users-table__body {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-users-table__row {
+  display: grid;
+  grid-template-columns: 1fr 2fr 2fr 1.5fr 1fr 1.5fr;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(114, 57, 63, 0.3);
+  align-items: center;
+  font-size: 14px;
+  color: #efe8e2;
+}
+
+.admin-users-table__row:last-child {
+  border-bottom: none;
+}
+
+.admin-users-table__empty {
+  padding: 40px 20px;
+  text-align: center;
+  color: #ab9985;
+  font-size: 16px;
+}
+
+.admin-users-table__role-select {
+  padding: 6px 10px;
+  border: 1px solid #72393f;
+  border-radius: 4px;
+  font-size: 14px;
+  background: #1e1e1e;
+  color: #efe8e2;
+}
+
+.admin-users-table__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-users-table__btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.admin-users-table__btn--edit {
+  background: #ab9985;
+  color: #2d2523;
+}
+
+.admin-users-table__btn--edit:hover {
+  background: #c4ad96;
+}
+
+.admin-users-table__btn--save {
+  background: #72393f;
+  color: #efe8e2;
+}
+
+.admin-users-table__btn--save:hover {
+  background: #8a454c;
+}
+
+.admin-users-table__btn--cancel {
+  background: transparent;
+  border: 1px solid #ab9985;
+  color: #ab9985;
+}
+
+.admin-users-table__btn--cancel:hover {
+  background: #ab9985;
+  color: #2d2523;
+}

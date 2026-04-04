@@ -243,6 +243,15 @@
   line-height: var(--lh-1);
 }
 
+.route-form-card__submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.route-form-card__submit-btn:hover:not(:disabled) {
+  background-color: #8a454d;
+}
+
 /* react-select styles (classNamePrefix="react-select" on Select) */
 .route-form-card__select {
   font-family: var(--base-font-family);

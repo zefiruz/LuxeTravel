@@ -4,6 +4,7 @@ package handler
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"luxetravel/internal/model"
@@ -34,6 +35,18 @@ func (h *HotelHandler) ListHotelsByCity(w http.ResponseWriter, r *http.Request) 
 	hotels, err := h.Repo.GetByCityID(cityID)
 	if err != nil {
 		http.Error(w, "Ошибка при поиске отелей", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(hotels)
+}
+
+func (h *HotelHandler) ListAllHotels(w http.ResponseWriter, r *http.Request) {
+	hotels, err := h.Repo.GetAll()
+	if err != nil {
+		log.Printf("Ошибка получения всех отелей: %v", err)
+		http.Error(w, "Ошибка при получении отелей", http.StatusInternalServerError)
 		return
 	}
 

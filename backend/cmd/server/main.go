@@ -18,6 +18,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/google/uuid"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -25,7 +26,9 @@ import (
 func main() {
 	cfg := configs.LoadConfig()
 
-	db, err := gorm.Open(postgres.Open(cfg.DBDSN), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(cfg.DBDSN), &gorm.Config{
+		DisableForeignKeyConstraintWhenMigrating: true,
+	})
 	if err != nil {
 		log.Fatal("Ошибка подключения к БД: ", err)
 	}
@@ -46,6 +49,41 @@ func main() {
 	)
 	if err != nil {
 		log.Fatal("Ошибка миграции таблиц: ", err)
+	}
+
+	// Seed: начальные данные
+	type seedRow struct {
+		title string
+	}
+	seeds := []struct {
+		table string
+		rows  []seedRow
+	}{
+		{
+			table: "roles",
+			rows:  []seedRow{{"client"}, {"manager"}, {"admin"}},
+		},
+		{
+			table: "route_statuses",
+			rows:  []seedRow{{"draft"}, {"confirmed"}, {"completed"}},
+		},
+		{
+			table: "booking_statuses",
+			rows:  []seedRow{{"pending"}, {"confirmed"}, {"cancelled"}},
+		},
+	}
+
+	for _, seed := range seeds {
+		for _, row := range seed.rows {
+			var count int64
+			db.Table(seed.table).Where("title = ?", row.title).Count(&count)
+			if count == 0 {
+				db.Table(seed.table).Create(map[string]interface{}{
+					"id":    uuid.New(),
+					"title": row.title,
+				})
+			}
+		}
 	}
 
 	userRepo := repository.NewPostgresUserRepository(db)
@@ -86,6 +124,7 @@ func main() {
 		r.Get("/cities", cityHandler.ListCities)
 		r.Get("/cities/{id}", cityHandler.GetCity)
 		r.Get("/cities/{cityId}/hotels", hotelHandler.ListHotelsByCity)
+		r.Post("/generate", routeHandler.SuggestCitiesAI)
 		r.Get("/image", cityHandler.GetCityImage)
 
 		// --- ОБЩИЕ ЗАКРЫТЫЕ РУЧКИ ---
@@ -100,7 +139,6 @@ func main() {
 				r.Use(appMiddleware.CheckRole("client", "admin"))
 
 				r.Route("/routes", func(r chi.Router) {
-					r.Post("/generate", routeHandler.SuggestCitiesAI)
 					r.Post("/", routeHandler.CreateCompleteRoute)
 					r.Get("/", routeHandler.ListUserRoutes)
 					r.Get("/{id}", routeHandler.GetRoute)
@@ -118,6 +156,7 @@ func main() {
 					r.Get("/bookings/{id}", managerHandler.GetBooking)
 					r.Put("/bookings/{id}/status", managerHandler.UpdateStatus)
 					r.Post("/room-types", managerHandler.CreateRoomType)
+					r.Put("/hotels/{id}", managerHandler.UpdateHotel)
 				})
 			})
 
@@ -127,7 +166,11 @@ func main() {
 
 				r.Route("/admin", func(r chi.Router) {
 					r.Get("/users", adminHandler.GetAllUsers)
-
+					r.Get("/roles", adminHandler.GetRoles)
+					r.Get("/routes", routeHandler.ListAllRoutes)
+					r.Get("/routes/{id}", routeHandler.GetRouteAdmin)
+					r.Put("/routes/{id}/status", routeHandler.UpdateRouteStatus)
+					r.Get("/hotels", hotelHandler.ListAllHotels)
 					r.Put("/users/{id}/role", adminHandler.UpdateUserRole)
 					r.Put("/cities/{id}", cityHandler.UpdateCity)
 					r.Put("/hotels/{id}", hotelHandler.UpdateHotel)

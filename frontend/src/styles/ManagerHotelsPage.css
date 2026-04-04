@@ -1,0 +1,279 @@
+.manager-hotels-page {
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+.manager-hotels-page__content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+.manager-hotels-page__title {
+  margin: 0 0 32px;
+  text-align: center;
+  font-size: var(--fs-30);
+  font-weight: 400;
+  line-height: var(--lh-snug);
+  color: var(--text-color);
+}
+
+.manager-hotels-page__loading,
+.manager-hotels-page__error {
+  text-align: center;
+  color: #ab9985;
+  font-size: var(--fs-16);
+}
+
+.manager-hotels-page__error {
+  color: #e53e3e;
+}
+
+.manager-hotels-page__empty {
+  text-align: center;
+  color: #ab9985;
+  font-size: var(--fs-16);
+  margin-top: 40px;
+}
+
+.manager-hotels-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.manager-hotel-card {
+  border-radius: 16px;
+  padding: 20px 24px;
+  background-color: var(--light-surface-color);
+  color: var(--dark-text-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.manager-hotel-card__info {
+  min-width: 0;
+  flex: 1;
+}
+
+.manager-hotel-card__name {
+  margin: 0 0 6px;
+  font-size: var(--fs-20);
+  font-weight: 500;
+  line-height: var(--lh-snug);
+  color: var(--dark-text-color);
+}
+
+.manager-hotel-card__city {
+  margin: 0 0 4px;
+  font-size: var(--fs-14);
+  color: #ab9985;
+}
+
+.manager-hotel-card__address {
+  margin: 0 0 4px;
+  font-size: var(--fs-14);
+  color: rgba(45, 37, 35, 0.75);
+}
+
+.manager-hotel-card__email {
+  margin: 0 0 4px;
+  font-size: var(--fs-14);
+  color: rgba(45, 37, 35, 0.65);
+}
+
+.manager-hotel-card__bookings-count {
+  margin: 0;
+  font-size: var(--fs-14);
+  color: #72393f;
+  font-weight: 500;
+}
+
+.manager-hotel-card__buttons {
+  display: flex;
+  flex-shrink: 0;
+  gap: 10px;
+}
+
+.manager-hotel-card__edit-btn {
+  flex-shrink: 0;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 24px;
+  font: inherit;
+  font-size: var(--fs-16);
+  line-height: var(--lh-1);
+  background-color: #4a4a4a;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.manager-hotel-card__edit-btn:hover {
+  background-color: #5a5a5a;
+}
+
+.manager-hotel-card__btn {
+  flex-shrink: 0;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 24px;
+  font: inherit;
+  font-size: var(--fs-16);
+  line-height: var(--lh-1);
+  background-color: #72393f;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.manager-hotel-card__btn:hover {
+  background-color: #8a454c;
+}
+
+/* Модалка редактирования отеля */
+.manager-hotel-edit-modal__backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 60;
+}
+
+.manager-hotel-edit-modal {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  border-radius: 14px;
+  background-color: var(--light-surface-color);
+  padding: 20px 20px 18px;
+  border: 1px solid rgba(114, 57, 63, 0.35);
+  color: var(--dark-text-color);
+}
+
+.manager-hotel-edit-modal__close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--dark-text-color);
+  cursor: pointer;
+  padding: 0;
+}
+
+.manager-hotel-edit-modal__close-btn:hover {
+  background-color: rgba(114, 57, 63, 0.12);
+}
+
+.manager-hotel-edit-modal__close-icon {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2.25;
+}
+
+.manager-hotel-edit-modal__title {
+  margin: 0 0 18px;
+  padding: 0 40px;
+  text-align: center;
+  font-size: var(--fs-22);
+  font-weight: 400;
+  line-height: var(--lh-snug);
+  color: var(--dark-text-color);
+}
+
+.manager-hotel-edit-modal__title-line {
+  display: block;
+}
+
+.manager-hotel-edit-modal__field {
+  display: block;
+  margin-bottom: 14px;
+}
+
+.manager-hotel-edit-modal__field:last-of-type {
+  margin-bottom: 20px;
+}
+
+.manager-hotel-edit-modal__label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: var(--fs-14);
+  line-height: var(--lh-normal);
+  color: rgba(45, 37, 35, 0.75);
+}
+
+.manager-hotel-edit-modal__input {
+  width: 100%;
+  display: block;
+  min-height: 44px;
+  border-radius: 10px;
+  border: 1px solid rgba(239, 232, 226, 0.25);
+  background-color: var(--light-surface-color);
+  padding: 0 16px;
+  font: inherit;
+  font-size: var(--fs-16);
+  color: var(--dark-text-color);
+  outline: none;
+}
+
+.manager-hotel-edit-modal__input:focus {
+  border-color: rgba(171, 153, 133, 0.5);
+}
+
+.manager-hotel-edit-modal__textarea {
+  width: 100%;
+  display: block;
+  min-height: 88px;
+  border-radius: 10px;
+  border: 1px solid rgba(239, 232, 226, 0.25);
+  background-color: var(--light-surface-color);
+  padding: 12px 16px;
+  font: inherit;
+  font-size: var(--fs-16);
+  color: var(--dark-text-color);
+  outline: none;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.manager-hotel-edit-modal__textarea:focus {
+  border-color: rgba(171, 153, 133, 0.5);
+}
+
+.manager-hotel-edit-modal__save-btn {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 20px;
+  font: inherit;
+  font-size: var(--fs-16);
+  line-height: var(--lh-1);
+  background-color: #ab9985;
+  color: #1e1e1e;
+  cursor: pointer;
+}
+
+.manager-hotel-edit-modal__save-btn:hover {
+  filter: brightness(0.96);
+}
+
+.manager-hotel-edit-modal__save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
