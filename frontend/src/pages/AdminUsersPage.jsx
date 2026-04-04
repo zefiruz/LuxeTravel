@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import AdminHeader from "../components/AdminHeader";
 import adminService from "../services/admin";
 import "../styles/AdminUsersPage.css";
 
-const ROLES = [
-  { id: "", title: "client" },
-  { id: "", title: "manager" },
-  { id: "", title: "admin" },
+const ROLE_FILTERS = [
+  { value: "", label: "Все" },
+  { value: "client", label: "Клиенты" },
+  { value: "manager", label: "Менеджеры" },
+  { value: "admin", label: "Админы" },
 ];
 
 function AdminUsersPage() {
@@ -16,6 +17,8 @@ function AdminUsersPage() {
   const [error, setError] = useState(null);
   const [editingUserId, setEditingUserId] = useState(null);
   const [selectedRoleId, setSelectedRoleId] = useState("");
+  const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -66,6 +69,25 @@ function AdminUsersPage() {
     return role ? role.title : "—";
   };
 
+  const filteredUsers = useMemo(() => {
+    return users.filter((user) => {
+      const matchRole = !roleFilter || user.role?.title === roleFilter;
+
+      const q = search.toLowerCase();
+      const fullName = `${user.info?.first_name || ""} ${user.info?.last_name || ""} ${user.info?.middle_name || ""}`.toLowerCase();
+      const matchSearch =
+        !q ||
+        fullName.includes(q) ||
+        (user.email || "").toLowerCase().includes(q) ||
+        (user.info?.phone || "").toLowerCase().includes(q) ||
+        (user.id || "").toLowerCase().includes(q);
+
+      return matchRole && matchSearch;
+    });
+  }, [users, search, roleFilter]);
+
+  const shortId = (id) => (id ? String(id).slice(0, 8) : "");
+
   return (
     <div className="admin-users-page">
       <AdminHeader />
@@ -75,6 +97,37 @@ function AdminUsersPage() {
           <span className="admin-users-page__title-line" />
           <h1 className="admin-users-page__title">Пользователи</h1>
           <span className="admin-users-page__title-line" />
+        </section>
+
+        {/* Панель управления */}
+        <section className="admin-users-page__toolbar">
+          <div className="admin-users-page__search">
+            <input
+              type="text"
+              className="admin-users-page__search-input"
+              placeholder="Поиск по имени, email, телефону, ID…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+
+          <div className="admin-users-page__filters">
+            {ROLE_FILTERS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                className={`admin-users-page__filter-btn ${roleFilter === opt.value ? "active" : ""
+                  }`}
+                onClick={() => setRoleFilter(opt.value)}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+
+          <span className="admin-users-page__count">
+            {filteredUsers.length} / {users.length}
+          </span>
         </section>
 
         {loading && <p className="admin-users-page__loading">Загрузка...</p>}
@@ -92,12 +145,14 @@ function AdminUsersPage() {
             </div>
 
             <div className="admin-users-table__body">
-              {users.length === 0 ? (
-                <p className="admin-users-table__empty">Пользователей пока нет</p>
+              {filteredUsers.length === 0 ? (
+                <p className="admin-users-table__empty">
+                  {users.length === 0 ? "Пользователей пока нет" : "Ничего не найдено"}
+                </p>
               ) : (
-                users.map((user) => (
+                filteredUsers.map((user) => (
                   <div className="admin-users-table__row" key={user.id}>
-                    <span>{user.id?.slice(0, 8) || ""}</span>
+                    <span>{shortId(user.id)}</span>
                     <span>{user.email || ""}</span>
                     <span>
                       {user.info?.last_name || ""} {user.info?.first_name || ""} {user.info?.middle_name || ""}

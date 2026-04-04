@@ -43,6 +43,76 @@
   color: #e53e3e;
 }
 
+/* === Панель управления === */
+.admin-users-page__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.admin-users-page__search {
+  flex: 1;
+  min-width: 220px;
+}
+
+.admin-users-page__search-input {
+  width: 100%;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid rgba(114, 57, 63, 0.4);
+  border-radius: 8px;
+  background-color: #2d2523;
+  color: #efe8e2;
+  font-size: 14px;
+  font-family: var(--font-ui);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.admin-users-page__search-input::placeholder {
+  color: rgba(239, 232, 226, 0.4);
+}
+
+.admin-users-page__search-input:focus {
+  border-color: #72393f;
+}
+
+.admin-users-page__filters {
+  display: flex;
+  gap: 4px;
+}
+
+.admin-users-page__filter-btn {
+  height: 32px;
+  padding: 0 14px;
+  border: 1px solid rgba(114, 57, 63, 0.3);
+  border-radius: 8px;
+  background: transparent;
+  color: #efe8e2;
+  font-size: 14px;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.admin-users-page__filter-btn:hover {
+  background: rgba(114, 57, 63, 0.2);
+}
+
+.admin-users-page__filter-btn.active {
+  background: #72393f;
+  border-color: #72393f;
+}
+
+.admin-users-page__count {
+  font-size: 14px;
+  color: #ab9985;
+  white-space: nowrap;
+}
+
+/* === Таблица === */
 .admin-users-table {
   border: 1px solid #72393f;
   border-radius: 12px;

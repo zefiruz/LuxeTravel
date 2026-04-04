@@ -63,6 +63,8 @@ func (r *postgresRouteRepository) GetById(id uuid.UUID) (*model.Route, error) {
 		Preload("Status").
 		Preload("Bookings.Status").
 		Preload("Bookings.RoomType.Hotel.City").
+		Preload("User").
+		Preload("User.UserInfo").
 		First(&route, "id = ?", id).Error
 	return &route, err
 }
@@ -82,6 +84,8 @@ func (r *postgresRouteRepository) GetAllById(userID uuid.UUID) ([]model.Route, e
 		Preload("Status").
 		Preload("Bookings.Status").
 		Preload("Bookings.RoomType.Hotel.City").
+		Preload("User").
+		Preload("User.UserInfo").
 		Find(&routes).Error
 	return routes, err
 }
@@ -93,6 +97,7 @@ func (r *postgresRouteRepository) GetAll() ([]model.Route, error) {
 		Preload("Bookings.Status").
 		Preload("Bookings.RoomType.Hotel.City").
 		Preload("User").
+		Preload("User.UserInfo").
 		Find(&routes).Error
 	return routes, err
 }

@@ -11,171 +11,443 @@
   width: 100%;
 }
 
-.admin-route-details-page__title-block {
+.admin-route-details-page__loading,
+.admin-route-details-page__error,
+.admin-route-details-page__empty {
+  text-align: center;
+  font-size: var(--fs-16);
+  padding: 60px 0;
+}
+
+.admin-route-details-page__error {
+  color: #e53e3e;
+}
+
+.admin-route-details-page__empty {
+  color: #ab9985;
+}
+
+/* === Шапка маршрута === */
+.route-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.route-header__left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.route-header__back {
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(114, 57, 63, 0.3);
+  border-radius: 8px;
+  background: transparent;
+  color: #efe8e2;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 42px;
-  margin: 0 0 18px;
+  flex-shrink: 0;
 }
 
-.admin-route-details-page__title-line {
-  width: 64px;
-  height: 1px;
-  background-color: #efe8e2;
-  opacity: 0.9;
+.route-header__back:hover {
+  background: rgba(114, 57, 63, 0.25);
 }
 
-.admin-route-details-page__title {
+.route-header__title {
   margin: 0;
-  font-size: var(--fs-heading);
+  font-size: var(--fs-28);
   font-weight: 400;
   line-height: var(--lh-tight);
   color: #efe8e2;
 }
 
-.admin-route-card {
-  width: 100%;
-  max-width: 1080px;
-  margin: 0 auto;
-  background-color: #efe8e2;
-  border: 2px solid #72393f;
-  border-radius: 16px;
-  overflow: hidden;
+.route-header__meta {
+  margin: 6px 0 0;
+  font-size: var(--fs-14);
+  color: #ab9985;
 }
 
-.admin-route-card__top {
-  display: flex;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 18px 24px 16px;
-}
-
-.admin-route-card__client-title {
-  margin: 0 0 10px;
-  font-size: var(--fs-20);
-  font-weight: 400;
-  color: #72393f;
-}
-
-.admin-route-card__client-info {
+.route-header__actions {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-.admin-route-card__avatar {
-  width: 70px;
-  height: 70px;
+/* === Кнопки действий === */
+.action-btn {
+  height: 36px;
+  padding: 0 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: var(--fs-14);
+  font-family: var(--font-ui);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.action-btn--confirm {
+  background: #34d399;
+  color: #1e1e1e;
+}
+
+.action-btn--confirm:hover {
+  background: #2bb884;
+}
+
+.action-btn--complete {
+  background: #60a5fa;
+  color: #1e1e1e;
+}
+
+.action-btn--complete:hover {
+  background: #4d94e8;
+}
+
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* === Статус-бейдж === */
+.status-badge {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 6px;
+  font-size: var(--fs-12);
+  font-weight: 500;
+}
+
+.status--draft {
+  background: rgba(171, 153, 133, 0.25);
+  color: #ab9985;
+}
+
+.status--confirmed {
+  background: rgba(52, 211, 153, 0.2);
+  color: #34d399;
+}
+
+.status--completed {
+  background: rgba(96, 165, 250, 0.2);
+  color: #60a5fa;
+}
+
+/* === Табы === */
+.route-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 20px;
+  background: #2d2523;
+  border: 1px solid rgba(114, 57, 63, 0.2);
+  border-radius: 10px;
+  padding: 4px;
+}
+
+.route-tabs__tab {
+  flex: 1;
+  height: 38px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #ab9985;
+  font-size: var(--fs-14);
+  font-family: var(--font-ui);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.route-tabs__tab:hover {
+  color: #efe8e2;
+}
+
+.route-tabs__tab.active {
+  background: #72393f;
+  color: #efe8e2;
+}
+
+/* === Контент таба === */
+.route-tab-content {
+  min-height: 300px;
+}
+
+/* === Карточка клиента === */
+.client-card {
+  background: #2d2523;
+  border: 1px solid rgba(114, 57, 63, 0.3);
+  border-radius: 12px;
+  padding: 28px 32px;
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+}
+
+.client-card__avatar {
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
-  background-color: #000000;
+  background-color: #1e1e1e;
   position: relative;
   flex-shrink: 0;
+  border: 2px solid rgba(114, 57, 63, 0.3);
 }
 
-.admin-route-card__avatar-head {
+.client-card__avatar-head {
   position: absolute;
-  top: 12px;
+  top: 16px;
   left: 50%;
-  width: 16px;
-  height: 16px;
-  border: 4px solid #efe8e2;
+  width: 18px;
+  height: 18px;
+  border: 4px solid #ab9985;
   border-radius: 50%;
   transform: translateX(-50%);
 }
 
-.admin-route-card__avatar-body {
+.client-card__avatar-body {
   position: absolute;
-  bottom: 10px;
+  bottom: 12px;
   left: 50%;
-  width: 34px;
-  height: 16px;
-  border: 4px solid #efe8e2;
+  width: 36px;
+  height: 18px;
+  border: 4px solid #ab9985;
   border-top-left-radius: 18px;
   border-top-right-radius: 18px;
   border-bottom: none;
   transform: translateX(-50%);
 }
 
-.admin-route-card__client-text p {
-  margin: 0;
-  font-size: var(--fs-14);
-  line-height: var(--lh-relaxed);
-  color: #1e1e1e;
+.client-card__info {
+  flex: 1;
 }
 
-.admin-route-card__actions {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding-top: 10px;
-  min-width: 140px;
-  align-items: stretch;
-}
-
-.admin-route-card__action-btn {
-  min-width: 128px;
-  height: 34px;
-  border: none;
-  border-radius: 8px;
-  background-color: #ab9985;
-  color: #1e1e1e;
-  font-size: var(--fs-14);
-  cursor: pointer;
-}
-
-.admin-route-card__status-pill {
-  min-width: 128px;
-  height: 34px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--fs-14);
-  cursor: default;
-  user-select: none;
-}
-
-.admin-route-card__status-pill--approved {
-  background-color: #ab9985;
-  color: #1e1e1e;
-}
-
-.admin-route-card__status-pill--rejected {
-  background-color: #72393f;
+.client-card__name {
+  margin: 0 0 14px;
+  font-size: var(--fs-22);
+  font-weight: 400;
   color: #efe8e2;
 }
 
-.admin-route-card__table {
-  border-top: 1px solid #72393f;
-}
-
-.admin-route-card__table-head,
-.admin-route-card__table-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1.2fr 1.2fr;
-}
-
-.admin-route-card__table-head>span,
-.admin-route-card__table-row>span {
-  min-height: 38px;
-  border-right: 1px solid #72393f;
-  border-bottom: 1px solid #72393f;
+.client-card__details {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 6px 8px;
-  font-size: var(--fs-14);
-  line-height: var(--lh-snug);
-  color: #72393f;
+  flex-wrap: wrap;
+  gap: 16px 32px;
 }
 
-.admin-route-card__table-head>span:last-child,
-.admin-route-card__table-row>span:last-child {
+.client-card__detail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.client-card__detail-label {
+  font-size: var(--fs-12);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #ab9985;
+}
+
+.client-card__detail-value {
+  font-size: var(--fs-16);
+  color: #efe8e2;
+}
+
+/* === Бронирования === */
+.bookings-section__empty {
+  text-align: center;
+  padding: 40px;
+  color: #ab9985;
+  font-size: var(--fs-16);
+}
+
+.bookings-table {
+  background: #2d2523;
+  border: 1px solid rgba(114, 57, 63, 0.3);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.bookings-table__head {
+  display: grid;
+  grid-template-columns: 0.8fr 0.7fr 1fr 1.2fr 1fr 1.2fr;
+  background: rgba(114, 57, 63, 0.15);
+}
+
+.bookings-table__head>span {
+  padding: 10px 10px;
+  font-size: var(--fs-12);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #ab9985;
+  text-align: center;
+  border-right: 1px solid rgba(114, 57, 63, 0.15);
+}
+
+.bookings-table__head>span:last-child {
   border-right: none;
 }
 
-.admin-route-card__table-body .admin-route-card__table-row:last-child>span {
-  border-bottom: none;
+.bookings-table__body {
+  border-top: 1px solid rgba(114, 57, 63, 0.15);
+}
+
+.bookings-table__row {
+  display: grid;
+  grid-template-columns: 0.8fr 0.7fr 1fr 1.2fr 1fr 1.2fr;
+  transition: background 0.15s;
+}
+
+.bookings-table__row:hover {
+  background: rgba(114, 57, 63, 0.08);
+}
+
+.bookings-table__row>span {
+  padding: 10px 10px;
+  font-size: var(--fs-14);
+  color: #efe8e2;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid rgba(114, 57, 63, 0.1);
+}
+
+.bookings-table__row>span:last-child {
+  border-right: none;
+}
+
+/* Статус бронирования */
+.booking-status-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: var(--fs-12);
+  font-weight: 500;
+}
+
+.booking-pending {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+}
+
+.booking-confirmed {
+  background: rgba(52, 211, 153, 0.2);
+  color: #34d399;
+}
+
+.booking-cancelled {
+  background: rgba(229, 62, 62, 0.2);
+  color: #e53e3e;
+}
+
+.booking-unknown {
+  background: rgba(171, 153, 133, 0.2);
+  color: #ab9985;
+}
+
+/* === Информация о маршруте === */
+.route-info-card {
+  background: #2d2523;
+  border: 1px solid rgba(114, 57, 63, 0.3);
+  border-radius: 12px;
+  padding: 24px 28px;
+}
+
+.route-info-card__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 28px;
+}
+
+.route-info-card__item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.route-info-card__item--full {
+  grid-column: 1 / -1;
+}
+
+.route-info-card__label {
+  font-size: var(--fs-12);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #ab9985;
+}
+
+.route-info-card__value {
+  font-size: var(--fs-16);
+  color: #efe8e2;
+  line-height: var(--lh-snug);
+}
+
+.route-info-card__prompt {
+  color: #ab9985 !important;
+  font-style: italic;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* === Адаптивность === */
+@media (max-width: 768px) {
+  .admin-route-details-page__content {
+    padding: 14px 12px 30px;
+  }
+
+  .route-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .route-header__actions {
+    width: 100%;
+  }
+
+  .route-header__title {
+    font-size: var(--fs-24);
+  }
+
+  .client-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 24px 18px;
+  }
+
+  .client-card__details {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .route-info-card__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bookings-table__head {
+    display: none;
+  }
+
+  .bookings-table__row {
+    grid-template-columns: 1fr;
+    padding: 10px 14px;
+    gap: 4px;
+  }
+
+  .bookings-table__row>span {
+    justify-content: flex-start;
+    border-right: none;
+    border-bottom: 1px solid rgba(114, 57, 63, 0.08);
+    padding: 4px 0;
+  }
 }

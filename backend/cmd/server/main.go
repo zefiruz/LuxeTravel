@@ -127,8 +127,6 @@ func main() {
 		r.Post("/generate", routeHandler.SuggestCitiesAI)
 		r.Get("/image", cityHandler.GetCityImage)
 
-		r.Post("/generate", routeHandler.SuggestCitiesAI)
-
 		// --- ОБЩИЕ ЗАКРЫТЫЕ РУЧКИ ---
 		r.Group(func(r chi.Router) {
 			r.Use(appMiddleware.AuthMiddleware(cfg.JWTSecret))

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import AdminHeader from "../components/AdminHeader";
 import adminService from "../services/admin";
 import "../styles/AdminHotelsPage.css";
@@ -13,6 +13,7 @@ function AdminHotelsPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingHotel, setEditingHotel] = useState(null);
   const [form, setForm] = useState({ title: "", description: "", city_id: "", email: "", address: "", manager_ids: [] });
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     fetchData();
@@ -144,6 +145,20 @@ function AdminHotelsPage() {
     return city ? city.title : "—";
   };
 
+  const filteredHotels = useMemo(() => {
+    return hotels.filter((hotel) => {
+      const q = search.toLowerCase();
+      const cityName = getCityName(hotel.city_id).toLowerCase();
+      return (
+        !q ||
+        (hotel.title || "").toLowerCase().includes(q) ||
+        cityName.includes(q) ||
+        (hotel.address || "").toLowerCase().includes(q) ||
+        (hotel.email || "").toLowerCase().includes(q)
+      );
+    });
+  }, [hotels, search, cities]);
+
   return (
     <div className="admin-hotels-page">
       <AdminHeader />
@@ -154,6 +169,22 @@ function AdminHotelsPage() {
             + Добавить
           </button>
         </div>
+
+        {/* Поиск */}
+        <section className="admin-hotels-page__toolbar">
+          <div className="admin-hotels-page__search">
+            <input
+              type="text"
+              className="admin-hotels-page__search-input"
+              placeholder="Поиск по названию, городу, адресу, email…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <span className="admin-hotels-page__count">
+            {filteredHotels.length} / {hotels.length}
+          </span>
+        </section>
 
         {loading && <p className="admin-hotels-page__loading">Загрузка...</p>}
         {error && <p className="admin-hotels-page__error">{error}</p>}
@@ -170,12 +201,14 @@ function AdminHotelsPage() {
               </tr>
             </thead>
             <tbody>
-              {hotels.length === 0 ? (
+              {filteredHotels.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="admin-hotels-table__empty">Отелей пока нет</td>
+                  <td colSpan={5} className="admin-hotels-table__empty">
+                    {hotels.length === 0 ? "Отелей пока нет" : "Ничего не найдено"}
+                  </td>
                 </tr>
               ) : (
-                hotels.map((hotel) => (
+                filteredHotels.map((hotel) => (
                   <tr key={hotel.id}>
                     <td>{hotel.title}</td>
                     <td>{getCityName(hotel.city_id)}</td>

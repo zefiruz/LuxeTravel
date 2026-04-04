@@ -11,6 +11,7 @@ function AdminRouteDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [decisionLoading, setDecisionLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("client"); // client | bookings | route
 
   useEffect(() => {
     const fetchRoute = async () => {
@@ -42,113 +43,215 @@ function AdminRouteDetailsPage() {
     }
   };
 
+  const shortId = (id) => (id ? String(id).slice(0, 8) : "");
+
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
     const d = new Date(dateStr);
     return d.toLocaleDateString("ru-RU");
   };
 
-  if (loading) return <div className="admin-route-details-page"><AdminHeader /><main className="admin-route-details-page__content"><p>Загрузка...</p></main></div>;
+  const statusLabel = (s) => {
+    if (!s) return "—";
+    const map = { draft: "Черновик", confirmed: "Подтверждён", completed: "Завершён" };
+    return map[s] || s;
+  };
+
+  const statusClass = (s) => {
+    const map = { draft: "status--draft", confirmed: "status--confirmed", completed: "status--completed" };
+    return map[s] || "";
+  };
+
+  if (loading) return <div className="admin-route-details-page"><AdminHeader /><main className="admin-route-details-page__content"><p className="admin-route-details-page__loading">Загрузка...</p></main></div>;
   if (error) return <div className="admin-route-details-page"><AdminHeader /><main className="admin-route-details-page__content"><p className="admin-route-details-page__error">{error}</p></main></div>;
-  if (!route) return <div className="admin-route-details-page"><AdminHeader /><main className="admin-route-details-page__content"><p>Маршрут не найден</p></main></div>;
+  if (!route) return <div className="admin-route-details-page"><AdminHeader /><main className="admin-route-details-page__content"><p className="admin-route-details-page__empty">Маршрут не найден</p></main></div>;
+
+  const userInfo = route.user?.info || {};
+  const bookings = route.bookings || [];
 
   return (
     <div className="admin-route-details-page">
       <AdminHeader />
 
       <main className="admin-route-details-page__content">
-        <section className="admin-route-details-page__title-block">
-          <span className="admin-route-details-page__title-line" />
-          <h1 className="admin-route-details-page__title">Маршрут {route.id?.slice(0, 8)}</h1>
-          <span className="admin-route-details-page__title-line" />
+        {/* Шапка маршрута */}
+        <section className="route-header">
+          <div className="route-header__left">
+            <button
+              type="button"
+              className="route-header__back"
+              onClick={() => navigate("/admin/routes")}
+            >
+              ←
+            </button>
+            <div>
+              <h1 className="route-header__title">
+                Маршрут {shortId(route.id)}
+              </h1>
+              <p className="route-header__meta">
+                Создан: {formatDate(route.created_at)} &nbsp;|&nbsp; Статус:{" "}
+                <span className={`status-badge ${statusClass(route.status?.title)}`}>
+                  {statusLabel(route.status?.title)}
+                </span>
+              </p>
+            </div>
+          </div>
+
+          <div className="route-header__actions">
+            {route.status?.title !== "confirmed" && (
+              <button
+                type="button"
+                className="action-btn action-btn--confirm"
+                onClick={() => handleDecision("confirmed")}
+                disabled={decisionLoading}
+              >
+                {decisionLoading ? "..." : "Подтвердить"}
+              </button>
+            )}
+            {route.status?.title !== "completed" && (
+              <button
+                type="button"
+                className="action-btn action-btn--complete"
+                onClick={() => handleDecision("completed")}
+                disabled={decisionLoading}
+              >
+                {decisionLoading ? "..." : "Завершить"}
+              </button>
+            )}
+            {route.status?.title === "confirmed" && (
+              <span className="status-badge status--confirmed">Подтверждён</span>
+            )}
+            {route.status?.title === "completed" && (
+              <span className="status-badge status--completed">Завершён</span>
+            )}
+          </div>
         </section>
 
-        <section className="admin-route-card">
-          <div className="admin-route-card__top">
-            <div className="admin-route-card__client">
-              <h2 className="admin-route-card__client-title">Клиент</h2>
+        {/* Табы */}
+        <section className="route-tabs">
+          <button
+            type="button"
+            className={`route-tabs__tab ${activeTab === "client" ? "active" : ""}`}
+            onClick={() => setActiveTab("client")}
+          >
+            Клиент
+          </button>
+          <button
+            type="button"
+            className={`route-tabs__tab ${activeTab === "bookings" ? "active" : ""}`}
+            onClick={() => setActiveTab("bookings")}
+          >
+            Бронирования ({bookings.length})
+          </button>
+          <button
+            type="button"
+            className={`route-tabs__tab ${activeTab === "route" ? "active" : ""}`}
+            onClick={() => setActiveTab("route")}
+          >
+            Информация о маршруте
+          </button>
+        </section>
 
-              <div className="admin-route-card__client-info">
-                <div className="admin-route-card__avatar">
-                  <div className="admin-route-card__avatar-head" />
-                  <div className="admin-route-card__avatar-body" />
-                </div>
+        {/* Содержимое табов */}
+        <section className="route-tab-content">
+          {/* === КЛИЕНТ === */}
+          {activeTab === "client" && (
+            <div className="client-card">
+              <div className="client-card__avatar">
+                <div className="client-card__avatar-head" />
+                <div className="client-card__avatar-body" />
+              </div>
 
-                <div className="admin-route-card__client-text">
-                  <p>ФИО: {route.user?.info?.last_name || ""} {route.user?.info?.first_name || ""} {route.user?.info?.middle_name || ""}</p>
-                  <p>Телефон: {route.user?.info?.phone || "—"}</p>
-                  <p>Email: {route.user?.email || "—"}</p>
+              <div className="client-card__info">
+                <h2 className="client-card__name">
+                  {userInfo.last_name || ""} {userInfo.first_name || ""} {userInfo.middle_name || ""}
+                </h2>
+
+                <div className="client-card__details">
+                  <div className="client-card__detail">
+                    <span className="client-card__detail-label">Email</span>
+                    <span className="client-card__detail-value">{route.user?.email || "—"}</span>
+                  </div>
+                  <div className="client-card__detail">
+                    <span className="client-card__detail-label">Телефон</span>
+                    <span className="client-card__detail-value">{userInfo.phone || "—"}</span>
+                  </div>
+                  <div className="client-card__detail">
+                    <span className="client-card__detail-label">Роль</span>
+                    <span className="client-card__detail-value">{route.user?.role?.title || "—"}</span>
+                  </div>
                 </div>
               </div>
             </div>
+          )}
 
-            <div className="admin-route-card__actions">
-              {route.status?.title === "confirmed" ? (
-                <div className="admin-route-card__status-pill admin-route-card__status-pill--approved">
-                  Подтверждено
-                </div>
-              ) : route.status?.title === "completed" ? (
-                <div className="admin-route-card__status-pill admin-route-card__status-pill--rejected">
-                  Отклонено
-                </div>
+          {/* === БРОНИРОВАНИЯ === */}
+          {activeTab === "bookings" && (
+            <div className="bookings-section">
+              {bookings.length === 0 ? (
+                <p className="bookings-section__empty">Нет бронирований</p>
               ) : (
-                <>
-                  <button
-                    type="button"
-                    className="admin-route-card__action-btn"
-                    onClick={() => handleDecision("confirmed")}
-                    disabled={decisionLoading}
-                  >
-                    {decisionLoading ? "..." : "Подтвердить"}
-                  </button>
-
-                  <button
-                    type="button"
-                    className="admin-route-card__action-btn"
-                    onClick={() => handleDecision("completed")}
-                    disabled={decisionLoading}
-                  >
-                    {decisionLoading ? "..." : "Отклонить"}
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-
-          <div className="admin-route-card__table">
-            <div className="admin-route-card__table-head">
-              <span>ID брони</span>
-              <span>Город</span>
-              <span>Отель</span>
-              <span>Даты пребывания</span>
-              <span>Email отеля</span>
-            </div>
-
-            <div className="admin-route-card__table-body">
-              {route.bookings?.length === 0 ? (
-                <p className="admin-route-card__empty">Нет бронирований</p>
-              ) : (
-                route.bookings?.map((booking) => (
-                  <div className="admin-route-card__table-row" key={booking.id}>
-                    <span>{booking.id?.slice(0, 8)}</span>
-                    <span>{booking.room_type?.hotel?.city?.title || "—"}</span>
-                    <span>{booking.room_type?.hotel?.title || "—"}</span>
-                    <span>{formatDate(booking.start_date)} — {formatDate(booking.end_date)}</span>
-                    <span>{booking.room_type?.hotel?.email || "—"}</span>
+                <div className="bookings-table">
+                  <div className="bookings-table__head">
+                    <span>ID брони</span>
+                    <span>Статус</span>
+                    <span>Город</span>
+                    <span>Отель</span>
+                    <span>Даты</span>
+                    <span>Email отеля</span>
                   </div>
-                ))
+
+                  <div className="bookings-table__body">
+                    {bookings.map((booking) => (
+                      <div className="bookings-table__row" key={booking.id}>
+                        <span>{shortId(booking.id)}</span>
+                        <span>
+                          <span className={`booking-status-badge booking-${booking.status?.title || "unknown"}`}>
+                            {booking.status?.title || "—"}
+                          </span>
+                        </span>
+                        <span>{booking.room_type?.hotel?.city?.title || "—"}</span>
+                        <span>{booking.room_type?.hotel?.title || "—"}</span>
+                        <span>{formatDate(booking.start_date)} — {formatDate(booking.end_date)}</span>
+                        <span>{booking.room_type?.hotel?.email || "—"}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
-          </div>
-        </section>
+          )}
 
-        <button
-          type="button"
-          className="admin-route-details-page__back-btn"
-          onClick={() => navigate("/admin/routes")}
-        >
-          ← Назад к списку
-        </button>
+          {/* === ИНФОРМАЦИЯ О МАРШРУТЕ === */}
+          {activeTab === "route" && (
+            <div className="route-info-card">
+              <div className="route-info-card__grid">
+                <div className="route-info-card__item">
+                  <span className="route-info-card__label">Дата начала</span>
+                  <span className="route-info-card__value">{formatDate(route.start_date)}</span>
+                </div>
+                <div className="route-info-card__item">
+                  <span className="route-info-card__label">Дата окончания</span>
+                  <span className="route-info-card__value">{formatDate(route.end_date)}</span>
+                </div>
+                <div className="route-info-card__item">
+                  <span className="route-info-card__label">Кол-во гостей</span>
+                  <span className="route-info-card__value">{route.travelers_count ?? "—"}</span>
+                </div>
+                <div className="route-info-card__item">
+                  <span className="route-info-card__label">ID пользователя</span>
+                  <span className="route-info-card__value">{shortId(route.user_id)}</span>
+                </div>
+                <div className="route-info-card__item route-info-card__item--full">
+                  <span className="route-info-card__label">Пожелания клиента</span>
+                  <span className="route-info-card__value route-info-card__prompt">
+                    {route.trip_idea || "—"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+        </section>
       </main>
     </div>
   );

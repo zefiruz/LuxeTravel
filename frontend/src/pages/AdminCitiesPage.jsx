@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import AdminHeader from "../components/AdminHeader";
 import adminService from "../services/admin";
 import "../styles/AdminCitiesPage.css";
@@ -10,6 +10,7 @@ function AdminCitiesPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingCity, setEditingCity] = useState(null);
   const [form, setForm] = useState({ title: "", description: "", image_url: "" });
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     fetchCities();
@@ -27,6 +28,17 @@ function AdminCitiesPage() {
       setLoading(false);
     }
   };
+
+  const filteredCities = useMemo(() => {
+    return cities.filter((city) => {
+      const q = search.toLowerCase();
+      return (
+        !q ||
+        (city.title || "").toLowerCase().includes(q) ||
+        (city.description || "").toLowerCase().includes(q)
+      );
+    });
+  }, [cities, search]);
 
   const handleOpenForm = (city = null) => {
     if (city) {
@@ -83,15 +95,33 @@ function AdminCitiesPage() {
           </button>
         </div>
 
+        {/* Поиск */}
+        <section className="admin-cities-page__toolbar">
+          <div className="admin-cities-page__search">
+            <input
+              type="text"
+              className="admin-cities-page__search-input"
+              placeholder="Поиск по названию или описанию…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <span className="admin-cities-page__count">
+            {filteredCities.length} / {cities.length}
+          </span>
+        </section>
+
         {loading && <p className="admin-cities-page__loading">Загрузка...</p>}
         {error && <p className="admin-cities-page__error">{error}</p>}
 
         {!loading && !error && (
           <div className="admin-cities-page__grid">
-            {cities.length === 0 ? (
-              <p className="admin-cities-page__empty">Городов пока нет</p>
+            {filteredCities.length === 0 ? (
+              <p className="admin-cities-page__empty">
+                {cities.length === 0 ? "Городов пока нет" : "Ничего не найдено"}
+              </p>
             ) : (
-              cities.map((city) => (
+              filteredCities.map((city) => (
                 <div key={city.id} className="admin-city-card">
                   {city.image_url && (
                     <img className="admin-city-card__image" src={city.image_url} alt={city.title} />
