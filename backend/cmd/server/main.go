@@ -86,6 +86,7 @@ func main() {
 		r.Get("/cities", cityHandler.ListCities)
 		r.Get("/cities/{id}", cityHandler.GetCity)
 		r.Get("/cities/{cityId}/hotels", hotelHandler.ListHotelsByCity)
+		r.Post("/generate", routeHandler.SuggestCitiesAI)
 		r.Get("/image", cityHandler.GetCityImage)
 
 		// --- ОБЩИЕ ЗАКРЫТЫЕ РУЧКИ ---
@@ -100,7 +101,7 @@ func main() {
 				r.Use(appMiddleware.CheckRole("client", "admin"))
 
 				r.Route("/routes", func(r chi.Router) {
-					r.Post("/generate", routeHandler.SuggestCitiesAI)
+
 					r.Post("/", routeHandler.CreateCompleteRoute)
 					r.Get("/", routeHandler.ListUserRoutes)
 					r.Get("/{id}", routeHandler.GetRoute)
