@@ -307,3 +307,98 @@
 .manager-meeting-modal__close-full-btn:hover {
   filter: brightness(1.08);
 }
+
+.manager-meeting-modal__section-divider {
+  margin: 18px 0;
+  border: none;
+  border-top: 1px solid rgba(114, 57, 63, 0.2);
+}
+
+.manager-meeting-modal__section-title {
+  margin: 0 0 12px;
+  font-size: var(--fs-16);
+  font-weight: 500;
+  line-height: var(--lh-normal);
+  color: var(--dark-text-color);
+}
+
+.manager-meeting-modal__edit-hotel {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  margin: 12px auto 0;
+  text-align: center;
+  border-radius: 10px;
+  padding: 14px 20px;
+  font: inherit;
+  font-size: var(--fs-16);
+  line-height: var(--lh-1);
+  background-color: #ab9985;
+  color: #1e1e1e;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.manager-meeting-modal__edit-hotel:hover {
+  filter: brightness(0.96);
+}
+
+.manager-meeting-modal__field {
+  display: block;
+  margin-bottom: 14px;
+}
+
+.manager-meeting-modal__field:last-of-type {
+  margin-bottom: 20px;
+}
+
+.manager-meeting-modal__label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: var(--fs-14);
+  line-height: var(--lh-normal);
+  color: rgba(45, 37, 35, 0.75);
+}
+
+.manager-meeting-modal__input {
+  width: 100%;
+  display: block;
+  min-height: 44px;
+  border-radius: 10px;
+  border: 1px solid rgba(239, 232, 226, 0.25);
+  background-color: var(--light-surface-color);
+  padding: 0 16px;
+  font: inherit;
+  font-size: var(--fs-16);
+  color: var(--dark-text-color);
+  outline: none;
+}
+
+.manager-meeting-modal__input:focus {
+  border-color: rgba(171, 153, 133, 0.5);
+}
+
+.manager-meeting-modal__save-btn {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 20px;
+  font: inherit;
+  font-size: var(--fs-16);
+  line-height: var(--lh-1);
+  background-color: #ab9985;
+  color: #1e1e1e;
+  cursor: pointer;
+}
+
+.manager-meeting-modal__save-btn:hover {
+  filter: brightness(0.96);
+}
+
+.manager-meeting-modal__save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

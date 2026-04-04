@@ -135,3 +135,67 @@ func (h *ManagerHandler) CreateRoomType(w http.ResponseWriter, r *http.Request) 
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(input)
 }
+
+func (h *ManagerHandler) UpdateHotel(w http.ResponseWriter, r *http.Request) {
+	val := r.Context().Value(middleware.UserIDKey)
+	managerIDStr, ok := val.(string)
+	if !ok {
+		http.Error(w, "Пользователь не авторизован", http.StatusUnauthorized)
+		return
+	}
+
+	managerID, err := uuid.Parse(managerIDStr)
+	if err != nil {
+		http.Error(w, "Некорректный формат ID менеджера", http.StatusBadRequest)
+		return
+	}
+
+	hotelID, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, "Некорректный ID отеля", http.StatusBadRequest)
+		return
+	}
+
+	var input struct {
+		Title       string `json:"title,omitempty"`
+		Email       string `json:"email,omitempty"`
+		Address     string `json:"address,omitempty"`
+		Description string `json:"description,omitempty"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		http.Error(w, "Неверный формат данных", http.StatusBadRequest)
+		return
+	}
+
+	updates := make(map[string]interface{})
+	if input.Title != "" {
+		updates["title"] = input.Title
+	}
+	if input.Email != "" {
+		updates["email"] = input.Email
+	}
+	if input.Address != "" {
+		updates["address"] = input.Address
+	}
+	if input.Description != "" {
+		updates["description"] = input.Description
+	}
+
+	if len(updates) == 0 {
+		http.Error(w, "Нет данных для обновления", http.StatusBadRequest)
+		return
+	}
+
+	err = h.Repo.UpdateHotel(managerID, hotelID, updates)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			http.Error(w, "Отель не найден или доступ запрещен", http.StatusForbidden)
+		} else {
+			http.Error(w, "Ошибка БД: "+err.Error(), http.StatusInternalServerError)
+		}
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"message": "Отель обновлён"})
+}

@@ -158,6 +158,7 @@ func main() {
 					r.Get("/bookings/{id}", managerHandler.GetBooking)
 					r.Put("/bookings/{id}/status", managerHandler.UpdateStatus)
 					r.Post("/room-types", managerHandler.CreateRoomType)
+					r.Put("/hotels/{id}", managerHandler.UpdateHotel)
 				})
 			})
 
