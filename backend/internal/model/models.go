@@ -92,6 +92,7 @@ type Booking struct {
 	StatusID   uuid.UUID     `gorm:"type:uuid" json:"status_id"`
 	Status     BookingStatus `gorm:"foreignKey:StatusID" json:"status"`
 	RoomType   RoomType      `gorm:"foreignKey:RoomTypeID" json:"room_type"`
+	Route      Route         `gorm:"foreignKey:RouteID" json:"route"`
 	StartDate  time.Time     `json:"start_date"`
 	EndDate    time.Time     `json:"end_date"`
 	CreatedAt  time.Time     `json:"created_at"`

@@ -18,6 +18,11 @@ class ManagerService {
   async createRoomType(data) {
     return api.post('/manager/room-types', data);
   }
+
+  // === Отели ===
+  async updateHotel(id, data) {
+    return api.put(`/manager/hotels/${id}`, data);
+  }
 }
 
 export default new ManagerService();

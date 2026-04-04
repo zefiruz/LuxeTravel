@@ -96,7 +96,7 @@ function AdminHotelsPage() {
         await adminService.updateHotel(editingHotel.id, hotelData);
 
         // Получаем текущих менеджеров из отеля (UUID строки)
-        const oldIds = hotel.managers?.map(m => m.user_id) || [];
+        const oldIds = editingHotel.managers?.map(m => m.user_id) || [];
         // manager_ids уже строки (UUID), не преобразуем в Number
         const newIds = manager_ids;
 
@@ -343,3 +343,4 @@ function AdminHotelsPage() {
 }
 
 export default AdminHotelsPage;
+  

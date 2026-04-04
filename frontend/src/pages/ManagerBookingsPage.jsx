@@ -38,11 +38,11 @@ function ManagerBookingsPage() {
     try {
       setLoading(true);
       const data = await managerService.getBookings();
+      console.log("BOOKINGS API response:", JSON.stringify(data, null, 2));
 
-      // Фильтруем по отелю если нужно
       let filtered = data;
       if (hotelId) {
-        filtered = data.filter(b => b.room_type?.hotel?.id === hotelId);
+        filtered = data.filter(b => String(b.room_type?.hotel?.id) === hotelId);
       }
 
       setBookings(filtered);
@@ -87,9 +87,7 @@ function ManagerBookingsPage() {
     [bookings, meetingBookingId]
   );
 
-  const openMeetingModal = (booking) => {
-    setMeetingBookingId(booking.id);
-  };
+
 
   const closeMeetingModal = () => {
     setMeetingBookingId(null);
@@ -108,7 +106,15 @@ function ManagerBookingsPage() {
   const filteredBookings = useMemo(() => {
     const q = search.trim().toLowerCase();
     return bookings.filter(b => {
-      if (b.status?.title !== activeFilter) return false;
+      const raw = (b.status?.title || '').toLowerCase();
+      // API может отдавать "Pending"/"Подтверждено"/"Cancelled" и т.д.
+      // Нормализуем: если содержит "pending" → pending, "confirmed"/"подтвержд" → confirmed, "cancelled"/"отмен" → cancelled
+      let normalized = raw;
+      if (raw.includes('pending')) normalized = BOOKING_STATUS.PENDING;
+      else if (raw.includes('подтвержд') || raw.includes('confirm')) normalized = BOOKING_STATUS.CONFIRMED;
+      else if (raw.includes('отмен') || raw.includes('cancel')) normalized = BOOKING_STATUS.CANCELLED;
+
+      if (normalized !== activeFilter) return false;
       if (!q) return true;
       const hay = `${b.id} ${b.room_type?.title} ${b.room_type?.hotel?.title || ""}`.toLowerCase();
       return hay.includes(q);
@@ -194,33 +200,43 @@ function ManagerBookingsPage() {
                         <p className="manager-bookings-card__line">
                           выезд {formatDate(b.end_date)}
                         </p>
+                        <p className="manager-bookings-card__line">
+                          клиент: {b.route?.user?.info?.first_name || "—"} {b.route?.user?.info?.last_name || ""}
+                        </p>
+                        <p className="manager-bookings-card__line">
+                          email: {b.route?.user?.email || "—"}
+                        </p>
+                        <p className="manager-bookings-card__line">
+                          телефон: {b.route?.user?.info?.phone || "—"}
+                        </p>
                       </div>
-                      <button
-                        type="button"
-                        className="manager-bookings-card__details-btn"
-                        onClick={() => openMeetingModal(b)}
-                      >
-                        детали
-                      </button>
                     </div>
-                    {b.status?.title === BOOKING_STATUS.PENDING && (
-                      <div className="manager-bookings-card__actions">
-                        <button
-                          type="button"
-                          className="manager-bookings-card__confirm"
-                          onClick={() => confirmBooking(b.id)}
-                        >
-                          подтвердить
-                        </button>
-                        <button
-                          type="button"
-                          className="manager-bookings-card__reject"
-                          onClick={() => cancelBooking(b.id)}
-                        >
-                          отменить
-                        </button>
-                      </div>
-                    )}
+                    {(() => {
+                      const raw = (b.status?.title || '').toLowerCase();
+                      let normalized = raw;
+                      if (raw.includes('pending')) normalized = BOOKING_STATUS.PENDING;
+                      else if (raw.includes('подтвержд') || raw.includes('confirm')) normalized = BOOKING_STATUS.CONFIRMED;
+                      else if (raw.includes('отмен') || raw.includes('cancel')) normalized = BOOKING_STATUS.CANCELLED;
+
+                      return normalized === BOOKING_STATUS.PENDING && (
+                        <div className="manager-bookings-card__actions">
+                          <button
+                            type="button"
+                            className="manager-bookings-card__confirm"
+                            onClick={() => confirmBooking(b.id)}
+                          >
+                            подтвердить
+                          </button>
+                          <button
+                            type="button"
+                            className="manager-bookings-card__reject"
+                            onClick={() => cancelBooking(b.id)}
+                          >
+                            отменить
+                          </button>
+                        </div>
+                      );
+                    })()}
                   </article>
                 ))
               )}
@@ -229,67 +245,7 @@ function ManagerBookingsPage() {
         )}
       </main>
 
-      {meetingBooking && (
-        <div
-          className="manager-meeting-modal__backdrop"
-          role="presentation"
-          onClick={closeMeetingModal}
-        >
-          <section
-            className="manager-meeting-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Информация о бронировании"
-            onClick={e => e.stopPropagation()}
-          >
-            <button
-              type="button"
-              className="manager-meeting-modal__close-btn"
-              onClick={closeMeetingModal}
-              aria-label="Закрыть"
-            >
-              <X className="manager-meeting-modal__close-icon" />
-            </button>
 
-            <h2 className="manager-meeting-modal__title">
-              <span className="manager-meeting-modal__title-line">
-                Бронирование №{meetingBooking.id.slice(0, 8)}
-              </span>
-            </h2>
-
-            <div className="manager-meeting-modal__read">
-              <p className="manager-meeting-modal__line">
-                <span className="manager-meeting-modal__key">Номер:</span>{" "}
-                {meetingBooking.room_type?.title || "—"}
-              </p>
-              <p className="manager-meeting-modal__line">
-                <span className="manager-meeting-modal__key">Отель:</span>{" "}
-                {meetingBooking.room_type?.hotel?.title || "—"}
-              </p>
-              <p className="manager-meeting-modal__line">
-                <span className="manager-meeting-modal__key">Заезд:</span>{" "}
-                {formatDate(meetingBooking.start_date)}
-              </p>
-              <p className="manager-meeting-modal__line">
-                <span className="manager-meeting-modal__key">Выезд:</span>{" "}
-                {formatDate(meetingBooking.end_date)}
-              </p>
-              <p className="manager-meeting-modal__line">
-                <span className="manager-meeting-modal__key">Статус:</span>{" "}
-                {meetingBooking.status?.title || "—"}
-              </p>
-            </div>
-
-            <button
-              type="button"
-              className="manager-meeting-modal__close-full-btn"
-              onClick={closeMeetingModal}
-            >
-              Закрыть
-            </button>
-          </section>
-        </div>
-      )}
     </div>
   );
 }

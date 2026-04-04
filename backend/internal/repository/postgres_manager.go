@@ -13,6 +13,7 @@ type ManagerRepository interface {
 	GetBookingByID(managerID, bookingID uuid.UUID) (*model.Booking, error)
 	CreateRoomType(managerID uuid.UUID, roomType *model.RoomType) error
 	GetBookingStatusByTitle(title string) (uuid.UUID, error)
+	UpdateHotel(managerID uuid.UUID, hotelID uuid.UUID, updates map[string]interface{}) error
 }
 
 type postgresManagerRepository struct {
@@ -34,6 +35,9 @@ func (r *postgresManagerRepository) GetBookings(managerID uuid.UUID) ([]model.Bo
 		Preload("RoomType.Hotel").
 		Preload("RoomType.Hotel.City").
 		Preload("Status").
+		Preload("Route").
+		Preload("Route.User").
+		Preload("Route.User.UserInfo").
 		Find(&bookings).Error
 
 	return bookings, err
@@ -92,4 +96,19 @@ func (r *postgresManagerRepository) GetBookingStatusByTitle(title string) (uuid.
 		return uuid.Nil, err
 	}
 	return status.ID, nil
+}
+
+func (r *postgresManagerRepository) UpdateHotel(managerID uuid.UUID, hotelID uuid.UUID, updates map[string]interface{}) error {
+	var count int64
+	err := r.db.Table("hotel_managers").
+		Where("hotel_id = ? AND user_id = ?", hotelID, managerID).
+		Count(&count).Error
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return gorm.ErrRecordNotFound
+	}
+
+	return r.db.Model(&model.Hotel{}).Where("id = ?", hotelID).Updates(updates).Error
 }
