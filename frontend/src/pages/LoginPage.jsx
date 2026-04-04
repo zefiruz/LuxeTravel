@@ -1,11 +1,12 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import Header from "../components/Header";
 import { useAuth } from "../context/AuthContext";
 import "../styles/AuthPages.css";
 
 function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login, error, loading } = useAuth();
 
   const [form, setForm] = useState({
@@ -14,6 +15,16 @@ function LoginPage() {
   });
 
   const [localError, setLocalError] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+
+  // Сообщение об успешной регистрации
+  useEffect(() => {
+    if (location.state?.registered) {
+      setSuccessMsg("Регистрация успешна! Войдите в систему.");
+      // Очищаем состояние чтобы сообщение не показывалось повторно
+      navigate("/login", { replace: true, state: {} });
+    }
+  }, []);
 
   const handleChange = (field, value) => {
     setForm((prev) => ({
@@ -21,11 +32,13 @@ function LoginPage() {
       [field]: value,
     }));
     setLocalError("");
+    setSuccessMsg("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLocalError("");
+    setSuccessMsg("");
 
     if (!form.email || !form.password) {
       setLocalError("Пожалуйста, заполните все поля");
@@ -51,7 +64,7 @@ function LoginPage() {
 
           <form className="auth-form" onSubmit={handleSubmit}>
             <label className="auth-form__field">
-              <span className="auth-form__label">Email</span>
+              <span className="auth-form__label">Email *</span>
               <input
                 className="auth-form__input"
                 type="email"
@@ -62,7 +75,7 @@ function LoginPage() {
             </label>
 
             <label className="auth-form__field">
-              <span className="auth-form__label">Пароль</span>
+              <span className="auth-form__label">Пароль *</span>
               <input
                 className="auth-form__input"
                 type="password"
@@ -71,6 +84,10 @@ function LoginPage() {
                 required
               />
             </label>
+
+            {successMsg && (
+              <p className="auth-form__success">{successMsg}</p>
+            )}
 
             {(localError || error) && (
               <p className="auth-form__error">{localError || error}</p>
@@ -84,15 +101,11 @@ function LoginPage() {
               >
                 {loading ? "Вход..." : "Войти"}
               </button>
-
-              <button
-                type="button"
-                className="auth-btn auth-btn--secondary"
-                onClick={() => navigate("/auth")}
-              >
-                Назад
-              </button>
             </div>
+
+            <p className="auth-card__footer">
+              Нет аккаунта? <Link to="/register" className="auth-card__link">Зарегистрироваться</Link>
+            </p>
           </form>
         </section>
       </main>

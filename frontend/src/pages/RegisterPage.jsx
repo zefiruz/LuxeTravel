@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Header from "../components/Header";
 import { useAuth } from "../context/AuthContext";
 import "../styles/AuthPages.css";
 
 function RegisterPage() {
   const navigate = useNavigate();
-  const { register, error, loading, login } = useAuth();
+  const { register, error, loading } = useAuth();
 
   const [form, setForm] = useState({
     lastName: "",
@@ -27,28 +27,33 @@ function RegisterPage() {
     setLocalError("");
   };
 
+  const parseError = (err) => {
+    if (typeof err === "string") return err;
+    if (typeof err === "object" && err.message) return err.message;
+    return "Ошибка при регистрации";
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLocalError("");
 
-    // Валидация
     if (!form.email || !form.password || !form.firstName || !form.lastName) {
       setLocalError("Пожалуйста, заполните все обязательные поля");
       return;
     }
 
+    if (form.password.length < 6) {
+      setLocalError("Пароль должен содержать минимум 6 символов");
+      return;
+    }
+
     const success = await register(form);
-    console.log(success);
     if (success) {
-      const success_login = await login(form.email, form.password);
-      if (success_login) {
-        navigate("/profile");
-      }
-      else {
-        navigate("/login");
-      }
+      navigate("/login", {
+        state: { registered: true, email: form.email },
+      });
     } else {
-      setLocalError(error || "Ошибка при регистрации");
+      setLocalError(parseError(error));
     }
   };
 
@@ -105,13 +110,12 @@ function RegisterPage() {
             </label>
 
             <label className="auth-form__field">
-              <span className="auth-form__label">Телефон *</span>
+              <span className="auth-form__label">Телефон</span>
               <input
                 className="auth-form__input"
                 type="tel"
                 value={form.phone}
                 onChange={(e) => handleChange("phone", e.target.value)}
-                required
               />
             </label>
 
@@ -122,6 +126,7 @@ function RegisterPage() {
                 type="password"
                 value={form.password}
                 onChange={(e) => handleChange("password", e.target.value)}
+                minLength={6}
                 required
               />
             </label>
@@ -138,15 +143,11 @@ function RegisterPage() {
               >
                 {loading ? "Регистрация..." : "Зарегистрироваться"}
               </button>
-
-              <button
-                type="button"
-                className="auth-btn auth-btn--secondary"
-                onClick={() => navigate("/auth")}
-              >
-                Назад
-              </button>
             </div>
+
+            <p className="auth-card__footer">
+              Уже есть аккаунт? <Link to="/login" className="auth-card__link">Войти</Link>
+            </p>
           </form>
         </section>
       </main>

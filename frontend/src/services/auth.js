@@ -70,7 +70,6 @@ class AuthService {
     logout() {
         localStorage.removeItem('auth_token');
         localStorage.removeItem('user');
-        localStorage.removeItem('user_email');
     }
 
     isAuthenticated() {

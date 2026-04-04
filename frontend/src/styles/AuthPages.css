@@ -103,3 +103,31 @@
   background-color: #ab9985;
   color: #1e1e1e;
 }
+
+.auth-card__footer {
+  margin: 16px 0 0;
+  text-align: center;
+  font-size: var(--fs-14);
+  color: #ab9985;
+}
+
+.auth-card__link {
+  color: #72393f;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.auth-card__link:hover {
+  color: #8a454c;
+}
+
+.auth-form__success {
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(52, 211, 153, 0.12);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  color: #34d399;
+  font-size: var(--fs-14);
+  text-align: center;
+}
