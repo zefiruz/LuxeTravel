@@ -31,7 +31,9 @@ func (r *postgresManagerRepository) GetBookings(managerID uuid.UUID) ([]model.Bo
 		Joins("JOIN hotel_managers ON hotel_managers.hotel_id = room_types.hotel_id").
 		Where("hotel_managers.user_id = ?", managerID).
 		Preload("RoomType").
-		Preload("User").
+		Preload("RoomType.Hotel").
+		Preload("RoomType.Hotel.City").
+		Preload("Status").
 		Find(&bookings).Error
 
 	return bookings, err
@@ -62,8 +64,9 @@ func (r *postgresManagerRepository) GetBookingByID(managerID, bookingID uuid.UUI
 		Joins("JOIN hotel_managers ON hotel_managers.hotel_id = room_types.hotel_id").
 		Where("bookings.id = ? AND hotel_managers.user_id = ?", bookingID, managerID).
 		Preload("RoomType").
-		Preload("User").
-		Preload("User.UserInfo").
+		Preload("RoomType.Hotel").
+		Preload("RoomType.Hotel.City").
+		Preload("Status").
 		First(&booking).Error
 
 	return &booking, err

@@ -8,6 +8,7 @@
   max-width: 1280px;
   margin: 0 auto;
   padding: 14px 24px 40px;
+  width: 100%;
 }
 
 .admin-routes-page__title-block {
@@ -49,9 +50,9 @@
   grid-template-columns: 1fr 1fr 1.05fr 1.05fr 1.05fr 1fr;
 }
 
-.admin-routes-table__head > span,
-.admin-routes-table__row > span,
-.admin-routes-table__row > button {
+.admin-routes-table__head>span,
+.admin-routes-table__row>span,
+.admin-routes-table__row>button {
   min-height: 52px;
   border-right: 1px solid #72393f;
   border-bottom: 1px solid #72393f;
@@ -65,14 +66,14 @@
   color: #72393f;
 }
 
-.admin-routes-table__head > span:last-child,
-.admin-routes-table__row > span:last-child,
-.admin-routes-table__row > button:last-child {
+.admin-routes-table__head>span:last-child,
+.admin-routes-table__row>span:last-child,
+.admin-routes-table__row>button:last-child {
   border-right: none;
 }
 
-.admin-routes-table__body .admin-routes-table__row:last-child > span,
-.admin-routes-table__body .admin-routes-table__row:last-child > button {
+.admin-routes-table__body .admin-routes-table__row:last-child>span,
+.admin-routes-table__body .admin-routes-table__row:last-child>button {
   border-bottom: none;
 }
 

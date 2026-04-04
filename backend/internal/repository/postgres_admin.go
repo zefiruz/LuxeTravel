@@ -11,6 +11,7 @@ import (
 
 type AdminRepository interface {
 	GetAllUsers() ([]model.User, error)
+	GetRoles() ([]model.Role, error)
 	UpdateUserRole(userID uuid.UUID, roleID uuid.UUID) error
 	AssignManagerToHotel(userID uuid.UUID, hotelID uuid.UUID) error
 }
@@ -28,6 +29,12 @@ func (r *postgresAdminRepository) GetAllUsers() ([]model.User, error) {
 
 	err := r.db.Preload("Role").Find(&users).Error
 	return users, err
+}
+
+func (r *postgresAdminRepository) GetRoles() ([]model.Role, error) {
+	var roles []model.Role
+	err := r.db.Find(&roles).Error
+	return roles, err
 }
 
 func (r *postgresAdminRepository) UpdateUserRole(userID uuid.UUID, roleID uuid.UUID) error {

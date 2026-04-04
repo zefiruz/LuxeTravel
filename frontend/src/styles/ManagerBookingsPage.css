@@ -1,0 +1,309 @@
+.manager-bookings-page {
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+.manager-bookings-page__content {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 20px 24px 48px;
+}
+
+.manager-bookings-page__back {
+  display: inline-block;
+  margin-bottom: 16px;
+  border: none;
+  background: transparent;
+  color: var(--text-color);
+  font: inherit;
+  font-size: var(--fs-14);
+  line-height: var(--lh-normal);
+  cursor: pointer;
+  opacity: 0.9;
+  padding: 0;
+}
+
+.manager-bookings-page__back:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.manager-bookings-page__title {
+  margin: 0 0 20px;
+  text-align: center;
+  font-size: var(--fs-30);
+  font-weight: 400;
+  line-height: var(--lh-snug);
+  color: var(--text-color);
+}
+
+.manager-bookings-page__loading,
+.manager-bookings-page__error {
+  text-align: center;
+  color: #ab9985;
+  font-size: var(--fs-16);
+}
+
+.manager-bookings-page__error {
+  color: #e53e3e;
+}
+
+.manager-bookings-page__search {
+  width: 100%;
+  display: block;
+  margin: 0 auto 14px;
+  min-height: 44px;
+  border-radius: 10px;
+  border: 1px solid rgba(239, 232, 226, 0.25);
+  background-color: var(--light-surface-color);
+  padding: 0 16px;
+  font: inherit;
+  font-size: var(--fs-14);
+  color: var(--dark-text-color);
+  outline: none;
+}
+
+.manager-bookings-page__search::placeholder {
+  color: rgba(45, 37, 35, 0.45);
+  text-transform: uppercase;
+}
+
+.manager-bookings-page__filters {
+  margin: 0 auto 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  align-items: center;
+}
+
+.manager-bookings-page__filter {
+  border: none;
+  background: transparent;
+  color: var(--text-color);
+  font: inherit;
+  font-size: var(--fs-16);
+  line-height: var(--lh-snug);
+  cursor: pointer;
+  padding: 6px 0;
+  opacity: 0.75;
+}
+
+.manager-bookings-page__filter:hover {
+  opacity: 1;
+}
+
+.manager-bookings-page__filter--active {
+  opacity: 1;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-color: #ab9985;
+}
+
+.manager-bookings-page__list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.manager-bookings-page__empty {
+  margin: 24px 0;
+  text-align: center;
+  font-size: var(--fs-16);
+  line-height: var(--lh-normal);
+  color: rgba(239, 232, 226, 0.65);
+}
+
+.manager-bookings-card {
+  border-radius: 16px;
+  padding: 16px 18px;
+  background-color: var(--light-surface-color);
+  color: var(--dark-text-color);
+}
+
+.manager-bookings-card__main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.manager-bookings-card__info {
+  min-width: 0;
+}
+
+.manager-bookings-card__line {
+  margin: 0 0 8px;
+  font-size: var(--fs-16);
+  line-height: var(--lh-normal);
+}
+
+.manager-bookings-card__line:last-child {
+  margin-bottom: 0;
+}
+
+.manager-bookings-card__details-btn {
+  flex-shrink: 0;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font: inherit;
+  font-size: var(--fs-14);
+  line-height: var(--lh-1);
+  background-color: #4a4a4a;
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+.manager-bookings-card__details-btn:hover {
+  filter: brightness(1.08);
+}
+
+.manager-bookings-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+  justify-content: flex-end;
+}
+
+.manager-bookings-card__confirm {
+  flex: 1;
+  min-width: 140px;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 18px;
+  font: inherit;
+  font-size: var(--fs-16);
+  line-height: var(--lh-1);
+  background-color: #ab9985;
+  color: #1e1e1e;
+  cursor: pointer;
+}
+
+.manager-bookings-card__confirm:hover {
+  filter: brightness(0.98);
+}
+
+.manager-bookings-card__reject {
+  flex: 1;
+  min-width: 140px;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 18px;
+  font: inherit;
+  font-size: var(--fs-16);
+  line-height: var(--lh-1);
+  background-color: #72393f;
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+.manager-bookings-card__reject:hover {
+  filter: brightness(1.06);
+}
+
+/* Модалка */
+.manager-meeting-modal__backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 60;
+}
+
+.manager-meeting-modal {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  border-radius: 14px;
+  background-color: var(--light-surface-color);
+  padding: 20px 20px 18px;
+  border: 1px solid rgba(114, 57, 63, 0.35);
+  color: var(--dark-text-color);
+}
+
+.manager-meeting-modal__close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--dark-text-color);
+  cursor: pointer;
+  padding: 0;
+}
+
+.manager-meeting-modal__close-btn:hover {
+  background-color: rgba(114, 57, 63, 0.12);
+}
+
+.manager-meeting-modal__close-icon {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2.25;
+}
+
+.manager-meeting-modal__title {
+  margin: 0 0 18px;
+  padding: 0 40px;
+  text-align: center;
+  font-size: var(--fs-22);
+  font-weight: 400;
+  line-height: var(--lh-snug);
+  color: var(--dark-text-color);
+}
+
+.manager-meeting-modal__title-line {
+  display: block;
+}
+
+.manager-meeting-modal__read {
+  margin-bottom: 16px;
+}
+
+.manager-meeting-modal__line {
+  margin: 0 0 10px;
+  font-size: var(--fs-16);
+  line-height: var(--lh-normal);
+  color: var(--dark-text-color);
+}
+
+.manager-meeting-modal__line:last-child {
+  margin-bottom: 0;
+}
+
+.manager-meeting-modal__key {
+  color: rgba(45, 37, 35, 0.75);
+  font-weight: 400;
+}
+
+.manager-meeting-modal__close-full-btn {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  margin: 20px auto 0;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 20px;
+  font: inherit;
+  font-size: var(--fs-16);
+  line-height: var(--lh-1);
+  background-color: #4a4a4a;
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+.manager-meeting-modal__close-full-btn:hover {
+  filter: brightness(1.08);
+}

@@ -13,6 +13,8 @@ type RouteRepository interface {
 	Update(route *model.Route) error
 	Delete(id uuid.UUID) error
 	GetAllById(userID uuid.UUID) ([]model.Route, error)
+	GetAll() ([]model.Route, error)
+	UpdateStatus(routeID uuid.UUID, statusID uuid.UUID) error
 	CreateBooking(booking *model.Booking) error
 	GetAvailableCityNames() ([]string, error)
 	GetStatusByTitle(title string) (uuid.UUID, error)
@@ -28,7 +30,27 @@ func NewPostgresRouteRepository(db *gorm.DB) RouteRepository {
 }
 
 func (r *postgresRouteRepository) Create(route *model.Route) error {
-	return r.db.Create(route).Error
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		// Сначала создаём маршрут без Bookings
+		bookings := route.Bookings
+		route.Bookings = nil
+		if err := tx.Create(route).Error; err != nil {
+			return err
+		}
+
+		// Проставляем RouteID и создаём бронирования
+		for i := range bookings {
+			bookings[i].RouteID = route.ID
+		}
+		if len(bookings) > 0 {
+			if err := tx.Create(&bookings).Error; err != nil {
+				return err
+			}
+		}
+
+		route.Bookings = bookings
+		return nil
+	})
 }
 
 func (r *postgresRouteRepository) CreateBooking(booking *model.Booking) error {
@@ -62,6 +84,28 @@ func (r *postgresRouteRepository) GetAllById(userID uuid.UUID) ([]model.Route, e
 		Preload("Bookings.RoomType.Hotel.City").
 		Find(&routes).Error
 	return routes, err
+}
+
+func (r *postgresRouteRepository) GetAll() ([]model.Route, error) {
+	var routes []model.Route
+	err := r.db.
+		Preload("Status").
+		Preload("Bookings.Status").
+		Preload("Bookings.RoomType.Hotel.City").
+		Preload("User").
+		Find(&routes).Error
+	return routes, err
+}
+
+func (r *postgresRouteRepository) UpdateStatus(routeID uuid.UUID, statusID uuid.UUID) error {
+	result := r.db.Model(&model.Route{}).Where("id = ?", routeID).Update("status_id", statusID)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
 }
 
 func (r *postgresRouteRepository) GetAvailableCityNames() ([]string, error) {

@@ -9,6 +9,7 @@ import (
 
 type HotelRepository interface {
 	GetByCityID(cityID uuid.UUID) ([]model.Hotel, error)
+	GetAll() ([]model.Hotel, error)
 	Create(hotel *model.Hotel) error
 	CreateRoomType(rt *model.RoomType) error
 	Update(hotel model.Hotel) error
@@ -36,17 +37,23 @@ func (r *postgresHotelRepository) GetByCityID(cityID uuid.UUID) ([]model.Hotel, 
 	return hotels, err
 }
 
+func (r *postgresHotelRepository) GetAll() ([]model.Hotel, error) {
+	var hotels []model.Hotel
+	err := r.db.Preload("Rooms").Find(&hotels).Error
+	return hotels, err
+}
+
 // internal/repository/hotel.go
 
 func (r *postgresHotelRepository) Update(hotel model.Hotel) error {
-    // Updates(hotel) обновит только непустые поля из структуры
-    result := r.db.Model(&hotel).Where("id = ?", hotel.ID).Updates(hotel)
-    
-    if result.Error != nil {
-        return result.Error
-    }
-    if result.RowsAffected == 0 {
-        return gorm.ErrRecordNotFound
-    }
-    return nil
+	// Updates(hotel) обновит только непустые поля из структуры
+	result := r.db.Model(&hotel).Where("id = ?", hotel.ID).Updates(hotel)
+
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
 }

@@ -8,6 +8,7 @@
   max-width: 1280px;
   margin: 0 auto;
   padding: 14px 24px 40px;
+  width: 100%;
 }
 
 .admin-route-details-page__title-block {
@@ -155,8 +156,8 @@
   grid-template-columns: 1fr 1fr 1fr 1.2fr 1.2fr;
 }
 
-.admin-route-card__table-head > span,
-.admin-route-card__table-row > span {
+.admin-route-card__table-head>span,
+.admin-route-card__table-row>span {
   min-height: 38px;
   border-right: 1px solid #72393f;
   border-bottom: 1px solid #72393f;
@@ -170,11 +171,11 @@
   color: #72393f;
 }
 
-.admin-route-card__table-head > span:last-child,
-.admin-route-card__table-row > span:last-child {
+.admin-route-card__table-head>span:last-child,
+.admin-route-card__table-row>span:last-child {
   border-right: none;
 }
 
-.admin-route-card__table-body .admin-route-card__table-row:last-child > span {
+.admin-route-card__table-body .admin-route-card__table-row:last-child>span {
   border-bottom: none;
 }

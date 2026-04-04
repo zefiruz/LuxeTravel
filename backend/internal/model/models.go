@@ -74,6 +74,7 @@ type RoomType struct {
 type Route struct {
 	ID          uuid.UUID   `gorm:"type:uuid;primaryKey" json:"id"`
 	UserID      uuid.UUID   `gorm:"type:uuid;not null" json:"user_id"`
+	User        User        `gorm:"foreignKey:UserID" json:"user"`
 	StatusID    uuid.UUID   `gorm:"type:uuid" json:"status_id"`
 	Status      RouteStatus `gorm:"foreignKey:StatusID" json:"status"`
 	Prompt      string      `gorm:"column:prompt" json:"trip_idea"`

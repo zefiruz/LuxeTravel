@@ -1,0 +1,111 @@
+.manager-hotels-page {
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+.manager-hotels-page__content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+.manager-hotels-page__title {
+  margin: 0 0 32px;
+  text-align: center;
+  font-size: var(--fs-30);
+  font-weight: 400;
+  line-height: var(--lh-snug);
+  color: var(--text-color);
+}
+
+.manager-hotels-page__loading,
+.manager-hotels-page__error {
+  text-align: center;
+  color: #ab9985;
+  font-size: var(--fs-16);
+}
+
+.manager-hotels-page__error {
+  color: #e53e3e;
+}
+
+.manager-hotels-page__empty {
+  text-align: center;
+  color: #ab9985;
+  font-size: var(--fs-16);
+  margin-top: 40px;
+}
+
+.manager-hotels-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.manager-hotel-card {
+  border-radius: 16px;
+  padding: 20px 24px;
+  background-color: var(--light-surface-color);
+  color: var(--dark-text-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.manager-hotel-card__info {
+  min-width: 0;
+  flex: 1;
+}
+
+.manager-hotel-card__name {
+  margin: 0 0 6px;
+  font-size: var(--fs-20);
+  font-weight: 500;
+  line-height: var(--lh-snug);
+  color: var(--dark-text-color);
+}
+
+.manager-hotel-card__city {
+  margin: 0 0 4px;
+  font-size: var(--fs-14);
+  color: #ab9985;
+}
+
+.manager-hotel-card__address {
+  margin: 0 0 4px;
+  font-size: var(--fs-14);
+  color: rgba(45, 37, 35, 0.75);
+}
+
+.manager-hotel-card__email {
+  margin: 0 0 4px;
+  font-size: var(--fs-14);
+  color: rgba(45, 37, 35, 0.65);
+}
+
+.manager-hotel-card__bookings-count {
+  margin: 0;
+  font-size: var(--fs-14);
+  color: #72393f;
+  font-weight: 500;
+}
+
+.manager-hotel-card__btn {
+  flex-shrink: 0;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 24px;
+  font: inherit;
+  font-size: var(--fs-16);
+  line-height: var(--lh-1);
+  background-color: #72393f;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.manager-hotel-card__btn:hover {
+  background-color: #8a454c;
+}

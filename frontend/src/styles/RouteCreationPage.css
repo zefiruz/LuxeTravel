@@ -276,7 +276,7 @@
 
 .route-form-card__select .react-select__option {
   color: #000000;
-  background-color: transparent;
+  background-color: white;
 }
 
 .route-form-card__select .react-select__option:hover {

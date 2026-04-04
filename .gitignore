@@ -23,7 +23,7 @@ frontend/dist/
 dist/
 
 # Docker и локальная разработка
-docker-compose.override.yml
+docker-compose.yml
 *.log
 .DS_Store
 
