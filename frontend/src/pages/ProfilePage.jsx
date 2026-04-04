@@ -25,9 +25,9 @@ function ProfilePage() {
   const mapUserData = (u) => {
     if (!u) return fallbackProfile;
     return {
-      lastName: u.lastName || "",
-      firstName: u.firstName || "",
-      middleName: u.middleName || "",
+      lastName: u.lastName || u.last_name || "",
+      firstName: u.firstName || u.first_name || "",
+      middleName: u.middleName || u.middle_name || "",
       email: u.email || "",
       phone: u.phone || "",
     };
@@ -38,7 +38,9 @@ function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
+    console.log('ProfilePage - user data:', user);
     const freshData = mapUserData(user);
+    console.log('ProfilePage - mapped data:', freshData);
     setProfile(freshData);
     setDraftProfile(freshData);
   }, [user]);

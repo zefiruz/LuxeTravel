@@ -3,7 +3,9 @@
     "allow": [
       "Bash(npm run *)",
       "Bash(curl *)",
-      "Bash(python3 *)"
+      "Bash(python3 *)",
+      "Read(//home/sashurman/spo/LuxeTravel/backend/internal/repository/**)",
+      "Read(//home/sashurman/spo/LuxeTravel/backend/internal/model/**)"
     ]
   },
   "$version": 3

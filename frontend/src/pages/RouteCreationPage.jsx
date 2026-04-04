@@ -93,7 +93,7 @@ function RouteCreationPage() {
       // AI режим: отправляем запрос на генерацию маршрута
       setIsGenerating(true);
       try {
-        const response = await api.post('/routes/generate', {
+        const response = await api.post('/generate', {
           trip_idea: tripIdea,
           guest_count: parseInt(travelersCount),
         });

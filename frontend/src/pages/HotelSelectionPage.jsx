@@ -86,7 +86,11 @@ function HotelSelectionPage() {
         }
       }
       if (savedData.roomId) {
-        setSelectedRoom({ value: savedData.roomId, label: savedData.roomTitle });
+        setSelectedRoom({
+          value: savedData.roomId,
+          label: savedData.roomTitle,
+          price_per_night: savedData.pricePerNight,
+        });
       }
       if (savedData.startDate) {
         setStartDate(savedData.startDate);
@@ -132,17 +136,29 @@ function HotelSelectionPage() {
   const handleSaveSelection = () => {
     if (!activeHotel || !cityId) return;
 
+    // Берём ранее сохранённые данные как фоллбэк
+    const previousData = selectedHotelsByCity[cityId];
+
+    // Определяем roomId — либо из селекта, либо из предыдущих данных
+    const roomId = selectedRoom?.value || previousData?.roomId || null;
+
+    // Ищем комнату в актуальных данных отеля по roomId — так цена всегда будет верной
+    const roomFromHotel = roomId && activeHotel.rooms
+      ? activeHotel.rooms.find(r => r.id === roomId)
+      : null;
+
     const hotelData = {
       hotelId: activeHotel.id,
       hotelName: activeHotel.title,
-      roomId: selectedRoom?.value || null,
-      roomTitle: selectedRoom?.label || null,
-      startDate: startDate || null,
-      endDate: endDate || null,
+      roomId,
+      roomTitle: selectedRoom?.label || previousData?.roomTitle || roomFromHotel?.title || null,
+      pricePerNight: roomFromHotel?.price_per_night || selectedRoom?.price_per_night || previousData?.pricePerNight || null,
+      startDate: startDate || previousData?.startDate || null,
+      endDate: endDate || previousData?.endDate || null,
     };
 
     setSelectedHotelForCity(cityId, hotelData);
-    console.loglocalStorage.getItem('selectedHotelsByCity');
+    console.log(localStorage.getItem('selectedHotelsByCity'));
 
     navigate("/route-builder");
   };

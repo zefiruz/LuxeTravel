@@ -4,6 +4,10 @@ class AuthService {
     async register(userData) {
         try {
             const response = await api.post('/auth/register', userData);
+            // Сохраняем email при регистрации
+            if (response && response.email) {
+                localStorage.setItem('user', JSON.stringify({ email: response.email }));
+            }
             return { success: true, data: response };
         } catch (error) {
             return { success: false, error: error.response?.data || error.message };
@@ -13,7 +17,7 @@ class AuthService {
     async login(email, password) {
         try {
             const response = await api.post('/auth/login', { email, password });
-            const data = response; 
+            const data = response;
 
             if (data && data.token) {
                 localStorage.setItem('auth_token', data.token);
@@ -29,7 +33,7 @@ class AuthService {
 
     getUser() {
         const user = localStorage.getItem('user');
-        if (!user || user === "undefined") { 
+        if (!user || user === "undefined") {
             return null;
         }
         try {

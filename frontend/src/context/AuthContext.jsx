@@ -19,10 +19,17 @@ export const AuthProvider = ({ children }) => {
   const fetchProfile = async () => {
     try {
       const result = await authService.getProfile();
-      console.log(result);// Вызывает GET /auth/profile
+      console.log('AuthContext - profile result:', result);
       if (result.success) {
-        setUser(result.data);
-        localStorage.setItem('user', JSON.stringify(result.data));
+        // Сохраняем существующие данные пользователя (например email)
+        const existingUser = authService.getUser() || {};
+        const mergedUser = {
+          ...existingUser,
+          ...result.data,
+        };
+        console.log('AuthContext - merged user:', mergedUser);
+        setUser(mergedUser);
+        localStorage.setItem('user', JSON.stringify(mergedUser));
       }
     } catch (err) {
       console.error("Не удалось загрузить профиль", err);
@@ -48,8 +55,14 @@ export const AuthProvider = ({ children }) => {
     try {
       const result = await authService.updateProfile(profileData);
       if (result.success) {
-        setUser(profileData);
-        localStorage.setItem('user', JSON.stringify(profileData));
+        // Сохраняем существующие данные (email и т.д.)
+        const existingUser = authService.getUser() || {};
+        const mergedUser = {
+          ...existingUser,
+          ...profileData,
+        };
+        setUser(mergedUser);
+        localStorage.setItem('user', JSON.stringify(mergedUser));
         return true;
       } else {
         setError(result.error);
