@@ -28,7 +28,17 @@ class ApiService {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        const error = new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        error.status = response.status;
+
+        // Глобальная обработка 401
+        if (response.status === 401) {
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('user');
+          window.location.href = '/login';
+        }
+
+        throw error;
       }
 
       const contentType = response.headers.get('content-type');

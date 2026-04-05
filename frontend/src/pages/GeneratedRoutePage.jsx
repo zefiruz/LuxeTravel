@@ -98,12 +98,10 @@ function GeneratedRoutePage() {
   useEffect(() => {
     let sum = 0;
 
-    for (const city of routePoints) {
-      const cityId = String(city.id);
+    for (const cityId of Object.keys(selectedHotelsByCity)) {
       const booking = selectedHotelsByCity[cityId];
 
-      if (!booking || !booking.roomId) continue;
-      if (!booking.pricePerNight) continue;
+      if (!booking || !booking.pricePerNight) continue;
       if (!booking.startDate || !booking.endDate) continue;
 
       const start = new Date(booking.startDate);
