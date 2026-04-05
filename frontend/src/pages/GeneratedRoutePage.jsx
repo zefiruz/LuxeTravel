@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { MapPin, X } from "lucide-react";
 import Header from "../components/Header";
 import { useRoute } from "../context/RouteContext";
+import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
 import "../styles/GeneratedRoutePage.css";
 
@@ -14,6 +15,7 @@ function GeneratedRoutePage() {
   const [totalPrice, setTotalPrice] = useState(0);
   const navigate = useNavigate();
   const { routePoints, selectedHotelsByCity, travelersCount, removeRoutePoint, addRoutePointAtIndex, loadRoutePointsFromStorage } = useRoute();
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     loadRoutePointsFromStorage();
@@ -162,6 +164,14 @@ function GeneratedRoutePage() {
   const handleBookRoute = async () => {
     setBookingError(null);
 
+    // Если пользователь не авторизован — сохраняем данные и перенаправляем на логин
+    if (!isAuthenticated) {
+      localStorage.setItem("citiesToTravel", JSON.stringify(routePoints));
+      localStorage.setItem("selectedHotelsByCity", JSON.stringify(selectedHotelsByCity));
+      navigate("/login", { state: { from: "/route-builder" } });
+      return;
+    }
+
     // Валидация перед бронированием
     const hotelErrors = validateHotelsAndDates();
     if (hotelErrors.length > 0) {
@@ -228,6 +238,10 @@ function GeneratedRoutePage() {
 
       const response = await api.post('/routes', requestBody);
       console.log('Route created successfully:', response);
+
+      // Очищаем локальное хранилище после успешного бронирования
+      localStorage.removeItem('citiesToTravel');
+      localStorage.removeItem('selectedHotelsByCity');
 
       // Показываем успешное сообщение и перенаправляем
       alert('Маршрут успешно забронирован!');

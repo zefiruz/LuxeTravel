@@ -32,6 +32,20 @@ function RouteDetailsPage() {
     fetchRoute();
   }, [id]);
 
+  const formatStatus = (status) => {
+    if (!status) return "—";
+    const key = (status.title || status.id || "").toLowerCase();
+    const map = {
+      draft: "Черновик",
+      pending: "В обработке",
+      processing: "В обработке",
+      confirmed: "Подтверждён",
+      completed: "Завершён",
+      cancelled: "Отменён",
+    };
+    return map[key] || status.title || key;
+  };
+
   const formatDate = (dateStr) => {
     if (!dateStr) return "—";
     const date = new Date(dateStr);
@@ -119,7 +133,7 @@ function RouteDetailsPage() {
             </span>
             {route.status && (
               <span className="route-details-card__status">
-                {route.status.title}
+                {formatStatus(route.status)}
               </span>
             )}
           </div>
@@ -157,7 +171,7 @@ function RouteDetailsPage() {
                     </p>
                     {booking.status && (
                       <span className="route-details-stop__status">
-                        {booking.status.title}
+                        {formatStatus(booking.status)}
                       </span>
                     )}
                   </div>

@@ -48,7 +48,15 @@ function LoginPage() {
     const success = await login(form.email, form.password);
 
     if (success) {
-      navigate("/profile");
+      const cities = localStorage.getItem("citiesToTravel");
+      const hotels = localStorage.getItem("selectedHotelsByCity");
+
+      if (cities && hotels) {
+        navigate("/route-builder");
+      } else {
+        const from = location.state?.from || "/profile";
+        navigate(from);
+      }
     } else {
       setLocalError(error || "Неверный email или пароль");
     }
