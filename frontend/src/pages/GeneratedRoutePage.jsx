@@ -238,8 +238,8 @@ function GeneratedRoutePage() {
       console.log('Route created successfully:', response);
 
       // Очищаем локальное хранилище после успешного бронирования
-      localStorage.removeItem('citiesToTravel');
-      localStorage.removeItem('selectedHotelsByCity');
+      localStorage.setItem('citiesToTravel', {});
+      localStorage.setItem('selectedHotelsByCity,', {});
 
       // Показываем успешное сообщение и перенаправляем
       alert('Маршрут успешно забронирован!');
