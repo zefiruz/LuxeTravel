@@ -70,6 +70,14 @@ function RouteDetailsPage() {
     return booking.room_type?.title || "Тип номера не указан";
   };
 
+  const getHotelImage = (booking) => {
+    return booking.room_type?.hotel?.img_link
+      || booking.room_type?.hotel?.image_url
+      || booking.room_type?.img_link
+      || booking.room_type?.image_url
+      || null;
+  };
+
   if (loading) {
     return (
       <div className="route-details-page">
@@ -144,39 +152,44 @@ function RouteDetailsPage() {
                 В этом маршруте пока нет остановок.
               </p>
             ) : (
-              bookings.map((booking, index) => (
-                <div className="route-details-stop" key={booking.id}>
-                  <div className="route-details-stop__image"
-                    style={{
-                      backgroundImage: booking.room_type?.hotel?.image_url
-                        ? `url(${booking.room_type.hotel.image_url})`
-                        : 'none',
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                    }}
-                  />
+              bookings.map((booking, index) => {
+                const hotelImage = getHotelImage(booking);
 
-                  <div className="route-details-stop__info">
-                    <p className="route-details-stop__city">
-                      {index + 1}. {getCityName(booking)}
-                    </p>
-                    <p className="route-details-stop__dates">
-                      {formatDate(booking.start_date)} — {formatDate(booking.end_date)}
-                    </p>
-                    <p className="route-details-stop__hotel">
-                      {getHotelName(booking)}
-                    </p>
-                    <p className="route-details-stop__room">
-                      {getRoomTypeName(booking)}
-                    </p>
-                    {booking.status && (
-                      <span className="route-details-stop__status">
-                        {formatStatus(booking.status)}
-                      </span>
-                    )}
+                return (
+                  <div className="route-details-stop" key={booking.id}>
+                    <div
+                      className="route-details-stop__image"
+                      style={{
+                        backgroundImage: hotelImage
+                          ? `url(${hotelImage})`
+                          : 'none',
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                      }}
+                    />
+
+                    <div className="route-details-stop__info">
+                      <p className="route-details-stop__city">
+                        {index + 1}. {getCityName(booking)}
+                      </p>
+                      <p className="route-details-stop__dates">
+                        {formatDate(booking.start_date)} — {formatDate(booking.end_date)}
+                      </p>
+                      <p className="route-details-stop__hotel">
+                        {getHotelName(booking)}
+                      </p>
+                      <p className="route-details-stop__room">
+                        {getRoomTypeName(booking)}
+                      </p>
+                      {booking.status && (
+                        <span className="route-details-stop__status">
+                          {formatStatus(booking.status)}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </section>
