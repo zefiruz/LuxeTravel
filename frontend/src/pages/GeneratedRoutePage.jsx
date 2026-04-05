@@ -113,8 +113,7 @@ function GeneratedRoutePage() {
       }
     }
 
-    const travelers = travelersCount || 1;
-    setTotalPrice(sum * travelers);
+    setTotalPrice(sum);
   }, [routePoints, selectedHotelsByCity, travelersCount]);
 
   const hasAllHotelsSelected = routePoints.length > 0 && validateHotelsAndDates().length === 0;
@@ -238,8 +237,8 @@ function GeneratedRoutePage() {
       console.log('Route created successfully:', response);
 
       // Очищаем локальное хранилище после успешного бронирования
-      await localStorage.setItem('citiesToTravel', JSON.stringify(''));
-      await localStorage.setItem('selectedHotelsByCity', JSON.stringify(''));
+      localStorage.removeItem('citiesToTravel');
+      localStorage.removeItem('selectedHotelsByCity');
       // Показываем успешное сообщение и перенаправляем
       alert('Маршрут успешно забронирован!');
       navigate('/my-routes');
