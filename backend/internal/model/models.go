@@ -55,7 +55,7 @@ type Hotel struct {
 	ID          uuid.UUID  `gorm:"type:uuid;primaryKey" json:"id"`
 	Title       string     `gorm:"size:255;not null" json:"title"`
 	Description string     `gorm:"type:text" json:"description"`
-	ImageURL    string     `gorm:"column:image_url;size:500" json:"img_link"`
+	ImageURL    string     `gorm:"column:image_url" json:"img_link"`
 	CityID      uuid.UUID  `gorm:"type:uuid;not null" json:"city_id"`
 	City        City       `gorm:"foreignKey:CityID" json:"city"`
 	Email       string     `gorm:"size:100" json:"email"`
