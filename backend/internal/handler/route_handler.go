@@ -107,7 +107,7 @@ func (h *RouteHandler) CreateCompleteRoute(w http.ResponseWriter, r *http.Reques
 	userID, _ := uuid.Parse(userIDStr)
 
 	// Подтягиваем начальные статусы (в идеале ID должны быть в константах или кеше)
-	routeStatusID, err := h.Repo.GetStatusByTitle("draft")
+	routeStatusID, err := h.Repo.GetStatusByTitle("pending")
 	if err != nil {
 		http.Error(w, "Системная ошибка: статус маршрута не найден", http.StatusInternalServerError)
 		return
